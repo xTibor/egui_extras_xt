@@ -1,0 +1,13 @@
+[package]
+name = "egui-pots"
+version = "0.1.0"
+authors = ["Nagy Tibor <xnagytibor@protonmail.com>"]
+license = "MIT"
+edition = "2021"
+
+[badges]
+maintenance = { status = "as-is" }
+
+[dependencies]
+eframe = "0.18.0"
+itertools = "0.10.3"
