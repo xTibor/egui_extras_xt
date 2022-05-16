@@ -171,41 +171,43 @@ impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Potmeters");
-
             ui.separator();
-            ui.heading("Variant A");
-            ui.label("Display style: tick marks");
-            ui.label("Mouse control: absolute");
-            ui.label("Knob range: -180°..180°");
-            ui.add_space(16.0);
 
-            ui.add(egui::Slider::new(&mut self.potmeter_a, -PI..=PI));
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("Variant A");
+                ui.label("Display style: tick marks");
+                ui.label("Mouse control: absolute");
+                ui.label("Knob range: -180°..180°");
+                ui.add_space(16.0);
 
-            ui.horizontal(|ui| {
-                potmeter_a(ui, 64.0, &mut self.potmeter_a);
-                potmeter_a(ui, 32.0, &mut self.potmeter_a);
+                ui.add(egui::Slider::new(&mut self.potmeter_a, -PI..=PI));
+
+                ui.horizontal(|ui| {
+                    potmeter_a(ui, 64.0, &mut self.potmeter_a);
+                    potmeter_a(ui, 32.0, &mut self.potmeter_a);
+                });
+
+                ui.separator();
+                ui.heading("Variant B");
+                ui.label("Display style: filled arc");
+                ui.label("Mouse control: relative");
+                ui.label("Knob range: -135°..135°");
+                ui.add_space(16.0);
+
+                ui.add(egui::Slider::new(&mut self.potmeter_b, 0.0..=1.0));
+
+                ui.horizontal(|ui| {
+                    potmeter_b(ui, 128.0, &mut self.potmeter_b, -135.0, "VOL");
+                    potmeter_b(ui, 64.0, &mut self.potmeter_b, -135.0, "VOL");
+                    potmeter_b(ui, 32.0, &mut self.potmeter_b, -135.0, "VOL");
+
+                    potmeter_b(ui, 128.0, &mut self.potmeter_b, 0.0, "PAN");
+                    potmeter_b(ui, 64.0, &mut self.potmeter_b, 0.0, "PAN");
+                    potmeter_b(ui, 32.0, &mut self.potmeter_b, 0.0, "PAN");
+                });
+
+                ui.separator();
             });
-
-            ui.separator();
-            ui.heading("Variant B");
-            ui.label("Display style: filled arc");
-            ui.label("Mouse control: relative");
-            ui.label("Knob range: -135°..135°");
-            ui.add_space(16.0);
-
-            ui.add(egui::Slider::new(&mut self.potmeter_b, 0.0..=1.0));
-
-            ui.horizontal(|ui| {
-                potmeter_b(ui, 128.0, &mut self.potmeter_b, -135.0, "VOL");
-                potmeter_b(ui, 64.0, &mut self.potmeter_b, -135.0, "VOL");
-                potmeter_b(ui, 32.0, &mut self.potmeter_b, -135.0, "VOL");
-
-                potmeter_b(ui, 128.0, &mut self.potmeter_b, 0.0, "PAN");
-                potmeter_b(ui, 64.0, &mut self.potmeter_b, 0.0, "PAN");
-                potmeter_b(ui, 32.0, &mut self.potmeter_b, 0.0, "PAN");
-            });
-
-            ui.separator();
         });
     }
 }
