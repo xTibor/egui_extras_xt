@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
-use eframe::egui;
-use eframe::emath::{lerp, vec2, Pos2};
+use eframe::egui::{self, global_dark_light_mode_switch};
+use eframe::emath::{lerp, vec2, Pos2, Vec2};
 use eframe::epaint::{Shape, Stroke};
 
 use itertools::Itertools;
@@ -153,9 +153,67 @@ pub fn potmeter_b(
     response
 }
 
+pub fn potmeter_c(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Response {
+    let desired_size = egui::vec2(diameter, diameter);
+
+    let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
+
+    let visuals = ui.style().interact(&response);
+
+    if response.clicked() || response.dragged() {
+        *value = (response.interact_pointer_pos().unwrap() - rect.center()).angle();
+        response.mark_changed();
+    }
+
+    let direction = Vec2::angled(*value) * (diameter / 2.0);
+
+    ui.painter().circle(
+        rect.center(),
+        diameter / 2.0,
+        visuals.bg_fill,
+        visuals.fg_stroke,
+    );
+
+    ui.painter().add(Shape::dashed_line(
+        &[rect.left_center(), rect.right_center()],
+        ui.visuals().window_stroke(), // TODO: Semantically correct color
+        1.0,
+        1.0,
+    ));
+
+    ui.painter().add(Shape::dashed_line(
+        &[rect.center_top(), rect.center_bottom()],
+        ui.visuals().window_stroke(), // TODO: Semantically correct color
+        1.0,
+        1.0,
+    ));
+
+    ui.painter().line_segment(
+        [rect.center(), rect.center() + direction],
+        visuals.fg_stroke, // TODO: Semantically correct color
+    );
+
+    ui.painter().circle(
+        rect.center(),
+        diameter / 24.0,
+        visuals.text_color(), // TODO: Semantically correct color
+        visuals.fg_stroke,    // TODO: Semantically correct color
+    );
+
+    ui.painter().circle(
+        rect.center() + direction,
+        diameter / 24.0,
+        visuals.text_color(), // TODO: Semantically correct color
+        visuals.fg_stroke,    // TODO: Semantically correct color
+    );
+
+    response
+}
+
 struct MyApp {
     potmeter_a: f32,
     potmeter_b: f32,
+    potmeter_c: f32,
 }
 
 impl Default for MyApp {
@@ -163,6 +221,7 @@ impl Default for MyApp {
         Self {
             potmeter_a: 0.0,
             potmeter_b: 0.5,
+            potmeter_c: 0.5,
         }
     }
 }
@@ -170,10 +229,24 @@ impl Default for MyApp {
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Potmeters");
+            ui.horizontal(|ui| {
+                global_dark_light_mode_switch(ui);
+                ui.heading("Potmeters");
+            });
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("Variant C");
+                ui.label("Adobe Photoshop and Krita style");
+                ui.add_space(16.0);
+                ui.add(egui::Slider::new(&mut self.potmeter_c, -PI..=PI));
+
+                ui.horizontal(|ui| {
+                    potmeter_c(ui, 64.0, &mut self.potmeter_c);
+                    potmeter_c(ui, 32.0, &mut self.potmeter_c);
+                });
+
+                ui.separator();
                 ui.heading("Variant A");
                 ui.label("Display style: tick marks");
                 ui.label("Mouse control: absolute");
