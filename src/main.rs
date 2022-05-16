@@ -153,6 +153,13 @@ pub fn potmeter_b(
     response
 }
 
+
+// Common orientations:
+//  ___     ___     ___
+// /-0+\   /  +\   /  -\
+// |   |   |  0|   |  0|
+// \___/   \__-/   \__+/
+//                Current
 pub fn potmeter_c(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Response {
     let desired_size = egui::vec2(diameter, diameter);
 
