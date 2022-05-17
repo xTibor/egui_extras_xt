@@ -2,9 +2,54 @@ use std::f32::consts::PI;
 
 use eframe::egui::{self, global_dark_light_mode_switch};
 use eframe::emath::{lerp, vec2, Pos2, Vec2};
-use eframe::epaint::{Shape, Stroke};
+use eframe::epaint::{Color32, Shape, Stroke};
 
 use itertools::Itertools;
+
+pub fn paint_arc(
+    ui: &mut egui::Ui,
+    center: Pos2,
+    inner_radius: f32,
+    outer_radius: f32,
+    start_angle: f32,
+    end_angle: f32,
+    fill: Color32,
+    stroke: Stroke,
+) {
+    let n_points = 32;
+
+    let generate_arc_points = |radius| {
+        (0..=n_points).map(move |i| {
+            let angle = lerp(start_angle..=end_angle, i as f32 / n_points as f32);
+            let (sin, cos) = angle.to_radians().sin_cos();
+            center + vec2(sin as f32, -cos as f32) * radius
+        })
+    };
+
+    let outer_arc = generate_arc_points(outer_radius).collect::<Vec<_>>();
+    let inner_arc = generate_arc_points(inner_radius).collect::<Vec<_>>();
+
+    // https://github.com/emilk/egui/issues/513
+    outer_arc
+        .iter()
+        .zip(inner_arc.iter())
+        .tuple_windows()
+        .for_each(|((o1, i1), (o2, i2))| {
+            ui.painter().add(Shape::convex_polygon(
+                vec![*o1, *i1, *i2, *o2],
+                fill,
+                Stroke::none(),
+            ));
+        });
+
+    let outline_points: Vec<Pos2> = outer_arc
+        .iter()
+        .chain(inner_arc.iter().rev())
+        .cloned()
+        .collect();
+
+    ui.painter().add(Shape::closed_line(outline_points, stroke));
+}
 
 pub fn potmeter_a(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Response {
     let desired_size = egui::vec2(diameter + 16.0, diameter + 16.0);
@@ -71,59 +116,31 @@ pub fn potmeter_b(
         response.mark_changed();
     }
 
-    let visuals = ui.style().interact(&response);
-
-    let paint_arc = |start_angle: f32, end_angle: f32, arc_width, fill, stroke| {
-        let n_points = 32;
-
-        let generate_arc_points = |radius| {
-            (0..=n_points).map(move |i| {
-                let angle = lerp(start_angle..=end_angle, i as f32 / n_points as f32);
-                let (sin, cos) = angle.to_radians().sin_cos();
-                rect.center() + vec2(sin as f32, -cos as f32) * radius
-            })
-        };
-
-        let arc_diameter = (diameter / 2.0) * (3.0 / 4.0);
-        let outer_arc = generate_arc_points(arc_diameter + (arc_width / 2.0)).collect::<Vec<_>>();
-        let inner_arc = generate_arc_points(arc_diameter - (arc_width / 2.0)).collect::<Vec<_>>();
-
-        // https://github.com/emilk/egui/issues/513
-        outer_arc
-            .iter()
-            .zip(inner_arc.iter())
-            .tuple_windows()
-            .for_each(|((o1, i1), (o2, i2))| {
-                ui.painter().add(Shape::convex_polygon(
-                    vec![*o1, *i1, *i2, *o2],
-                    fill,
-                    Stroke::none(),
-                ));
-            });
-
-        let outline_points: Vec<Pos2> = outer_arc
-            .iter()
-            .chain(inner_arc.iter().rev())
-            .cloned()
-            .collect();
-
-        ui.painter().add(Shape::closed_line(outline_points, stroke));
-    };
+    let visuals = ui.style().interact(&response).clone();
 
     let angle = -135.0 + 270.0 * *value;
+    let arc_radius = (diameter / 2.0) * (3.0 / 4.0);
+    let arc_width_1 = diameter / 16.0;
+    let arc_width_2 = diameter / 8.0 + visuals.expansion * 2.0;
 
     paint_arc(
+        ui,
+        rect.center(),
+        arc_radius - (arc_width_1 / 2.0),
+        arc_radius + (arc_width_1 / 2.0),
         -135.0,
         135.0,
-        diameter / 16.0,
-        ui.style().visuals.faint_bg_color,
-        ui.style().visuals.window_stroke(),
+        ui.style().visuals.faint_bg_color.clone(),
+        ui.style().visuals.window_stroke().clone(),
     );
 
     paint_arc(
+        ui,
+        rect.center(),
+        arc_radius - (arc_width_2 / 2.0),
+        arc_radius + (arc_width_2 / 2.0),
         zero_angle,
         angle,
-        diameter / 8.0 + visuals.expansion * 2.0,
         ui.style().visuals.selection.bg_fill,
         ui.style().visuals.selection.stroke,
     );
@@ -152,7 +169,6 @@ pub fn potmeter_b(
 
     response
 }
-
 
 // Common orientations:
 //  ___     ___     ___
@@ -217,10 +233,49 @@ pub fn potmeter_c(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Re
     response
 }
 
+pub fn potmeter_d(
+    ui: &mut egui::Ui,
+    diameter: f32,
+    value: &mut f32,
+    zero_angle: f32,
+) -> egui::Response {
+    let desired_size = egui::vec2(diameter, diameter);
+
+    let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
+
+    let start_angle = -135.0;
+    let end_angle = 135.0;
+
+    paint_arc(
+        ui,
+        rect.center(),
+        diameter / 8.0,
+        diameter / 2.0,
+        start_angle,
+        end_angle,
+        ui.style().visuals.faint_bg_color,
+        ui.style().visuals.window_stroke(),
+    );
+
+    paint_arc(
+        ui,
+        rect.center(),
+        diameter / 8.0,
+        diameter / 2.0,
+        zero_angle,
+        start_angle + (end_angle - start_angle) * *value,
+        ui.style().visuals.selection.bg_fill,
+        ui.style().visuals.selection.stroke,
+    );
+
+    response
+}
+
 struct MyApp {
     potmeter_a: f32,
     potmeter_b: f32,
     potmeter_c: f32,
+    potmeter_d: f32,
 }
 
 impl Default for MyApp {
@@ -229,6 +284,7 @@ impl Default for MyApp {
             potmeter_a: 0.0,
             potmeter_b: 0.5,
             potmeter_c: 0.5,
+            potmeter_d: 0.5,
         }
     }
 }
@@ -243,6 +299,19 @@ impl eframe::App for MyApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("Variant D");
+                ui.add_space(16.0);
+                ui.add(egui::Slider::new(&mut self.potmeter_d, 0.0..=1.0));
+
+                ui.horizontal(|ui| {
+                    potmeter_d(ui, 64.0, &mut self.potmeter_d, -135.0);
+                    potmeter_d(ui, 32.0, &mut self.potmeter_d, -135.0);
+
+                    potmeter_d(ui, 64.0, &mut self.potmeter_d, 0.0);
+                    potmeter_d(ui, 32.0, &mut self.potmeter_d, 0.0);
+                });
+
+                ui.separator();
                 ui.heading("Variant C");
                 ui.label("Adobe Photoshop and Krita style");
                 ui.add_space(16.0);
