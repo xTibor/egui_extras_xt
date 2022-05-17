@@ -1,4 +1,5 @@
 use std::f32::consts::PI;
+use std::ops::RangeInclusive;
 
 use eframe::egui::{self, global_dark_light_mode_switch};
 use eframe::emath::{lerp, vec2, Pos2, Vec2};
@@ -237,7 +238,7 @@ pub fn potmeter_d(
     ui: &mut egui::Ui,
     diameter: f32,
     value: &mut f32,
-    zero_angle: f32,
+    range: RangeInclusive<f32>,
 ) -> egui::Response {
     let desired_size = egui::vec2(diameter, diameter);
 
@@ -245,12 +246,17 @@ pub fn potmeter_d(
 
     if response.dragged() {
         *value = (*value + (response.drag_delta().x - response.drag_delta().y) / diameter)
-            .clamp(0.0, 1.0);
+            .clamp(*range.start(), *range.end());
         response.mark_changed();
     }
 
-    let start_angle = -135.0;
-    let end_angle = 135.0;
+    let (min_angle, max_angle) = (-135.0, 135.0);
+
+    let value_to_angle = |value: f32| {
+        let value = value.clamp(*range.start(), *range.end());
+        let t = (value - *range.start()) / (*range.end() - *range.start());
+        min_angle + (max_angle - min_angle) * t
+    };
 
     let visuals = ui.style().interact(&response).clone();
 
@@ -259,8 +265,8 @@ pub fn potmeter_d(
         rect.center(),
         diameter / 8.0,
         diameter / 2.0,
-        start_angle,
-        end_angle,
+        min_angle,
+        max_angle,
         ui.style().visuals.faint_bg_color,
         ui.style().visuals.window_stroke(),
     );
@@ -270,8 +276,8 @@ pub fn potmeter_d(
         rect.center(),
         diameter / 8.0 - visuals.expansion,
         diameter / 2.0 + visuals.expansion,
-        zero_angle,
-        start_angle + (end_angle - start_angle) * *value,
+        value_to_angle(0.0),
+        value_to_angle(*value),
         visuals.bg_fill,
         visuals.fg_stroke,
     );
@@ -292,7 +298,7 @@ impl Default for MyApp {
             potmeter_a: 0.0,
             potmeter_b: 0.5,
             potmeter_c: 0.5,
-            potmeter_d: 0.5,
+            potmeter_d: 0.75,
         }
     }
 }
@@ -310,14 +316,14 @@ impl eframe::App for MyApp {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.heading("Variant D");
                 ui.add_space(16.0);
-                ui.add(egui::Slider::new(&mut self.potmeter_d, 0.0..=1.0));
+                ui.add(egui::Slider::new(&mut self.potmeter_d, -1.0..=1.0));
 
                 ui.horizontal(|ui| {
-                    potmeter_d(ui, 64.0, &mut self.potmeter_d, -135.0);
-                    potmeter_d(ui, 32.0, &mut self.potmeter_d, -135.0);
+                    potmeter_d(ui, 64.0, &mut self.potmeter_d, 0.0..=1.0);
+                    potmeter_d(ui, 32.0, &mut self.potmeter_d, 0.0..=1.0);
 
-                    potmeter_d(ui, 64.0, &mut self.potmeter_d, 0.0);
-                    potmeter_d(ui, 32.0, &mut self.potmeter_d, 0.0);
+                    potmeter_d(ui, 64.0, &mut self.potmeter_d, -1.0..=1.0);
+                    potmeter_d(ui, 32.0, &mut self.potmeter_d, -1.0..=1.0);
                 });
 
                 ui.separator();
