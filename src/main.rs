@@ -243,8 +243,16 @@ pub fn potmeter_d(
 
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
+    if response.dragged() {
+        *value = (*value + (response.drag_delta().x - response.drag_delta().y) / diameter)
+            .clamp(0.0, 1.0);
+        response.mark_changed();
+    }
+
     let start_angle = -135.0;
     let end_angle = 135.0;
+
+    let visuals = ui.style().interact(&response).clone();
 
     paint_arc(
         ui,
@@ -260,12 +268,12 @@ pub fn potmeter_d(
     paint_arc(
         ui,
         rect.center(),
-        diameter / 8.0,
-        diameter / 2.0,
+        diameter / 8.0 - visuals.expansion,
+        diameter / 2.0 + visuals.expansion,
         zero_angle,
         start_angle + (end_angle - start_angle) * *value,
-        ui.style().visuals.selection.bg_fill,
-        ui.style().visuals.selection.stroke,
+        visuals.bg_fill,
+        visuals.fg_stroke,
     );
 
     response
@@ -296,6 +304,7 @@ impl eframe::App for MyApp {
                 global_dark_light_mode_switch(ui);
                 ui.heading("Potmeters");
             });
+
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
@@ -312,6 +321,7 @@ impl eframe::App for MyApp {
                 });
 
                 ui.separator();
+
                 ui.heading("Variant C");
                 ui.label("Adobe Photoshop and Krita style");
                 ui.add_space(16.0);
@@ -323,39 +333,45 @@ impl eframe::App for MyApp {
                 });
 
                 ui.separator();
-                ui.heading("Variant A");
-                ui.label("Display style: tick marks");
-                ui.label("Mouse control: absolute");
-                ui.label("Knob range: -180°..180°");
-                ui.add_space(16.0);
 
-                ui.add(egui::Slider::new(&mut self.potmeter_a, -PI..=PI));
+                ui.collapsing("Old designs", |ui| {
+                    ui.separator();
 
-                ui.horizontal(|ui| {
-                    potmeter_a(ui, 64.0, &mut self.potmeter_a);
-                    potmeter_a(ui, 32.0, &mut self.potmeter_a);
+                    ui.heading("Variant A");
+                    ui.label("Display style: tick marks");
+                    ui.label("Mouse control: absolute");
+                    ui.label("Knob range: -180°..180°");
+                    ui.add_space(16.0);
+
+                    ui.add(egui::Slider::new(&mut self.potmeter_a, -PI..=PI));
+
+                    ui.horizontal(|ui| {
+                        potmeter_a(ui, 64.0, &mut self.potmeter_a);
+                        potmeter_a(ui, 32.0, &mut self.potmeter_a);
+                    });
+
+                    ui.separator();
+
+                    ui.heading("Variant B");
+                    ui.label("Display style: filled arc");
+                    ui.label("Mouse control: relative");
+                    ui.label("Knob range: -135°..135°");
+                    ui.add_space(16.0);
+
+                    ui.add(egui::Slider::new(&mut self.potmeter_b, 0.0..=1.0));
+
+                    ui.horizontal(|ui| {
+                        potmeter_b(ui, 128.0, &mut self.potmeter_b, -135.0, "VOL");
+                        potmeter_b(ui, 64.0, &mut self.potmeter_b, -135.0, "VOL");
+                        potmeter_b(ui, 32.0, &mut self.potmeter_b, -135.0, "VOL");
+
+                        potmeter_b(ui, 128.0, &mut self.potmeter_b, 0.0, "PAN");
+                        potmeter_b(ui, 64.0, &mut self.potmeter_b, 0.0, "PAN");
+                        potmeter_b(ui, 32.0, &mut self.potmeter_b, 0.0, "PAN");
+                    });
+
+                    ui.separator();
                 });
-
-                ui.separator();
-                ui.heading("Variant B");
-                ui.label("Display style: filled arc");
-                ui.label("Mouse control: relative");
-                ui.label("Knob range: -135°..135°");
-                ui.add_space(16.0);
-
-                ui.add(egui::Slider::new(&mut self.potmeter_b, 0.0..=1.0));
-
-                ui.horizontal(|ui| {
-                    potmeter_b(ui, 128.0, &mut self.potmeter_b, -135.0, "VOL");
-                    potmeter_b(ui, 64.0, &mut self.potmeter_b, -135.0, "VOL");
-                    potmeter_b(ui, 32.0, &mut self.potmeter_b, -135.0, "VOL");
-
-                    potmeter_b(ui, 128.0, &mut self.potmeter_b, 0.0, "PAN");
-                    potmeter_b(ui, 64.0, &mut self.potmeter_b, 0.0, "PAN");
-                    potmeter_b(ui, 32.0, &mut self.potmeter_b, 0.0, "PAN");
-                });
-
-                ui.separator();
             });
         });
     }
