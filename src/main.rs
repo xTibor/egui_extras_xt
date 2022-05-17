@@ -264,7 +264,7 @@ pub fn potmeter_d(
     paint_arc(
         ui,
         rect.center(),
-        diameter / 8.0,
+        diameter / 6.0,
         diameter / 2.0,
         min_angle,
         max_angle,
@@ -275,7 +275,7 @@ pub fn potmeter_d(
     paint_arc(
         ui,
         rect.center(),
-        diameter / 8.0 - visuals.expansion,
+        diameter / 6.0 - visuals.expansion,
         diameter / 2.0 + visuals.expansion,
         value_to_angle(0.0),
         value_to_angle(*value),
