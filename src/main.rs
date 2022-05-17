@@ -245,7 +245,8 @@ pub fn potmeter_d(
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     if response.dragged() {
-        *value = (*value + (response.drag_delta().x - response.drag_delta().y) / diameter)
+        let delta = response.drag_delta().x - response.drag_delta().y;
+        *value = (*value + delta * (*range.end() - *range.start()) / diameter)
             .clamp(*range.start(), *range.end());
         response.mark_changed();
     }
