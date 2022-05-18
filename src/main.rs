@@ -355,7 +355,6 @@ impl eframe::App for MyApp {
                 ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
-                    ui.add(egui::Slider::new(&mut self.potmeter_c, -PI..=PI));
                     ui.drag_angle(&mut self.potmeter_c);
                     ui.checkbox(&mut self.potmeter_c_spin_around, "Spin around");
                 });
