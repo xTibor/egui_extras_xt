@@ -1,5 +1,5 @@
 [package]
-name = "egui-pots"
+name = "egui-knobs"
 version = "0.1.0"
 authors = ["Nagy Tibor <xnagytibor@protonmail.com>"]
 license = "MIT"

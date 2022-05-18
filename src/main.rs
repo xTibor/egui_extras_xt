@@ -52,7 +52,7 @@ pub fn paint_arc(
     ui.painter().add(Shape::closed_line(outline_points, stroke));
 }
 
-pub fn potmeter_a(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Response {
+pub fn knob_variant_a(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Response {
     let desired_size = egui::vec2(diameter + 16.0, diameter + 16.0);
 
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
@@ -101,7 +101,7 @@ pub fn potmeter_a(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Re
     response
 }
 
-pub fn potmeter_b(
+pub fn knob_variant_b(
     ui: &mut egui::Ui,
     diameter: f32,
     value: &mut f32,
@@ -172,7 +172,7 @@ pub fn potmeter_b(
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub enum PotmeterOrientation {
+pub enum KnobOrientation {
     Right,
     Bottom,
     Left,
@@ -181,16 +181,16 @@ pub enum PotmeterOrientation {
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub enum PotmeterDirection {
+pub enum KnobDirection {
     Clockwise,
     Counterclockwise,
 }
 
-pub fn potmeter_c(
+pub fn knob_variant_c(
     ui: &mut egui::Ui,
     diameter: f32,
-    orientation: PotmeterOrientation,
-    direction: PotmeterDirection,
+    orientation: KnobOrientation,
+    direction: KnobDirection,
     value: &mut f32,
     spin_around: bool,
 ) -> egui::Response {
@@ -198,16 +198,16 @@ pub fn potmeter_c(
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     let value_direction = match direction {
-        PotmeterDirection::Clockwise => 1.0,
-        PotmeterDirection::Counterclockwise => -1.0,
+        KnobDirection::Clockwise => 1.0,
+        KnobDirection::Counterclockwise => -1.0,
     };
 
     let widget_rotation = match orientation {
-        PotmeterOrientation::Right => Rot2::from_angle(PI * 0.0),
-        PotmeterOrientation::Bottom => Rot2::from_angle(PI * 0.5),
-        PotmeterOrientation::Left => Rot2::from_angle(PI * 1.0),
-        PotmeterOrientation::Top => Rot2::from_angle(PI * 1.5),
-        PotmeterOrientation::Custom(angle) => Rot2::from_angle(angle),
+        KnobOrientation::Right => Rot2::from_angle(PI * 0.0),
+        KnobOrientation::Bottom => Rot2::from_angle(PI * 0.5),
+        KnobOrientation::Left => Rot2::from_angle(PI * 1.0),
+        KnobOrientation::Top => Rot2::from_angle(PI * 1.5),
+        KnobOrientation::Custom(angle) => Rot2::from_angle(angle),
     };
 
     if response.clicked() || response.dragged() {
@@ -283,7 +283,7 @@ pub fn potmeter_c(
     response
 }
 
-pub fn potmeter_d(
+pub fn knob_variant_d(
     ui: &mut egui::Ui,
     diameter: f32,
     value: &mut f32,
@@ -337,27 +337,27 @@ pub fn potmeter_d(
 }
 
 struct MyApp {
-    potmeter_a: f32,
-    potmeter_b: f32,
-    potmeter_c: f32,
-    potmeter_c_spin_around: bool,
-    potmeter_c_orientation: PotmeterOrientation,
-    potmeter_c_direction: PotmeterDirection,
-    potmeter_c_custom_angle: f32,
-    potmeter_d: f32,
+    knob_a: f32,
+    knob_b: f32,
+    knob_c: f32,
+    knob_c_spin_around: bool,
+    knob_c_orientation: KnobOrientation,
+    knob_c_direction: KnobDirection,
+    knob_c_custom_angle: f32,
+    knob_d: f32,
 }
 
 impl Default for MyApp {
     fn default() -> Self {
         Self {
-            potmeter_a: 0.0,
-            potmeter_b: 0.5,
-            potmeter_c: PI / 9.0,
-            potmeter_c_spin_around: true,
-            potmeter_c_orientation: PotmeterOrientation::Top,
-            potmeter_c_direction: PotmeterDirection::Clockwise,
-            potmeter_c_custom_angle: 0.0,
-            potmeter_d: 0.75,
+            knob_a: 0.0,
+            knob_b: 0.5,
+            knob_c: PI / 9.0,
+            knob_c_spin_around: true,
+            knob_c_orientation: KnobOrientation::Top,
+            knob_c_direction: KnobDirection::Clockwise,
+            knob_c_custom_angle: 0.0,
+            knob_d: 0.75,
         }
     }
 }
@@ -367,7 +367,7 @@ impl eframe::App for MyApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
                 global_dark_light_mode_switch(ui);
-                ui.heading("Potmeters");
+                ui.heading("Knobs");
             });
 
             ui.separator();
@@ -375,15 +375,15 @@ impl eframe::App for MyApp {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.heading("Variant D");
                 ui.add_space(16.0);
-                ui.add(egui::Slider::new(&mut self.potmeter_d, -1.0..=1.0));
+                ui.add(egui::Slider::new(&mut self.knob_d, -1.0..=1.0));
                 ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
-                    potmeter_d(ui, 64.0, &mut self.potmeter_d, 0.0..=1.0);
-                    potmeter_d(ui, 32.0, &mut self.potmeter_d, 0.0..=1.0);
+                    knob_variant_d(ui, 64.0, &mut self.knob_d, 0.0..=1.0);
+                    knob_variant_d(ui, 32.0, &mut self.knob_d, 0.0..=1.0);
 
-                    potmeter_d(ui, 64.0, &mut self.potmeter_d, -1.0..=1.0);
-                    potmeter_d(ui, 32.0, &mut self.potmeter_d, -1.0..=1.0);
+                    knob_variant_d(ui, 64.0, &mut self.knob_d, -1.0..=1.0);
+                    knob_variant_d(ui, 32.0, &mut self.knob_d, -1.0..=1.0);
                 });
 
                 ui.separator();
@@ -392,52 +392,52 @@ impl eframe::App for MyApp {
                 ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
-                    ui.drag_angle(&mut self.potmeter_c);
-                    ui.checkbox(&mut self.potmeter_c_spin_around, "Spin around");
+                    ui.drag_angle(&mut self.knob_c);
+                    ui.checkbox(&mut self.knob_c_spin_around, "Spin around");
                 });
 
                 ui.horizontal(|ui| {
                     ui.selectable_value(
-                        &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::Top,
+                        &mut self.knob_c_orientation,
+                        KnobOrientation::Top,
                         "⬆ Top",
                     );
                     ui.selectable_value(
-                        &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::Right,
+                        &mut self.knob_c_orientation,
+                        KnobOrientation::Right,
                         "➡ Right",
                     );
                     ui.selectable_value(
-                        &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::Bottom,
+                        &mut self.knob_c_orientation,
+                        KnobOrientation::Bottom,
                         "⬇ Bottom",
                     );
                     ui.selectable_value(
-                        &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::Left,
+                        &mut self.knob_c_orientation,
+                        KnobOrientation::Left,
                         "⬅ Left",
                     );
                     ui.selectable_value(
-                        &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::Custom(self.potmeter_c_custom_angle),
+                        &mut self.knob_c_orientation,
+                        KnobOrientation::Custom(self.knob_c_custom_angle),
                         "✏ Custom(..)",
                     );
 
-                    if let PotmeterOrientation::Custom(value) = &mut self.potmeter_c_orientation {
+                    if let KnobOrientation::Custom(value) = &mut self.knob_c_orientation {
                         ui.drag_angle(value);
-                        self.potmeter_c_custom_angle = *value;
+                        self.knob_c_custom_angle = *value;
                     }
                 });
 
                 ui.horizontal(|ui| {
                     ui.selectable_value(
-                        &mut self.potmeter_c_direction,
-                        PotmeterDirection::Clockwise,
+                        &mut self.knob_c_direction,
+                        KnobDirection::Clockwise,
                         "⟳ Clockwise",
                     );
                     ui.selectable_value(
-                        &mut self.potmeter_c_direction,
-                        PotmeterDirection::Counterclockwise,
+                        &mut self.knob_c_direction,
+                        KnobDirection::Counterclockwise,
                         "⟲ Counterclockwise",
                     );
                 });
@@ -445,21 +445,21 @@ impl eframe::App for MyApp {
                 ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
-                    potmeter_c(
+                    knob_variant_c(
                         ui,
                         64.0,
-                        self.potmeter_c_orientation,
-                        self.potmeter_c_direction,
-                        &mut self.potmeter_c,
-                        self.potmeter_c_spin_around,
+                        self.knob_c_orientation,
+                        self.knob_c_direction,
+                        &mut self.knob_c,
+                        self.knob_c_spin_around,
                     );
-                    potmeter_c(
+                    knob_variant_c(
                         ui,
                         32.0,
-                        self.potmeter_c_orientation,
-                        self.potmeter_c_direction,
-                        &mut self.potmeter_c,
-                        self.potmeter_c_spin_around,
+                        self.knob_c_orientation,
+                        self.knob_c_direction,
+                        &mut self.knob_c,
+                        self.knob_c_spin_around,
                     );
                 });
 
@@ -474,11 +474,11 @@ impl eframe::App for MyApp {
                     ui.label("Knob range: -180°..180°");
                     ui.add_space(16.0);
 
-                    ui.add(egui::Slider::new(&mut self.potmeter_a, -PI..=PI));
+                    ui.add(egui::Slider::new(&mut self.knob_a, -PI..=PI));
 
                     ui.horizontal(|ui| {
-                        potmeter_a(ui, 64.0, &mut self.potmeter_a);
-                        potmeter_a(ui, 32.0, &mut self.potmeter_a);
+                        knob_variant_a(ui, 64.0, &mut self.knob_a);
+                        knob_variant_a(ui, 32.0, &mut self.knob_a);
                     });
 
                     ui.separator();
@@ -489,16 +489,16 @@ impl eframe::App for MyApp {
                     ui.label("Knob range: -135°..135°");
                     ui.add_space(16.0);
 
-                    ui.add(egui::Slider::new(&mut self.potmeter_b, 0.0..=1.0));
+                    ui.add(egui::Slider::new(&mut self.knob_b, 0.0..=1.0));
 
                     ui.horizontal(|ui| {
-                        potmeter_b(ui, 128.0, &mut self.potmeter_b, -135.0, "VOL");
-                        potmeter_b(ui, 64.0, &mut self.potmeter_b, -135.0, "VOL");
-                        potmeter_b(ui, 32.0, &mut self.potmeter_b, -135.0, "VOL");
+                        knob_variant_b(ui, 128.0, &mut self.knob_b, -135.0, "VOL");
+                        knob_variant_b(ui, 64.0, &mut self.knob_b, -135.0, "VOL");
+                        knob_variant_b(ui, 32.0, &mut self.knob_b, -135.0, "VOL");
 
-                        potmeter_b(ui, 128.0, &mut self.potmeter_b, 0.0, "PAN");
-                        potmeter_b(ui, 64.0, &mut self.potmeter_b, 0.0, "PAN");
-                        potmeter_b(ui, 32.0, &mut self.potmeter_b, 0.0, "PAN");
+                        knob_variant_b(ui, 128.0, &mut self.knob_b, 0.0, "PAN");
+                        knob_variant_b(ui, 64.0, &mut self.knob_b, 0.0, "PAN");
+                        knob_variant_b(ui, 32.0, &mut self.knob_b, 0.0, "PAN");
                     });
 
                     ui.separator();
@@ -511,9 +511,5 @@ impl eframe::App for MyApp {
 fn main() {
     let options = eframe::NativeOptions::default();
 
-    eframe::run_native(
-        "Potmeters",
-        options,
-        Box::new(|_cc| Box::new(MyApp::default())),
-    );
+    eframe::run_native("Knobs", options, Box::new(|_cc| Box::new(MyApp::default())));
 }
