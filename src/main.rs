@@ -2,7 +2,7 @@ use std::f32::consts::{PI, TAU};
 use std::ops::RangeInclusive;
 
 use eframe::egui::{self, global_dark_light_mode_switch};
-use eframe::emath::{lerp, vec2, Pos2, Vec2};
+use eframe::emath::{lerp, vec2, Pos2, Rot2, Vec2};
 use eframe::epaint::{Color32, Shape, Stroke};
 
 use itertools::Itertools;
@@ -171,6 +171,14 @@ pub fn potmeter_b(
     response
 }
 
+pub enum PotmeterOrientation {
+    LeftCenter,
+    CenterBottom,
+    RightCenter,
+    CenterTop,
+    Custom(f32),
+}
+
 // Common orientations:
 //  ___     ___     ___
 // /-0+\   /  +\   /  -\
@@ -180,6 +188,7 @@ pub fn potmeter_b(
 pub fn potmeter_c(
     ui: &mut egui::Ui,
     diameter: f32,
+    orientation: PotmeterOrientation,
     value: &mut f32,
     spin_around: bool,
 ) -> egui::Response {
@@ -189,8 +198,18 @@ pub fn potmeter_c(
 
     let visuals = ui.style().interact(&response);
 
+    let widget_rotation = match orientation {
+        PotmeterOrientation::LeftCenter => Rot2::from_angle(PI * 0.0),
+        PotmeterOrientation::CenterBottom => Rot2::from_angle(PI * 0.5),
+        PotmeterOrientation::RightCenter => Rot2::from_angle(PI * 1.0),
+        PotmeterOrientation::CenterTop => Rot2::from_angle(PI * 1.5),
+        PotmeterOrientation::Custom(angle) => Rot2::from_angle(angle),
+    };
+
     if response.clicked() || response.dragged() {
-        let mut new_value = (response.interact_pointer_pos().unwrap() - rect.center()).angle();
+        let mut new_value = (widget_rotation.inverse()
+            * (response.interact_pointer_pos().unwrap() - rect.center()))
+        .angle();
 
         if spin_around {
             let prev_turns = (*value / TAU).round();
@@ -208,7 +227,9 @@ pub fn potmeter_c(
         response.mark_changed();
     }
 
-    let direction = Vec2::angled(*value) * (diameter / 2.0);
+    let value_vec2 = widget_rotation * Vec2::angled(*value) * (diameter / 2.0);
+    let axis1_vec2 = widget_rotation * Vec2::DOWN * (diameter / 2.0);
+    let axis2_vec2 = widget_rotation * Vec2::RIGHT * (diameter / 2.0);
 
     ui.painter().circle(
         rect.center(),
@@ -218,21 +239,21 @@ pub fn potmeter_c(
     );
 
     ui.painter().add(Shape::dashed_line(
-        &[rect.left_center(), rect.right_center()],
+        &[rect.center() + axis1_vec2, rect.center() - axis1_vec2],
         ui.visuals().window_stroke(), // TODO: Semantically correct color
         1.0,
         1.0,
     ));
 
     ui.painter().add(Shape::dashed_line(
-        &[rect.center_top(), rect.center_bottom()],
+        &[rect.center() + axis2_vec2, rect.center() - axis2_vec2],
         ui.visuals().window_stroke(), // TODO: Semantically correct color
         1.0,
         1.0,
     ));
 
     ui.painter().line_segment(
-        [rect.center(), rect.center() + direction],
+        [rect.center(), rect.center() + value_vec2],
         visuals.fg_stroke, // TODO: Semantically correct color
     );
 
@@ -244,7 +265,7 @@ pub fn potmeter_c(
     );
 
     ui.painter().circle(
-        rect.center() + direction,
+        rect.center() + value_vec2,
         diameter / 24.0,
         visuals.text_color(), // TODO: Semantically correct color
         visuals.fg_stroke,    // TODO: Semantically correct color
@@ -318,7 +339,7 @@ impl Default for MyApp {
         Self {
             potmeter_a: 0.0,
             potmeter_b: 0.5,
-            potmeter_c: 0.5,
+            potmeter_c: PI / 3.0,
             potmeter_c_spin_around: true,
             potmeter_d: 0.75,
         }
@@ -360,8 +381,80 @@ impl eframe::App for MyApp {
                 });
 
                 ui.horizontal(|ui| {
-                    potmeter_c(ui, 64.0, &mut self.potmeter_c, self.potmeter_c_spin_around);
-                    potmeter_c(ui, 32.0, &mut self.potmeter_c, self.potmeter_c_spin_around);
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::CenterTop,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::CenterTop,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::LeftCenter,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::LeftCenter,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::CenterBottom,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::CenterBottom,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::RightCenter,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::RightCenter,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::Custom(-PI / 8.0),
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::Custom(-PI / 8.0),
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
                 });
 
                 ui.separator();
