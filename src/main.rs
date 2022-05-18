@@ -173,10 +173,10 @@ pub fn potmeter_b(
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum PotmeterOrientation {
-    LeftCenter,
-    CenterBottom,
-    RightCenter,
-    CenterTop,
+    Right,
+    Bottom,
+    Left,
+    Top,
     Custom(f32),
 }
 
@@ -186,12 +186,6 @@ pub enum PotmeterDirection {
     Counterclockwise,
 }
 
-// Common orientations:
-//  ___     ___     ___
-// /-0+\   /  +\   /  -\
-// |   |   |  0|   |  0|
-// \___/   \__-/   \__+/
-//                Current
 pub fn potmeter_c(
     ui: &mut egui::Ui,
     diameter: f32,
@@ -201,10 +195,7 @@ pub fn potmeter_c(
     spin_around: bool,
 ) -> egui::Response {
     let desired_size = egui::vec2(diameter, diameter);
-
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
-
-    let visuals = ui.style().interact(&response);
 
     let value_direction = match direction {
         PotmeterDirection::Clockwise => 1.0,
@@ -212,10 +203,10 @@ pub fn potmeter_c(
     };
 
     let widget_rotation = match orientation {
-        PotmeterOrientation::RightCenter => Rot2::from_angle(PI * 0.0),
-        PotmeterOrientation::CenterBottom => Rot2::from_angle(PI * 0.5),
-        PotmeterOrientation::LeftCenter => Rot2::from_angle(PI * 1.0),
-        PotmeterOrientation::CenterTop => Rot2::from_angle(PI * 1.5),
+        PotmeterOrientation::Right => Rot2::from_angle(PI * 0.0),
+        PotmeterOrientation::Bottom => Rot2::from_angle(PI * 0.5),
+        PotmeterOrientation::Left => Rot2::from_angle(PI * 1.0),
+        PotmeterOrientation::Top => Rot2::from_angle(PI * 1.5),
         PotmeterOrientation::Custom(angle) => Rot2::from_angle(angle),
     };
 
@@ -237,53 +228,57 @@ pub fn potmeter_c(
         }
 
         *value = new_value;
-
         response.mark_changed();
     }
 
-    let value_vec2 = widget_rotation * Vec2::angled(*value * value_direction) * (diameter / 2.0);
-    let axis1_vec2 = widget_rotation * Vec2::DOWN * (diameter / 2.0);
-    let axis2_vec2 = widget_rotation * Vec2::RIGHT * (diameter / 2.0);
+    if ui.is_rect_visible(rect) {
+        let visuals = ui.style().interact(&response);
 
-    ui.painter().circle(
-        rect.center(),
-        diameter / 2.0,
-        visuals.bg_fill,
-        visuals.fg_stroke,
-    );
+        let value_vec2 =
+            widget_rotation * Vec2::angled(*value * value_direction) * (diameter / 2.0);
+        let axis1_vec2 = widget_rotation * Vec2::DOWN * (diameter / 2.0);
+        let axis2_vec2 = widget_rotation * Vec2::RIGHT * (diameter / 2.0);
 
-    ui.painter().add(Shape::dashed_line(
-        &[rect.center() + axis1_vec2, rect.center() - axis1_vec2],
-        ui.visuals().window_stroke(), // TODO: Semantically correct color
-        1.0,
-        1.0,
-    ));
+        ui.painter().circle(
+            rect.center(),
+            diameter / 2.0,
+            visuals.bg_fill,
+            visuals.fg_stroke,
+        );
 
-    ui.painter().add(Shape::dashed_line(
-        &[rect.center() + axis2_vec2, rect.center() - axis2_vec2],
-        ui.visuals().window_stroke(), // TODO: Semantically correct color
-        1.0,
-        1.0,
-    ));
+        ui.painter().add(Shape::dashed_line(
+            &[rect.center() + axis1_vec2, rect.center() - axis1_vec2],
+            ui.visuals().window_stroke(), // TODO: Semantically correct color
+            1.0,
+            1.0,
+        ));
 
-    ui.painter().line_segment(
-        [rect.center(), rect.center() + value_vec2],
-        visuals.fg_stroke, // TODO: Semantically correct color
-    );
+        ui.painter().add(Shape::dashed_line(
+            &[rect.center() + axis2_vec2, rect.center() - axis2_vec2],
+            ui.visuals().window_stroke(), // TODO: Semantically correct color
+            1.0,
+            1.0,
+        ));
 
-    ui.painter().circle(
-        rect.center(),
-        diameter / 24.0,
-        visuals.text_color(), // TODO: Semantically correct color
-        visuals.fg_stroke,    // TODO: Semantically correct color
-    );
+        ui.painter().line_segment(
+            [rect.center(), rect.center() + value_vec2],
+            visuals.fg_stroke, // TODO: Semantically correct color
+        );
 
-    ui.painter().circle(
-        rect.center() + value_vec2,
-        diameter / 24.0,
-        visuals.text_color(), // TODO: Semantically correct color
-        visuals.fg_stroke,    // TODO: Semantically correct color
-    );
+        ui.painter().circle(
+            rect.center(),
+            diameter / 24.0,
+            visuals.text_color(), // TODO: Semantically correct color
+            visuals.fg_stroke,    // TODO: Semantically correct color
+        );
+
+        ui.painter().circle(
+            rect.center() + value_vec2,
+            diameter / 24.0,
+            visuals.text_color(), // TODO: Semantically correct color
+            visuals.fg_stroke,    // TODO: Semantically correct color
+        );
+    }
 
     response
 }
@@ -295,7 +290,6 @@ pub fn potmeter_d(
     range: RangeInclusive<f32>,
 ) -> egui::Response {
     let desired_size = egui::vec2(diameter, diameter);
-
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     if response.dragged() {
@@ -305,37 +299,39 @@ pub fn potmeter_d(
         response.mark_changed();
     }
 
-    let (min_angle, max_angle) = (-135.0, 135.0);
+    if ui.is_rect_visible(rect) {
+        let (min_angle, max_angle) = (-135.0, 135.0);
 
-    let value_to_angle = |value: f32| {
-        let value = value.clamp(*range.start(), *range.end());
-        let t = (value - *range.start()) / (*range.end() - *range.start());
-        min_angle + (max_angle - min_angle) * t
-    };
+        let value_to_angle = |value: f32| {
+            let value = value.clamp(*range.start(), *range.end());
+            let t = (value - *range.start()) / (*range.end() - *range.start());
+            min_angle + (max_angle - min_angle) * t
+        };
 
-    let visuals = ui.style().interact(&response).clone();
+        let visuals = ui.style().interact(&response).clone();
 
-    paint_arc(
-        ui,
-        rect.center(),
-        diameter / 6.0,
-        diameter / 2.0,
-        min_angle,
-        max_angle,
-        ui.style().visuals.faint_bg_color,
-        ui.style().visuals.window_stroke(),
-    );
+        paint_arc(
+            ui,
+            rect.center(),
+            diameter / 6.0,
+            diameter / 2.0,
+            min_angle,
+            max_angle,
+            ui.style().visuals.faint_bg_color,
+            ui.style().visuals.window_stroke(),
+        );
 
-    paint_arc(
-        ui,
-        rect.center(),
-        diameter / 6.0 - visuals.expansion,
-        diameter / 2.0 + visuals.expansion,
-        value_to_angle(0.0),
-        value_to_angle(*value),
-        visuals.bg_fill,
-        visuals.fg_stroke,
-    );
+        paint_arc(
+            ui,
+            rect.center(),
+            diameter / 6.0 - visuals.expansion,
+            diameter / 2.0 + visuals.expansion,
+            value_to_angle(0.0),
+            value_to_angle(*value),
+            visuals.bg_fill,
+            visuals.fg_stroke,
+        );
+    }
 
     response
 }
@@ -358,7 +354,7 @@ impl Default for MyApp {
             potmeter_b: 0.5,
             potmeter_c: PI / 9.0,
             potmeter_c_spin_around: true,
-            potmeter_c_orientation: PotmeterOrientation::CenterTop,
+            potmeter_c_orientation: PotmeterOrientation::Top,
             potmeter_c_direction: PotmeterDirection::Clockwise,
             potmeter_c_custom_angle: 0.0,
             potmeter_d: 0.75,
@@ -380,6 +376,7 @@ impl eframe::App for MyApp {
                 ui.heading("Variant D");
                 ui.add_space(16.0);
                 ui.add(egui::Slider::new(&mut self.potmeter_d, -1.0..=1.0));
+                ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
                     potmeter_d(ui, 64.0, &mut self.potmeter_d, 0.0..=1.0);
@@ -402,23 +399,23 @@ impl eframe::App for MyApp {
                 ui.horizontal(|ui| {
                     ui.selectable_value(
                         &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::CenterTop,
-                        "⬆ CenterTop",
+                        PotmeterOrientation::Top,
+                        "⬆ Top",
                     );
                     ui.selectable_value(
                         &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::RightCenter,
-                        "➡ RightCenter",
+                        PotmeterOrientation::Right,
+                        "➡ Right",
                     );
                     ui.selectable_value(
                         &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::CenterBottom,
-                        "⬇ CenterBottom",
+                        PotmeterOrientation::Bottom,
+                        "⬇ Bottom",
                     );
                     ui.selectable_value(
                         &mut self.potmeter_c_orientation,
-                        PotmeterOrientation::LeftCenter,
-                        "⬅ LeftCenter",
+                        PotmeterOrientation::Left,
+                        "⬅ Left",
                     );
                     ui.selectable_value(
                         &mut self.potmeter_c_orientation,
@@ -444,6 +441,8 @@ impl eframe::App for MyApp {
                         "⟲ Counterclockwise",
                     );
                 });
+
+                ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
                     potmeter_c(
