@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::f32::consts::{PI, TAU};
 use std::ops::RangeInclusive;
 
 use eframe::egui::{self, global_dark_light_mode_switch};
@@ -177,7 +177,12 @@ pub fn potmeter_b(
 // |   |   |  0|   |  0|
 // \___/   \__-/   \__+/
 //                Current
-pub fn potmeter_c(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Response {
+pub fn potmeter_c(
+    ui: &mut egui::Ui,
+    diameter: f32,
+    value: &mut f32,
+    spin_around: bool,
+) -> egui::Response {
     let desired_size = egui::vec2(diameter, diameter);
 
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
@@ -185,7 +190,21 @@ pub fn potmeter_c(ui: &mut egui::Ui, diameter: f32, value: &mut f32) -> egui::Re
     let visuals = ui.style().interact(&response);
 
     if response.clicked() || response.dragged() {
-        *value = (response.interact_pointer_pos().unwrap() - rect.center()).angle();
+        let mut new_value = (response.interact_pointer_pos().unwrap() - rect.center()).angle();
+
+        if spin_around {
+            let prev_turns = (*value / TAU).round();
+            new_value = new_value + prev_turns as f32 * TAU;
+
+            if new_value - *value > PI {
+                new_value -= TAU;
+            } else if new_value - *value < -PI {
+                new_value += TAU;
+            }
+        }
+
+        *value = new_value;
+
         response.mark_changed();
     }
 
@@ -290,6 +309,7 @@ struct MyApp {
     potmeter_a: f32,
     potmeter_b: f32,
     potmeter_c: f32,
+    potmeter_c_spin_around: bool,
     potmeter_d: f32,
 }
 
@@ -299,6 +319,7 @@ impl Default for MyApp {
             potmeter_a: 0.0,
             potmeter_b: 0.5,
             potmeter_c: 0.5,
+            potmeter_c_spin_around: true,
             potmeter_d: 0.75,
         }
     }
@@ -336,11 +357,12 @@ impl eframe::App for MyApp {
                 ui.horizontal(|ui| {
                     ui.add(egui::Slider::new(&mut self.potmeter_c, -PI..=PI));
                     ui.drag_angle(&mut self.potmeter_c);
+                    ui.checkbox(&mut self.potmeter_c_spin_around, "Spin around");
                 });
 
                 ui.horizontal(|ui| {
-                    potmeter_c(ui, 64.0, &mut self.potmeter_c);
-                    potmeter_c(ui, 32.0, &mut self.potmeter_c);
+                    potmeter_c(ui, 64.0, &mut self.potmeter_c, self.potmeter_c_spin_around);
+                    potmeter_c(ui, 32.0, &mut self.potmeter_c, self.potmeter_c_spin_around);
                 });
 
                 ui.separator();
