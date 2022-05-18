@@ -332,7 +332,11 @@ impl eframe::App for MyApp {
                 ui.heading("Variant C");
                 ui.label("Adobe Photoshop and Krita style");
                 ui.add_space(16.0);
-                ui.add(egui::Slider::new(&mut self.potmeter_c, -PI..=PI));
+
+                ui.horizontal(|ui| {
+                    ui.add(egui::Slider::new(&mut self.potmeter_c, -PI..=PI));
+                    ui.drag_angle(&mut self.potmeter_c);
+                });
 
                 ui.horizontal(|ui| {
                     potmeter_c(ui, 64.0, &mut self.potmeter_c);
