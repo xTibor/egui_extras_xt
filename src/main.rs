@@ -179,6 +179,11 @@ pub enum PotmeterOrientation {
     Custom(f32),
 }
 
+pub enum PotmeterDirection {
+    Clockwise,
+    Counterclockwise,
+}
+
 // Common orientations:
 //  ___     ___     ___
 // /-0+\   /  +\   /  -\
@@ -189,6 +194,7 @@ pub fn potmeter_c(
     ui: &mut egui::Ui,
     diameter: f32,
     orientation: PotmeterOrientation,
+    direction: PotmeterDirection,
     value: &mut f32,
     spin_around: bool,
 ) -> egui::Response {
@@ -197,6 +203,11 @@ pub fn potmeter_c(
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     let visuals = ui.style().interact(&response);
+
+    let value_direction = match direction {
+        PotmeterDirection::Clockwise => 1.0,
+        PotmeterDirection::Counterclockwise => -1.0,
+    };
 
     let widget_rotation = match orientation {
         PotmeterOrientation::LeftCenter => Rot2::from_angle(PI * 0.0),
@@ -209,7 +220,8 @@ pub fn potmeter_c(
     if response.clicked() || response.dragged() {
         let mut new_value = (widget_rotation.inverse()
             * (response.interact_pointer_pos().unwrap() - rect.center()))
-        .angle();
+        .angle()
+            * value_direction;
 
         if spin_around {
             let prev_turns = (*value / TAU).round();
@@ -227,7 +239,7 @@ pub fn potmeter_c(
         response.mark_changed();
     }
 
-    let value_vec2 = widget_rotation * Vec2::angled(*value) * (diameter / 2.0);
+    let value_vec2 = widget_rotation * Vec2::angled(*value * value_direction) * (diameter / 2.0);
     let axis1_vec2 = widget_rotation * Vec2::DOWN * (diameter / 2.0);
     let axis2_vec2 = widget_rotation * Vec2::RIGHT * (diameter / 2.0);
 
@@ -385,21 +397,93 @@ impl eframe::App for MyApp {
                         ui,
                         64.0,
                         PotmeterOrientation::CenterTop,
+                        PotmeterDirection::Clockwise,
                         &mut self.potmeter_c,
                         self.potmeter_c_spin_around,
                     );
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::LeftCenter,
+                        PotmeterDirection::Clockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::CenterBottom,
+                        PotmeterDirection::Clockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::RightCenter,
+                        PotmeterDirection::Clockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::Custom(-PI / 8.0),
+                        PotmeterDirection::Clockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                });
+
+                ui.horizontal(|ui| {
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::CenterTop,
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::LeftCenter,
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::CenterBottom,
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::RightCenter,
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        64.0,
+                        PotmeterOrientation::Custom(-PI / 8.0),
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                });
+
+                ui.horizontal(|ui| {
                     potmeter_c(
                         ui,
                         32.0,
                         PotmeterOrientation::CenterTop,
-                        &mut self.potmeter_c,
-                        self.potmeter_c_spin_around,
-                    );
-
-                    potmeter_c(
-                        ui,
-                        64.0,
-                        PotmeterOrientation::LeftCenter,
+                        PotmeterDirection::Clockwise,
                         &mut self.potmeter_c,
                         self.potmeter_c_spin_around,
                     );
@@ -407,14 +491,7 @@ impl eframe::App for MyApp {
                         ui,
                         32.0,
                         PotmeterOrientation::LeftCenter,
-                        &mut self.potmeter_c,
-                        self.potmeter_c_spin_around,
-                    );
-
-                    potmeter_c(
-                        ui,
-                        64.0,
-                        PotmeterOrientation::CenterBottom,
+                        PotmeterDirection::Clockwise,
                         &mut self.potmeter_c,
                         self.potmeter_c_spin_around,
                     );
@@ -422,14 +499,7 @@ impl eframe::App for MyApp {
                         ui,
                         32.0,
                         PotmeterOrientation::CenterBottom,
-                        &mut self.potmeter_c,
-                        self.potmeter_c_spin_around,
-                    );
-
-                    potmeter_c(
-                        ui,
-                        64.0,
-                        PotmeterOrientation::RightCenter,
+                        PotmeterDirection::Clockwise,
                         &mut self.potmeter_c,
                         self.potmeter_c_spin_around,
                     );
@@ -437,14 +507,7 @@ impl eframe::App for MyApp {
                         ui,
                         32.0,
                         PotmeterOrientation::RightCenter,
-                        &mut self.potmeter_c,
-                        self.potmeter_c_spin_around,
-                    );
-
-                    potmeter_c(
-                        ui,
-                        64.0,
-                        PotmeterOrientation::Custom(-PI / 8.0),
+                        PotmeterDirection::Clockwise,
                         &mut self.potmeter_c,
                         self.potmeter_c_spin_around,
                     );
@@ -452,6 +515,50 @@ impl eframe::App for MyApp {
                         ui,
                         32.0,
                         PotmeterOrientation::Custom(-PI / 8.0),
+                        PotmeterDirection::Clockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                });
+
+                ui.horizontal(|ui| {
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::CenterTop,
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::LeftCenter,
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::CenterBottom,
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::RightCenter,
+                        PotmeterDirection::Counterclockwise,
+                        &mut self.potmeter_c,
+                        self.potmeter_c_spin_around,
+                    );
+                    potmeter_c(
+                        ui,
+                        32.0,
+                        PotmeterOrientation::Custom(-PI / 8.0),
+                        PotmeterDirection::Counterclockwise,
                         &mut self.potmeter_c,
                         self.potmeter_c_spin_around,
                     );
