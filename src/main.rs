@@ -247,9 +247,5 @@ impl eframe::App for MyApp {
 fn main() {
     let options = eframe::NativeOptions::default();
 
-    eframe::run_native(
-        "AngleKnobs",
-        options,
-        Box::new(|_cc| Box::new(MyApp::default())),
-    );
+    eframe::run_native("Knobs", options, Box::new(|_cc| Box::new(MyApp::default())));
 }
