@@ -186,15 +186,22 @@ pub enum KnobDirection {
     Counterclockwise,
 }
 
+#[derive(PartialEq, Debug, Clone, Copy)]
+pub enum KnobMode {
+    Signed,
+    Unsigned,
+    SpinAround,
+}
+
 pub fn knob_variant_c(
     ui: &mut egui::Ui,
     diameter: f32,
     orientation: KnobOrientation,
     direction: KnobDirection,
+    mode: KnobMode,
     value: &mut f32,
     min: Option<f32>,
     max: Option<f32>,
-    spin_around: bool,
 ) -> egui::Response {
     let desired_size = egui::vec2(diameter, diameter);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
@@ -218,7 +225,11 @@ pub fn knob_variant_c(
         .angle()
             * value_direction;
 
-        if spin_around {
+        if mode == KnobMode::Unsigned {
+            new_value = (new_value + TAU) % TAU;
+        }
+
+        if mode == KnobMode::SpinAround {
             let prev_turns = (*value / TAU).round();
             new_value = new_value + prev_turns as f32 * TAU;
 
@@ -276,7 +287,10 @@ pub fn knob_variant_c(
 
         if let Some(min) = min {
             let min_vec2 = widget_rotation * Vec2::angled(min * value_direction) * radius;
-            let min_alpha = 1.0 - ((min - *value).abs() / (PI * 1.5)).clamp(0.0, 1.0).powf(5.0);
+            let min_alpha = 1.0
+                - ((min - *value).abs() / (PI * 1.5))
+                    .clamp(0.0, 1.0)
+                    .powf(5.0);
 
             // TODO: Semantically correct color
             let min_stroke = Stroke::new(
@@ -290,7 +304,10 @@ pub fn knob_variant_c(
 
         if let Some(max) = max {
             let max_vec2 = widget_rotation * Vec2::angled(max * value_direction) * radius;
-            let max_alpha = 1.0 - ((max - *value).abs() / (PI * 1.5)).clamp(0.0, 1.0).powf(5.0);
+            let max_alpha = 1.0
+                - ((max - *value).abs() / (PI * 1.5))
+                    .clamp(0.0, 1.0)
+                    .powf(5.0);
 
             // TODO: Semantically correct color
             let max_stroke = Stroke::new(
@@ -386,9 +403,9 @@ struct MyApp {
     knob_a: f32,
     knob_b: f32,
     knob_c: f32,
-    knob_c_spin_around: bool,
     knob_c_orientation: KnobOrientation,
     knob_c_direction: KnobDirection,
+    knob_c_mode: KnobMode,
     knob_c_custom_angle: f32, // HACK
     knob_c_minimum: Option<f32>,
     knob_c_maximum: Option<f32>,
@@ -401,9 +418,9 @@ impl Default for MyApp {
             knob_a: 0.0,
             knob_b: 0.5,
             knob_c: PI / 9.0,
-            knob_c_spin_around: true,
             knob_c_orientation: KnobOrientation::Top,
             knob_c_direction: KnobDirection::Clockwise,
+            knob_c_mode: KnobMode::Signed,
             knob_c_custom_angle: 0.0,
             knob_c_minimum: None,
             knob_c_maximum: None,
@@ -441,9 +458,18 @@ impl eframe::App for MyApp {
                 ui.heading("Variant C");
                 ui.add_space(16.0);
 
+                ui.drag_angle(&mut self.knob_c);
+
                 ui.horizontal(|ui| {
-                    ui.drag_angle(&mut self.knob_c);
-                    ui.checkbox(&mut self.knob_c_spin_around, "Spin around");
+                    ui.selectable_value(&mut self.knob_c_mode, KnobMode::Signed, "± Signed");
+
+                    ui.selectable_value(&mut self.knob_c_mode, KnobMode::Unsigned, "+ Unsigned");
+
+                    ui.selectable_value(
+                        &mut self.knob_c_mode,
+                        KnobMode::SpinAround,
+                        "🔃 SpinAround",
+                    );
                 });
 
                 ui.horizontal(|ui| {
@@ -532,20 +558,20 @@ impl eframe::App for MyApp {
                         64.0,
                         self.knob_c_orientation,
                         self.knob_c_direction,
+                        self.knob_c_mode,
                         &mut self.knob_c,
                         self.knob_c_minimum,
                         self.knob_c_maximum,
-                        self.knob_c_spin_around,
                     );
                     knob_variant_c(
                         ui,
                         32.0,
                         self.knob_c_orientation,
                         self.knob_c_direction,
+                        self.knob_c_mode,
                         &mut self.knob_c,
                         self.knob_c_minimum,
                         self.knob_c_maximum,
-                        self.knob_c_spin_around,
                     );
                 });
 
