@@ -1,11 +1,11 @@
 use std::ops::RangeInclusive;
 
 use eframe::egui;
-use eframe::emath::{lerp, vec2, Pos2};
+use eframe::emath::{lerp, remap_clamp, vec2, Pos2, Vec2};
 use eframe::epaint::{Color32, Shape, Stroke};
 use itertools::Itertools;
 
-pub fn paint_arc(
+fn paint_arc(
     ui: &mut egui::Ui,
     center: Pos2,
     inner_radius: f32,
@@ -33,9 +33,9 @@ pub fn paint_arc(
         .iter()
         .zip(inner_arc.iter())
         .tuple_windows()
-        .for_each(|((o1, i1), (o2, i2))| {
+        .for_each(|((outer_1, inner_1), (outer_2, inner_2))| {
             ui.painter().add(Shape::convex_polygon(
-                vec![*o1, *i1, *i2, *o2],
+                vec![*outer_1, *inner_1, *inner_2, *outer_2],
                 fill,
                 Stroke::none(),
             ));
@@ -56,7 +56,7 @@ pub fn audio_knob(
     value: &mut f32,
     range: RangeInclusive<f32>,
 ) -> egui::Response {
-    let desired_size = egui::vec2(diameter, diameter);
+    let desired_size = Vec2::splat(diameter);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     if response.dragged() {
@@ -68,14 +68,7 @@ pub fn audio_knob(
 
     if ui.is_rect_visible(rect) {
         let (min_angle, max_angle) = (-135.0, 135.0);
-
-        let value_to_angle = |value: f32| {
-            let value = value.clamp(*range.start(), *range.end());
-            let t = (value - *range.start()) / (*range.end() - *range.start());
-            min_angle + (max_angle - min_angle) * t
-        };
-
-        let visuals = ui.style().interact(&response).clone();
+        let visuals = *ui.style().interact(&response);
 
         paint_arc(
             ui,
@@ -93,8 +86,8 @@ pub fn audio_knob(
             rect.center(),
             diameter / 6.0 - visuals.expansion,
             diameter / 2.0 + visuals.expansion,
-            value_to_angle(0.0),
-            value_to_angle(*value),
+            remap_clamp(0.0, range.clone(), min_angle..=max_angle),
+            remap_clamp(*value, range, min_angle..=max_angle),
             visuals.bg_fill,
             visuals.fg_stroke,
         );

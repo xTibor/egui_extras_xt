@@ -108,7 +108,7 @@ pub fn angle_knob(
     snap_angle: Option<f32>,
     shift_snap_angle: Option<f32>,
 ) -> egui::Response {
-    let desired_size = egui::vec2(diameter, diameter);
+    let desired_size = Vec2::splat(diameter);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     let value_direction = match direction {
@@ -136,7 +136,7 @@ pub fn angle_knob(
 
         if mode == AngleKnobMode::SpinAround {
             let prev_turns = (*value / TAU).round();
-            new_value = new_value + prev_turns as f32 * TAU;
+            new_value += prev_turns * TAU;
 
             if new_value - *value > PI {
                 new_value -= TAU;
