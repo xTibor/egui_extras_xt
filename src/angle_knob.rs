@@ -26,6 +26,66 @@ pub enum AngleKnobMode {
     SpinAround,
 }
 
+#[derive(PartialEq, Debug, Clone, Copy)]
+pub enum AngleKnobPersonality {
+    AdobePhotoshop,
+    GIMP,
+    GoogleChromeDevTools,
+    Krita,
+    LibreOffice,
+    VLC,
+    // Multimedia software lacking knob widgets:
+    // - Blender
+    // - Inkscape
+    // - Kdenlive
+    // - MyPaint (canvas behaves Right/Clockwise/Signed)
+}
+
+impl AngleKnobPersonality {
+    fn properties(
+        &self,
+    ) -> (
+        AngleKnobOrientation,
+        AngleKnobDirection,
+        AngleKnobMode,
+        Option<f32>,
+        Option<f32>,
+    ) {
+        match *self {
+            // Knobs widgets are a clusterfuck in Krita, however a significant
+            // number of them follow what Photoshop does.
+            AngleKnobPersonality::AdobePhotoshop | AngleKnobPersonality::Krita => (
+                AngleKnobOrientation::Right,
+                AngleKnobDirection::Counterclockwise,
+                AngleKnobMode::Signed,
+                None,
+                None,
+            ),
+            AngleKnobPersonality::GIMP | AngleKnobPersonality::LibreOffice => (
+                AngleKnobOrientation::Right,
+                AngleKnobDirection::Counterclockwise,
+                AngleKnobMode::Unsigned,
+                None,
+                None,
+            ),
+            AngleKnobPersonality::GoogleChromeDevTools => (
+                AngleKnobOrientation::Top,
+                AngleKnobDirection::Clockwise,
+                AngleKnobMode::Unsigned,
+                None,
+                None,
+            ),
+            AngleKnobPersonality::VLC => (
+                AngleKnobOrientation::Bottom,
+                AngleKnobDirection::Clockwise,
+                AngleKnobMode::Unsigned,
+                None,
+                None,
+            ),
+        }
+    }
+}
+
 pub fn angle_knob(
     ui: &mut egui::Ui,
     diameter: f32,
