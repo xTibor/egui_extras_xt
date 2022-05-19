@@ -170,12 +170,8 @@ pub fn angle_knob(
         let visuals = ui.style().interact(&response);
         let radius = diameter / 2.0;
 
-        ui.painter().circle(
-            rect.center(),
-            diameter / 2.0,
-            visuals.bg_fill,
-            visuals.fg_stroke,
-        );
+        ui.painter()
+            .circle(rect.center(), radius, visuals.bg_fill, visuals.fg_stroke);
 
         {
             let axis1_vec2 = widget_rotation * Vec2::DOWN * radius;

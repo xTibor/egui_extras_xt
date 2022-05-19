@@ -1,7 +1,8 @@
+use std::f32::consts::PI;
 use std::ops::RangeInclusive;
 
 use eframe::egui;
-use eframe::emath::{lerp, remap_clamp, vec2, Pos2, Vec2};
+use eframe::emath::{almost_equal, lerp, remap_clamp, Pos2, Vec2};
 use eframe::epaint::{Color32, Shape, Stroke};
 use itertools::Itertools;
 
@@ -15,13 +16,23 @@ fn paint_arc(
     fill: Color32,
     stroke: Stroke,
 ) {
+    if almost_equal(start_angle, end_angle, f32::EPSILON) {
+        ui.painter().add(Shape::line_segment(
+            [
+                center + Vec2::angled(start_angle) * inner_radius,
+                center + Vec2::angled(start_angle) * outer_radius,
+            ],
+            stroke,
+        ));
+        return;
+    }
+
     let n_points = 32;
 
     let generate_arc_points = |radius| {
         (0..=n_points).map(move |i| {
             let angle = lerp(start_angle..=end_angle, i as f32 / n_points as f32);
-            let (sin, cos) = angle.to_radians().sin_cos();
-            center + vec2(sin as f32, -cos as f32) * radius
+            center + Vec2::angled(angle) * radius
         })
     };
 
@@ -67,7 +78,7 @@ pub fn audio_knob(
     }
 
     if ui.is_rect_visible(rect) {
-        let (min_angle, max_angle) = (-135.0, 135.0);
+        let (min_angle, max_angle) = (PI * -1.25, PI * 0.25);
         let visuals = *ui.style().interact(&response);
 
         paint_arc(
