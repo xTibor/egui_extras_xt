@@ -145,14 +145,13 @@ pub fn angle_knob(
             }
         }
 
-        if ui.input().modifiers.shift_only() {
-            if let Some(angle) = shift_snap_angle {
-                new_value = (new_value / angle).round() * angle;
-            }
+        if let Some(angle) = if ui.input().modifiers.shift_only() {
+            shift_snap_angle
         } else {
-            if let Some(angle) = snap_angle {
-                new_value = (new_value / angle).round() * angle;
-            }
+            snap_angle
+        } {
+            assert!(angle > 0.0, "non-positive snap angles are not supported");
+            new_value = (new_value / angle).round() * angle;
         }
 
         if let Some(min) = min {
