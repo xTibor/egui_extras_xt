@@ -27,7 +27,7 @@ pub enum AngleKnobMode {
 }
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub enum AngleKnobPersonality {
+pub enum AngleKnobPreset {
     AdobePhotoshop,
     GIMP,
     GoogleChromeDevTools,
@@ -41,7 +41,7 @@ pub enum AngleKnobPersonality {
     // - MyPaint (canvas behaves Right/Clockwise/Signed)
 }
 
-impl AngleKnobPersonality {
+impl AngleKnobPreset {
     fn properties(
         &self,
     ) -> (
@@ -56,7 +56,7 @@ impl AngleKnobPersonality {
         match *self {
             // Knobs widgets are a clusterfuck in Krita, however a significant
             // number of them follow what Photoshop does.
-            AngleKnobPersonality::AdobePhotoshop | AngleKnobPersonality::Krita => (
+            AngleKnobPreset::AdobePhotoshop | AngleKnobPreset::Krita => (
                 AngleKnobOrientation::Right,
                 AngleKnobDirection::Counterclockwise,
                 AngleKnobMode::Signed,
@@ -65,7 +65,7 @@ impl AngleKnobPersonality {
                 None,
                 Some(PI / 12.0),
             ),
-            AngleKnobPersonality::GIMP | AngleKnobPersonality::LibreOffice => (
+            AngleKnobPreset::GIMP | AngleKnobPreset::LibreOffice => (
                 AngleKnobOrientation::Right,
                 AngleKnobDirection::Counterclockwise,
                 AngleKnobMode::Unsigned,
@@ -74,7 +74,7 @@ impl AngleKnobPersonality {
                 None,
                 Some(PI / 12.0),
             ),
-            AngleKnobPersonality::GoogleChromeDevTools => (
+            AngleKnobPreset::GoogleChromeDevTools => (
                 AngleKnobOrientation::Top,
                 AngleKnobDirection::Clockwise,
                 AngleKnobMode::Unsigned,
@@ -83,7 +83,7 @@ impl AngleKnobPersonality {
                 None,
                 Some(PI / 12.0),
             ),
-            AngleKnobPersonality::VLC => (
+            AngleKnobPreset::VLC => (
                 AngleKnobOrientation::Bottom,
                 AngleKnobDirection::Clockwise,
                 AngleKnobMode::Unsigned,
