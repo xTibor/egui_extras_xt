@@ -389,7 +389,9 @@ struct MyApp {
     knob_c_spin_around: bool,
     knob_c_orientation: KnobOrientation,
     knob_c_direction: KnobDirection,
-    knob_c_custom_angle: f32,
+    knob_c_custom_angle: f32, // HACK
+    knob_c_minimum: Option<f32>,
+    knob_c_maximum: Option<f32>,
     knob_d: f32,
 }
 
@@ -403,6 +405,8 @@ impl Default for MyApp {
             knob_c_orientation: KnobOrientation::Top,
             knob_c_direction: KnobDirection::Clockwise,
             knob_c_custom_angle: 0.0,
+            knob_c_minimum: None,
+            knob_c_maximum: None,
             knob_d: 0.75,
         }
     }
@@ -488,6 +492,38 @@ impl eframe::App for MyApp {
                     );
                 });
 
+                ui.horizontal(|ui| {
+                    {
+                        let mut minimum_enabled = self.knob_c_minimum.is_some();
+                        ui.toggle_value(&mut minimum_enabled, "Minimum");
+
+                        self.knob_c_minimum = match (minimum_enabled, self.knob_c_minimum) {
+                            (true, None) => Some(-TAU),
+                            (false, Some(_)) => None,
+                            _ => self.knob_c_minimum,
+                        };
+
+                        if let Some(value) = &mut self.knob_c_minimum {
+                            ui.drag_angle(value);
+                        }
+                    }
+
+                    {
+                        let mut maximum_enabled = self.knob_c_maximum.is_some();
+                        ui.toggle_value(&mut maximum_enabled, "Maximum");
+
+                        self.knob_c_maximum = match (maximum_enabled, self.knob_c_maximum) {
+                            (true, None) => Some(TAU),
+                            (false, Some(_)) => None,
+                            _ => self.knob_c_maximum,
+                        };
+
+                        if let Some(value) = &mut self.knob_c_maximum {
+                            ui.drag_angle(value);
+                        }
+                    }
+                });
+
                 ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
@@ -497,8 +533,8 @@ impl eframe::App for MyApp {
                         self.knob_c_orientation,
                         self.knob_c_direction,
                         &mut self.knob_c,
-                        Some(TAU * -2.0),
-                        Some(TAU * 2.0),
+                        self.knob_c_minimum,
+                        self.knob_c_maximum,
                         self.knob_c_spin_around,
                     );
                     knob_variant_c(
@@ -507,8 +543,8 @@ impl eframe::App for MyApp {
                         self.knob_c_orientation,
                         self.knob_c_direction,
                         &mut self.knob_c,
-                        Some(TAU * -2.0),
-                        Some(TAU * 2.0),
+                        self.knob_c_minimum,
+                        self.knob_c_maximum,
                         self.knob_c_spin_around,
                     );
                 });
