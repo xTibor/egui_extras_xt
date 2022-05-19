@@ -222,30 +222,20 @@ impl eframe::App for MyApp {
                 ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
-                    angle_knob(
-                        ui,
-                        64.0,
-                        self.angle_knob_orientation,
-                        self.angle_knob_direction,
-                        self.angle_knob_mode,
-                        &mut self.angle_knob_value,
-                        self.angle_knob_minimum,
-                        self.angle_knob_maximum,
-                        self.angle_knob_snap_angle,
-                        self.angle_knob_shift_snap_angle,
-                    );
-                    angle_knob(
-                        ui,
-                        32.0,
-                        self.angle_knob_orientation,
-                        self.angle_knob_direction,
-                        self.angle_knob_mode,
-                        &mut self.angle_knob_value,
-                        self.angle_knob_minimum,
-                        self.angle_knob_maximum,
-                        self.angle_knob_snap_angle,
-                        self.angle_knob_shift_snap_angle,
-                    );
+                    for angle_knob_size in [64.0, 32.0] {
+                        angle_knob(
+                            ui,
+                            angle_knob_size,
+                            self.angle_knob_orientation,
+                            self.angle_knob_direction,
+                            self.angle_knob_mode,
+                            &mut self.angle_knob_value,
+                            self.angle_knob_minimum,
+                            self.angle_knob_maximum,
+                            self.angle_knob_snap_angle,
+                            self.angle_knob_shift_snap_angle,
+                        );
+                    }
                 });
 
                 ui.separator();
