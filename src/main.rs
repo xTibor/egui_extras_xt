@@ -192,6 +192,8 @@ pub fn knob_variant_c(
     orientation: KnobOrientation,
     direction: KnobDirection,
     value: &mut f32,
+    min: Option<f32>,
+    max: Option<f32>,
     spin_around: bool,
 ) -> egui::Response {
     let desired_size = egui::vec2(diameter, diameter);
@@ -227,17 +229,21 @@ pub fn knob_variant_c(
             }
         }
 
+        if let Some(min) = min {
+            new_value = new_value.max(min);
+        }
+
+        if let Some(max) = max {
+            new_value = new_value.min(max);
+        }
+
         *value = new_value;
         response.mark_changed();
     }
 
     if ui.is_rect_visible(rect) {
         let visuals = ui.style().interact(&response);
-
-        let value_vec2 =
-            widget_rotation * Vec2::angled(*value * value_direction) * (diameter / 2.0);
-        let axis1_vec2 = widget_rotation * Vec2::DOWN * (diameter / 2.0);
-        let axis2_vec2 = widget_rotation * Vec2::RIGHT * (diameter / 2.0);
+        let radius = diameter / 2.0;
 
         ui.painter().circle(
             rect.center(),
@@ -246,38 +252,78 @@ pub fn knob_variant_c(
             visuals.fg_stroke,
         );
 
-        ui.painter().add(Shape::dashed_line(
-            &[rect.center() + axis1_vec2, rect.center() - axis1_vec2],
-            ui.visuals().window_stroke(), // TODO: Semantically correct color
-            1.0,
-            1.0,
-        ));
+        {
+            let axis1_vec2 = widget_rotation * Vec2::DOWN * radius;
 
-        ui.painter().add(Shape::dashed_line(
-            &[rect.center() + axis2_vec2, rect.center() - axis2_vec2],
-            ui.visuals().window_stroke(), // TODO: Semantically correct color
-            1.0,
-            1.0,
-        ));
+            ui.painter().add(Shape::dashed_line(
+                &[rect.center() + axis1_vec2, rect.center() - axis1_vec2],
+                ui.visuals().window_stroke(), // TODO: Semantically correct color
+                1.0,
+                1.0,
+            ));
+        }
 
-        ui.painter().line_segment(
-            [rect.center(), rect.center() + value_vec2],
-            visuals.fg_stroke, // TODO: Semantically correct color
-        );
+        {
+            let axis2_vec2 = widget_rotation * Vec2::RIGHT * radius;
 
-        ui.painter().circle(
-            rect.center(),
-            diameter / 24.0,
-            visuals.text_color(), // TODO: Semantically correct color
-            visuals.fg_stroke,    // TODO: Semantically correct color
-        );
+            ui.painter().add(Shape::dashed_line(
+                &[rect.center() + axis2_vec2, rect.center() - axis2_vec2],
+                ui.visuals().window_stroke(), // TODO: Semantically correct color
+                1.0,
+                1.0,
+            ));
+        }
 
-        ui.painter().circle(
-            rect.center() + value_vec2,
-            diameter / 24.0,
-            visuals.text_color(), // TODO: Semantically correct color
-            visuals.fg_stroke,    // TODO: Semantically correct color
-        );
+        if let Some(min) = min {
+            let min_vec2 = widget_rotation * Vec2::angled(min * value_direction) * radius;
+            let min_alpha = 1.0 - ((min - *value).abs() / PI).clamp(0.0, 1.0).powf(5.0);
+
+            // TODO: Semantically correct color
+            let min_stroke = Stroke::new(
+                visuals.fg_stroke.width,
+                visuals.fg_stroke.color.linear_multiply(min_alpha),
+            );
+
+            ui.painter()
+                .line_segment([rect.center(), rect.center() + min_vec2], min_stroke);
+        }
+
+        if let Some(max) = max {
+            let max_vec2 = widget_rotation * Vec2::angled(max * value_direction) * radius;
+            let max_alpha = 1.0 - ((max - *value).abs() / PI).clamp(0.0, 1.0).powf(5.0);
+
+            // TODO: Semantically correct color
+            let max_stroke = Stroke::new(
+                visuals.fg_stroke.width,
+                visuals.fg_stroke.color.linear_multiply(max_alpha),
+            );
+
+            ui.painter()
+                .line_segment([rect.center(), rect.center() + max_vec2], max_stroke);
+        }
+
+        {
+            let value_vec2 = widget_rotation * Vec2::angled(*value * value_direction) * radius;
+
+            ui.painter().line_segment(
+                [rect.center(), rect.center() + value_vec2],
+                visuals.fg_stroke, // TODO: Semantically correct color
+            );
+
+            ui.painter().circle(
+                rect.center(),
+                diameter / 24.0,
+                visuals.text_color(), // TODO: Semantically correct color
+                visuals.fg_stroke,    // TODO: Semantically correct color
+            );
+
+            ui.painter().circle(
+                rect.center() + value_vec2,
+                diameter / 24.0,
+                visuals.text_color(), // TODO: Semantically correct color
+                visuals.fg_stroke,    // TODO: Semantically correct color
+            );
+        }
     }
 
     response
@@ -451,6 +497,8 @@ impl eframe::App for MyApp {
                         self.knob_c_orientation,
                         self.knob_c_direction,
                         &mut self.knob_c,
+                        Some(TAU * -2.0),
+                        Some(TAU * 2.0),
                         self.knob_c_spin_around,
                     );
                     knob_variant_c(
@@ -459,6 +507,8 @@ impl eframe::App for MyApp {
                         self.knob_c_orientation,
                         self.knob_c_direction,
                         &mut self.knob_c,
+                        Some(TAU * -2.0),
+                        Some(TAU * 2.0),
                         self.knob_c_spin_around,
                     );
                 });
