@@ -50,6 +50,8 @@ impl AngleKnobPersonality {
         AngleKnobMode,
         Option<f32>,
         Option<f32>,
+        Option<f32>,
+        Option<f32>,
     ) {
         match *self {
             // Knobs widgets are a clusterfuck in Krita, however a significant
@@ -60,6 +62,8 @@ impl AngleKnobPersonality {
                 AngleKnobMode::Signed,
                 None,
                 None,
+                None,
+                Some(PI / 12.0),
             ),
             AngleKnobPersonality::GIMP | AngleKnobPersonality::LibreOffice => (
                 AngleKnobOrientation::Right,
@@ -67,6 +71,8 @@ impl AngleKnobPersonality {
                 AngleKnobMode::Unsigned,
                 None,
                 None,
+                None,
+                Some(PI / 12.0),
             ),
             AngleKnobPersonality::GoogleChromeDevTools => (
                 AngleKnobOrientation::Top,
@@ -74,11 +80,15 @@ impl AngleKnobPersonality {
                 AngleKnobMode::Unsigned,
                 None,
                 None,
+                None,
+                Some(PI / 12.0),
             ),
             AngleKnobPersonality::VLC => (
                 AngleKnobOrientation::Bottom,
                 AngleKnobDirection::Clockwise,
                 AngleKnobMode::Unsigned,
+                None,
+                None,
                 None,
                 None,
             ),
@@ -95,6 +105,8 @@ pub fn angle_knob(
     value: &mut f32,
     min: Option<f32>,
     max: Option<f32>,
+    snap_angle: Option<f32>,
+    shift_snap_angle: Option<f32>,
 ) -> egui::Response {
     let desired_size = egui::vec2(diameter, diameter);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
@@ -130,6 +142,16 @@ pub fn angle_knob(
                 new_value -= TAU;
             } else if new_value - *value < -PI {
                 new_value += TAU;
+            }
+        }
+
+        if ui.input().modifiers.shift_only() {
+            if let Some(angle) = shift_snap_angle {
+                new_value = (new_value / angle).round() * angle;
+            }
+        } else {
+            if let Some(angle) = snap_angle {
+                new_value = (new_value / angle).round() * angle;
             }
         }
 

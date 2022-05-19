@@ -16,6 +16,8 @@ struct MyApp {
     angle_knob_mode: AngleKnobMode,
     angle_knob_minimum: Option<f32>,
     angle_knob_maximum: Option<f32>,
+    angle_knob_snap_angle: Option<f32>,
+    angle_knob_shift_snap_angle: Option<f32>,
 
     // AudioKnob
     audio_knob_value: f32,
@@ -31,6 +33,8 @@ impl Default for MyApp {
             angle_knob_mode: AngleKnobMode::Signed,
             angle_knob_minimum: None,
             angle_knob_maximum: None,
+            angle_knob_snap_angle: None,
+            angle_knob_shift_snap_angle: None,
 
             // AudioKnob
             audio_knob_value: 0.75,
@@ -181,6 +185,40 @@ impl eframe::App for MyApp {
                     }
                 });
 
+                ui.horizontal(|ui| {
+                    {
+                        let mut snap_enabled = self.angle_knob_snap_angle.is_some();
+                        ui.toggle_value(&mut snap_enabled, "Snap");
+
+                        self.angle_knob_snap_angle =
+                            match (snap_enabled, self.angle_knob_snap_angle) {
+                                (true, None) => Some(PI / 12.0),
+                                (false, Some(_)) => None,
+                                _ => self.angle_knob_snap_angle,
+                            };
+
+                        if let Some(value) = &mut self.angle_knob_snap_angle {
+                            ui.drag_angle(value);
+                        }
+                    }
+
+                    {
+                        let mut shift_snap_enabled = self.angle_knob_shift_snap_angle.is_some();
+                        ui.toggle_value(&mut shift_snap_enabled, "Shift snap");
+
+                        self.angle_knob_shift_snap_angle =
+                            match (shift_snap_enabled, self.angle_knob_shift_snap_angle) {
+                                (true, None) => Some(PI / 12.0),
+                                (false, Some(_)) => None,
+                                _ => self.angle_knob_shift_snap_angle,
+                            };
+
+                        if let Some(value) = &mut self.angle_knob_shift_snap_angle {
+                            ui.drag_angle(value);
+                        }
+                    }
+                });
+
                 ui.add_space(16.0);
 
                 ui.horizontal(|ui| {
@@ -193,6 +231,8 @@ impl eframe::App for MyApp {
                         &mut self.angle_knob_value,
                         self.angle_knob_minimum,
                         self.angle_knob_maximum,
+                        self.angle_knob_snap_angle,
+                        self.angle_knob_shift_snap_angle,
                     );
                     angle_knob(
                         ui,
@@ -203,6 +243,8 @@ impl eframe::App for MyApp {
                         &mut self.angle_knob_value,
                         self.angle_knob_minimum,
                         self.angle_knob_maximum,
+                        self.angle_knob_snap_angle,
+                        self.angle_knob_shift_snap_angle,
                     );
                 });
 
