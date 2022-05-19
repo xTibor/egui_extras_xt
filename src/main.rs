@@ -406,7 +406,6 @@ struct MyApp {
     knob_c_orientation: KnobOrientation,
     knob_c_direction: KnobDirection,
     knob_c_mode: KnobMode,
-    knob_c_custom_angle: f32, // HACK
     knob_c_minimum: Option<f32>,
     knob_c_maximum: Option<f32>,
     knob_d: f32,
@@ -421,7 +420,6 @@ impl Default for MyApp {
             knob_c_orientation: KnobOrientation::Top,
             knob_c_direction: KnobDirection::Clockwise,
             knob_c_mode: KnobMode::Signed,
-            knob_c_custom_angle: 0.0,
             knob_c_minimum: None,
             knob_c_maximum: None,
             knob_d: 0.75,
@@ -493,15 +491,22 @@ impl eframe::App for MyApp {
                         KnobOrientation::Left,
                         "⬅ Left",
                     );
-                    ui.selectable_value(
-                        &mut self.knob_c_orientation,
-                        KnobOrientation::Custom(self.knob_c_custom_angle),
-                        "✏ Custom(..)",
-                    );
 
-                    if let KnobOrientation::Custom(value) = &mut self.knob_c_orientation {
-                        ui.drag_angle(value);
-                        self.knob_c_custom_angle = *value;
+                    {
+                        let mut is_custom_orientation =
+                            matches!(self.knob_c_orientation, KnobOrientation::Custom(..));
+
+                        ui.selectable_value(&mut is_custom_orientation, true, "✏ Custom(..)");
+
+                        if is_custom_orientation
+                            && !matches!(self.knob_c_orientation, KnobOrientation::Custom(..))
+                        {
+                            self.knob_c_orientation = KnobOrientation::Custom(0.0);
+                        }
+
+                        if let KnobOrientation::Custom(value) = &mut self.knob_c_orientation {
+                            ui.drag_angle(value);
+                        }
                     }
                 });
 
