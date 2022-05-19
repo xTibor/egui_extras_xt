@@ -276,7 +276,7 @@ pub fn knob_variant_c(
 
         if let Some(min) = min {
             let min_vec2 = widget_rotation * Vec2::angled(min * value_direction) * radius;
-            let min_alpha = 1.0 - ((min - *value).abs() / PI).clamp(0.0, 1.0).powf(5.0);
+            let min_alpha = 1.0 - ((min - *value).abs() / (PI * 1.5)).clamp(0.0, 1.0).powf(5.0);
 
             // TODO: Semantically correct color
             let min_stroke = Stroke::new(
@@ -290,7 +290,7 @@ pub fn knob_variant_c(
 
         if let Some(max) = max {
             let max_vec2 = widget_rotation * Vec2::angled(max * value_direction) * radius;
-            let max_alpha = 1.0 - ((max - *value).abs() / PI).clamp(0.0, 1.0).powf(5.0);
+            let max_alpha = 1.0 - ((max - *value).abs() / (PI * 1.5)).clamp(0.0, 1.0).powf(5.0);
 
             // TODO: Semantically correct color
             let max_stroke = Stroke::new(
