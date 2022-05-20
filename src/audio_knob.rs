@@ -16,7 +16,7 @@ fn paint_arc(
     fill: Color32,
     stroke: Stroke,
 ) {
-    if almost_equal(start_angle, end_angle, f32::EPSILON) {
+    if almost_equal(start_angle, end_angle, 0.001) {
         ui.painter().add(Shape::line_segment(
             [
                 center + Vec2::angled(start_angle) * inner_radius,
