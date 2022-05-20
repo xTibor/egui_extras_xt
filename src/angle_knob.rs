@@ -38,71 +38,62 @@ pub enum AngleKnobMode {
     SpinAround,
 }
 
+#[non_exhaustive]
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum AngleKnobPreset {
     AdobePhotoshop,
-    GIMP,
+    AdobePremierePro,
+    Gimp,
     GoogleChromeDevTools,
     Krita,
     LibreOffice,
-    VLC,
+    QtWidgets,
     // Software without knob widgets:
-    // - Blender
+    // - Blender (no knobs but transform gizmo suggests Top/Clockwise/SpinAround)
     // - Inkscape
     // - Kdenlive
-    // - MyPaint (no knobs but canvas rotation behaves Right/Clockwise/Signed)
+    // - MyPaint (no knobs but canvas rotation suggests Right/Clockwise/Signed)
 }
 
 impl AngleKnobPreset {
-    fn properties(
-        &self,
-    ) -> (
-        AngleKnobOrientation,
-        AngleKnobDirection,
-        AngleKnobMode,
-        Option<f32>,
-        Option<f32>,
-        Option<f32>,
-        Option<f32>,
-    ) {
+    fn properties(&self) -> (AngleKnobOrientation, AngleKnobDirection, AngleKnobMode) {
         match *self {
-            // Knobs widgets are a clusterfuck in Krita, however a significant
-            // number of them follow what Photoshop does.
-            AngleKnobPreset::AdobePhotoshop | AngleKnobPreset::Krita => (
+            AngleKnobPreset::AdobePhotoshop => (
                 AngleKnobOrientation::Right,
                 AngleKnobDirection::Counterclockwise,
                 AngleKnobMode::Signed,
-                None,
-                None,
-                None,
-                Some(PI / 12.0),
             ),
-            AngleKnobPreset::GIMP | AngleKnobPreset::LibreOffice => (
+            AngleKnobPreset::AdobePremierePro => (
+                AngleKnobOrientation::Top,
+                AngleKnobDirection::Clockwise,
+                AngleKnobMode::SpinAround,
+            ),
+            AngleKnobPreset::Gimp => (
                 AngleKnobOrientation::Right,
                 AngleKnobDirection::Counterclockwise,
                 AngleKnobMode::Unsigned,
-                None,
-                None,
-                None,
-                Some(PI / 12.0),
             ),
             AngleKnobPreset::GoogleChromeDevTools => (
                 AngleKnobOrientation::Top,
                 AngleKnobDirection::Clockwise,
                 AngleKnobMode::Unsigned,
-                None,
-                None,
-                None,
-                Some(PI / 12.0),
             ),
-            AngleKnobPreset::VLC => (
+            // Knob widgets are a clusterfuck in Krita, however a significant
+            // number of them follow what Photoshop does.
+            AngleKnobPreset::Krita => (
+                AngleKnobOrientation::Right,
+                AngleKnobDirection::Counterclockwise,
+                AngleKnobMode::Signed,
+            ),
+            AngleKnobPreset::LibreOffice => (
+                AngleKnobOrientation::Right,
+                AngleKnobDirection::Counterclockwise,
+                AngleKnobMode::Unsigned,
+            ),
+            AngleKnobPreset::QtWidgets => (
                 AngleKnobOrientation::Bottom,
                 AngleKnobDirection::Clockwise,
                 AngleKnobMode::Unsigned,
-                None,
-                None,
-                None,
-                None,
             ),
         }
     }
