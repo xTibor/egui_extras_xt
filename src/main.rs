@@ -1,4 +1,4 @@
-use std::f32::consts::{PI, TAU};
+use std::f32::consts::TAU;
 
 use eframe::egui::{self, global_dark_light_mode_switch};
 
@@ -27,7 +27,7 @@ impl Default for MyApp {
     fn default() -> Self {
         Self {
             // AngleKnob
-            angle_knob_value: PI / 9.0,
+            angle_knob_value: TAU / 18.0,
             angle_knob_orientation: AngleKnobOrientation::Top,
             angle_knob_direction: AngleKnobDirection::Clockwise,
             angle_knob_mode: AngleKnobMode::Signed,
@@ -192,13 +192,14 @@ impl eframe::App for MyApp {
 
                         self.angle_knob_snap_angle =
                             match (snap_enabled, self.angle_knob_snap_angle) {
-                                (true, None) => Some(PI / 12.0),
+                                (true, None) => Some(TAU / 24.0),
                                 (false, Some(_)) => None,
                                 _ => self.angle_knob_snap_angle,
                             };
 
                         if let Some(value) = &mut self.angle_knob_snap_angle {
                             ui.drag_angle(value);
+                            *value = value.max(TAU / 360.0);
                         }
                     }
 
@@ -208,13 +209,14 @@ impl eframe::App for MyApp {
 
                         self.angle_knob_shift_snap_angle =
                             match (shift_snap_enabled, self.angle_knob_shift_snap_angle) {
-                                (true, None) => Some(PI / 12.0),
+                                (true, None) => Some(TAU / 24.0),
                                 (false, Some(_)) => None,
                                 _ => self.angle_knob_shift_snap_angle,
                             };
 
                         if let Some(value) = &mut self.angle_knob_shift_snap_angle {
                             ui.drag_angle(value);
+                            *value = value.max(TAU / 360.0);
                         }
                     }
                 });
