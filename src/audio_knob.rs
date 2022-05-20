@@ -18,6 +18,11 @@ fn paint_arc(
     fill: Color32,
     stroke: Stroke,
 ) {
+    // NOTE: convex_polygon() is broken, spews rendering artifacts all over
+    //   the window when it tries to render degenerate polygons:
+    //     ∃(P1,P2) ∈ Poly (dist(P1,P2) ≈ 0)
+
+    // HACK: convex_polygon() workaround
     if almost_equal(start_angle, end_angle, 0.001) {
         ui.painter().add(Shape::line_segment(
             [
@@ -37,6 +42,9 @@ fn paint_arc(
             center + Vec2::angled(angle) * radius
         })
     };
+
+    // HACK: convex_polygon() workaround
+    let inner_radius = inner_radius.max(0.1);
 
     let outer_arc = generate_arc_points(outer_radius).collect::<Vec<_>>();
     let inner_arc = generate_arc_points(inner_radius).collect::<Vec<_>>();
