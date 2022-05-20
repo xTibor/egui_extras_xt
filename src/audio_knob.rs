@@ -48,7 +48,7 @@ fn paint_arc(
             ui.painter().add(Shape::convex_polygon(
                 vec![*outer_1, *inner_1, *inner_2, *outer_2],
                 fill,
-                Stroke::none(),
+                Stroke::new(1.0, fill),
             ));
         });
 
