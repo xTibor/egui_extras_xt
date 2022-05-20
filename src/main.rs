@@ -2,17 +2,22 @@ use std::f32::consts::TAU;
 
 use eframe::egui::{self, global_dark_light_mode_switch};
 
+mod common;
+use common::{KnobDirection, KnobOrientation};
+
 mod angle_knob;
-use angle_knob::{angle_knob, AngleKnobDirection, AngleKnobMode, AngleKnobOrientation};
+use angle_knob::{angle_knob, AngleKnobMode};
 
 mod audio_knob;
 use audio_knob::audio_knob;
 
 struct MyApp {
+    // Common properties
+    common_orientation: KnobOrientation,
+    common_direction: KnobDirection,
+
     // AngleKnob
     angle_knob_value: f32,
-    angle_knob_orientation: AngleKnobOrientation,
-    angle_knob_direction: AngleKnobDirection,
     angle_knob_mode: AngleKnobMode,
     angle_knob_minimum: Option<f32>,
     angle_knob_maximum: Option<f32>,
@@ -26,10 +31,12 @@ struct MyApp {
 impl Default for MyApp {
     fn default() -> Self {
         Self {
+            // Common properties
+            common_orientation: KnobOrientation::Top,
+            common_direction: KnobDirection::Clockwise,
+
             // AngleKnob
             angle_knob_value: TAU / 18.0,
-            angle_knob_orientation: AngleKnobOrientation::Top,
-            angle_knob_direction: AngleKnobDirection::Clockwise,
             angle_knob_mode: AngleKnobMode::Signed,
             angle_knob_minimum: None,
             angle_knob_maximum: None,
@@ -52,11 +59,66 @@ impl eframe::App for MyApp {
 
             ui.separator();
 
+            ui.heading("Common properties");
+            ui.add_space(8.0);
+
+            ui.horizontal(|ui| {
+                ui.selectable_value(&mut self.common_orientation, KnobOrientation::Top, "⬆ Top");
+                ui.selectable_value(
+                    &mut self.common_orientation,
+                    KnobOrientation::Right,
+                    "➡ Right",
+                );
+                ui.selectable_value(
+                    &mut self.common_orientation,
+                    KnobOrientation::Bottom,
+                    "⬇ Bottom",
+                );
+                ui.selectable_value(
+                    &mut self.common_orientation,
+                    KnobOrientation::Left,
+                    "⬅ Left",
+                );
+
+                {
+                    let mut is_custom_orientation =
+                        matches!(self.common_orientation, KnobOrientation::Custom(..));
+
+                    ui.selectable_value(&mut is_custom_orientation, true, "✏ Custom(..)");
+
+                    if is_custom_orientation
+                        && !matches!(self.common_orientation, KnobOrientation::Custom(..))
+                    {
+                        self.common_orientation = KnobOrientation::Custom(0.0);
+                    }
+
+                    if let KnobOrientation::Custom(value) = &mut self.common_orientation {
+                        ui.drag_angle(value);
+                    }
+                }
+            });
+
+            ui.horizontal(|ui| {
+                ui.selectable_value(
+                    &mut self.common_direction,
+                    KnobDirection::Clockwise,
+                    "⟳ Clockwise",
+                );
+                ui.selectable_value(
+                    &mut self.common_direction,
+                    KnobDirection::Counterclockwise,
+                    "⟲ Counterclockwise",
+                );
+            });
+
+            ui.add_space(8.0);
+            ui.separator();
+
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.heading("AudioKnob");
-                ui.add_space(16.0);
+                ui.add_space(8.0);
                 ui.add(egui::Slider::new(&mut self.audio_knob_value, -1.0..=1.0));
-                ui.add_space(16.0);
+                ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
                     audio_knob(ui, 64.0, &mut self.audio_knob_value, 0.0..=1.0);
@@ -66,10 +128,11 @@ impl eframe::App for MyApp {
                     audio_knob(ui, 32.0, &mut self.audio_knob_value, -1.0..=1.0);
                 });
 
+                ui.add_space(8.0);
                 ui.separator();
 
                 ui.heading("AngleKnob");
-                ui.add_space(16.0);
+                ui.add_space(8.0);
 
                 ui.drag_angle(&mut self.angle_knob_value);
 
@@ -90,66 +153,6 @@ impl eframe::App for MyApp {
                         &mut self.angle_knob_mode,
                         AngleKnobMode::SpinAround,
                         "🔃 SpinAround",
-                    );
-                });
-
-                ui.horizontal(|ui| {
-                    ui.selectable_value(
-                        &mut self.angle_knob_orientation,
-                        AngleKnobOrientation::Top,
-                        "⬆ Top",
-                    );
-                    ui.selectable_value(
-                        &mut self.angle_knob_orientation,
-                        AngleKnobOrientation::Right,
-                        "➡ Right",
-                    );
-                    ui.selectable_value(
-                        &mut self.angle_knob_orientation,
-                        AngleKnobOrientation::Bottom,
-                        "⬇ Bottom",
-                    );
-                    ui.selectable_value(
-                        &mut self.angle_knob_orientation,
-                        AngleKnobOrientation::Left,
-                        "⬅ Left",
-                    );
-
-                    {
-                        let mut is_custom_orientation = matches!(
-                            self.angle_knob_orientation,
-                            AngleKnobOrientation::Custom(..)
-                        );
-
-                        ui.selectable_value(&mut is_custom_orientation, true, "✏ Custom(..)");
-
-                        if is_custom_orientation
-                            && !matches!(
-                                self.angle_knob_orientation,
-                                AngleKnobOrientation::Custom(..)
-                            )
-                        {
-                            self.angle_knob_orientation = AngleKnobOrientation::Custom(0.0);
-                        }
-
-                        if let AngleKnobOrientation::Custom(value) =
-                            &mut self.angle_knob_orientation
-                        {
-                            ui.drag_angle(value);
-                        }
-                    }
-                });
-
-                ui.horizontal(|ui| {
-                    ui.selectable_value(
-                        &mut self.angle_knob_direction,
-                        AngleKnobDirection::Clockwise,
-                        "⟳ Clockwise",
-                    );
-                    ui.selectable_value(
-                        &mut self.angle_knob_direction,
-                        AngleKnobDirection::Counterclockwise,
-                        "⟲ Counterclockwise",
                     );
                 });
 
@@ -221,15 +224,15 @@ impl eframe::App for MyApp {
                     }
                 });
 
-                ui.add_space(16.0);
+                ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
                     for angle_knob_size in [64.0, 32.0] {
                         angle_knob(
                             ui,
                             angle_knob_size,
-                            self.angle_knob_orientation,
-                            self.angle_knob_direction,
+                            self.common_orientation,
+                            self.common_direction,
                             self.angle_knob_mode,
                             &mut self.angle_knob_value,
                             self.angle_knob_minimum,
@@ -240,6 +243,7 @@ impl eframe::App for MyApp {
                     }
                 });
 
+                ui.add_space(8.0);
                 ui.separator();
             });
         });

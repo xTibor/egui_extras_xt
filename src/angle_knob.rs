@@ -4,32 +4,7 @@ use eframe::egui;
 use eframe::emath::{Rot2, Vec2};
 use eframe::epaint::{Shape, Stroke};
 
-#[derive(PartialEq, Debug, Clone, Copy)]
-pub enum AngleKnobOrientation {
-    Right,
-    Bottom,
-    Left,
-    Top,
-    Custom(f32),
-}
-
-impl AngleKnobOrientation {
-    pub fn rot2(&self) -> Rot2 {
-        match *self {
-            Self::Right => Rot2::from_angle(TAU * 0.00),
-            Self::Bottom => Rot2::from_angle(TAU * 0.25),
-            Self::Left => Rot2::from_angle(TAU * 0.50),
-            Self::Top => Rot2::from_angle(TAU * 0.75),
-            Self::Custom(angle) => Rot2::from_angle(angle),
-        }
-    }
-}
-
-#[derive(PartialEq, Debug, Clone, Copy)]
-pub enum AngleKnobDirection {
-    Clockwise,
-    Counterclockwise,
-}
+use crate::common::{KnobDirection, KnobOrientation};
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum AngleKnobMode {
@@ -56,43 +31,43 @@ pub enum AngleKnobPreset {
 }
 
 impl AngleKnobPreset {
-    fn properties(&self) -> (AngleKnobOrientation, AngleKnobDirection, AngleKnobMode) {
+    fn properties(&self) -> (KnobOrientation, KnobDirection, AngleKnobMode) {
         match *self {
             AngleKnobPreset::AdobePhotoshop => (
-                AngleKnobOrientation::Right,
-                AngleKnobDirection::Counterclockwise,
+                KnobOrientation::Right,
+                KnobDirection::Counterclockwise,
                 AngleKnobMode::Signed,
             ),
             AngleKnobPreset::AdobePremierePro => (
-                AngleKnobOrientation::Top,
-                AngleKnobDirection::Clockwise,
+                KnobOrientation::Top,
+                KnobDirection::Clockwise,
                 AngleKnobMode::SpinAround,
             ),
             AngleKnobPreset::Gimp => (
-                AngleKnobOrientation::Right,
-                AngleKnobDirection::Counterclockwise,
+                KnobOrientation::Right,
+                KnobDirection::Counterclockwise,
                 AngleKnobMode::Unsigned,
             ),
             AngleKnobPreset::GoogleChromeDevTools => (
-                AngleKnobOrientation::Top,
-                AngleKnobDirection::Clockwise,
+                KnobOrientation::Top,
+                KnobDirection::Clockwise,
                 AngleKnobMode::Unsigned,
             ),
             // Knob widgets are a clusterfuck in Krita, however a significant
             // number of them follow what Photoshop does.
             AngleKnobPreset::Krita => (
-                AngleKnobOrientation::Right,
-                AngleKnobDirection::Counterclockwise,
+                KnobOrientation::Right,
+                KnobDirection::Counterclockwise,
                 AngleKnobMode::Signed,
             ),
             AngleKnobPreset::LibreOffice => (
-                AngleKnobOrientation::Right,
-                AngleKnobDirection::Counterclockwise,
+                KnobOrientation::Right,
+                KnobDirection::Counterclockwise,
                 AngleKnobMode::Unsigned,
             ),
             AngleKnobPreset::QtWidgets => (
-                AngleKnobOrientation::Bottom,
-                AngleKnobDirection::Clockwise,
+                KnobOrientation::Bottom,
+                KnobDirection::Clockwise,
                 AngleKnobMode::Unsigned,
             ),
         }
@@ -102,8 +77,8 @@ impl AngleKnobPreset {
 pub fn angle_knob(
     ui: &mut egui::Ui,
     diameter: f32,
-    orientation: AngleKnobOrientation,
-    direction: AngleKnobDirection,
+    orientation: KnobOrientation,
+    direction: KnobDirection,
     mode: AngleKnobMode,
     value: &mut f32,
     min: Option<f32>,
@@ -115,8 +90,8 @@ pub fn angle_knob(
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     let value_direction = match direction {
-        AngleKnobDirection::Clockwise => 1.0,
-        AngleKnobDirection::Counterclockwise => -1.0,
+        KnobDirection::Clockwise => 1.0,
+        KnobDirection::Counterclockwise => -1.0,
     };
 
     let rotation_matrix = orientation.rot2();
