@@ -6,6 +6,8 @@ use eframe::emath::{almost_equal, lerp, remap_clamp, Pos2, Vec2};
 use eframe::epaint::{Color32, Shape, Stroke};
 use itertools::Itertools;
 
+use crate::common::{KnobDirection, KnobOrientation};
+
 fn paint_arc(
     ui: &mut egui::Ui,
     center: Pos2,
@@ -64,8 +66,11 @@ fn paint_arc(
 pub fn audio_knob(
     ui: &mut egui::Ui,
     diameter: f32,
+    orientation: KnobOrientation,
+    direction: KnobDirection,
     value: &mut f32,
     range: RangeInclusive<f32>,
+    spread: f32,
 ) -> egui::Response {
     let desired_size = Vec2::splat(diameter);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
@@ -78,9 +83,15 @@ pub fn audio_knob(
     }
 
     if ui.is_rect_visible(rect) {
-        let (center_angle, spread_angle) = (-(TAU / 4.0), (TAU / 2.0) * 0.75);
-        let (min_angle, max_angle) = (center_angle - spread_angle, center_angle + spread_angle);
         let visuals = *ui.style().interact(&response);
+
+        let center_angle = (orientation.rot2() * Vec2::RIGHT).angle();
+        let spread_angle = (TAU / 2.0) * spread.clamp(0.0, 1.0);
+
+        let (min_angle, max_angle) = (
+            center_angle - spread_angle * direction.to_float(),
+            center_angle + spread_angle * direction.to_float(),
+        );
 
         paint_arc(
             ui,

@@ -1,6 +1,7 @@
 use std::f32::consts::TAU;
 
 use eframe::egui::{self, global_dark_light_mode_switch};
+use itertools::Itertools;
 
 mod common;
 use common::{KnobDirection, KnobOrientation};
@@ -26,6 +27,7 @@ struct MyApp {
 
     // AudioKnob
     audio_knob_value: f32,
+    audio_knob_spread: f32,
 }
 
 impl Default for MyApp {
@@ -45,6 +47,7 @@ impl Default for MyApp {
 
             // AudioKnob
             audio_knob_value: 0.75,
+            audio_knob_spread: 0.75,
         }
     }
 }
@@ -118,14 +121,24 @@ impl eframe::App for MyApp {
                 ui.heading("AudioKnob");
                 ui.add_space(8.0);
                 ui.add(egui::Slider::new(&mut self.audio_knob_value, -1.0..=1.0));
+                ui.add(egui::Slider::new(&mut self.audio_knob_spread, 0.0..=1.0));
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
-                    audio_knob(ui, 64.0, &mut self.audio_knob_value, 0.0..=1.0);
-                    audio_knob(ui, 32.0, &mut self.audio_knob_value, 0.0..=1.0);
-
-                    audio_knob(ui, 64.0, &mut self.audio_knob_value, -1.0..=1.0);
-                    audio_knob(ui, 32.0, &mut self.audio_knob_value, -1.0..=1.0);
+                    for (audio_knob_range, audio_knob_size) in [0.0..=1.0, -1.0..=1.0]
+                        .into_iter()
+                        .cartesian_product([64.0, 32.0])
+                    {
+                        audio_knob(
+                            ui,
+                            audio_knob_size,
+                            self.common_orientation,
+                            self.common_direction,
+                            &mut self.audio_knob_value,
+                            audio_knob_range,
+                            self.audio_knob_spread,
+                        );
+                    }
                 });
 
                 ui.add_space(8.0);

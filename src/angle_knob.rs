@@ -89,18 +89,13 @@ pub fn angle_knob(
     let desired_size = Vec2::splat(diameter);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
-    let value_direction = match direction {
-        KnobDirection::Clockwise => 1.0,
-        KnobDirection::Counterclockwise => -1.0,
-    };
-
     let rotation_matrix = orientation.rot2();
 
     if response.clicked() || response.dragged() {
         let mut new_value = (rotation_matrix.inverse()
             * (response.interact_pointer_pos().unwrap() - rect.center()))
         .angle()
-            * value_direction;
+            * direction.to_float();
 
         if mode == AngleKnobMode::Unsigned {
             new_value = (new_value + TAU) % TAU;
@@ -161,7 +156,7 @@ pub fn angle_knob(
 
         let paint_stop = |stop_position: f32| {
             let stop_vec2 =
-                rotation_matrix * Vec2::angled(stop_position * value_direction) * radius;
+                rotation_matrix * Vec2::angled(stop_position * direction.to_float()) * radius;
 
             let stop_alpha = 1.0
                 - ((stop_position - *value).abs() / (TAU * 0.75))
@@ -187,7 +182,7 @@ pub fn angle_knob(
         }
 
         {
-            let value_vec2 = rotation_matrix * Vec2::angled(*value * value_direction) * radius;
+            let value_vec2 = rotation_matrix * Vec2::angled(*value * direction.to_float()) * radius;
 
             ui.painter().line_segment(
                 [rect.center(), rect.center() + value_vec2],

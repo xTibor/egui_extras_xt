@@ -28,3 +28,12 @@ pub enum KnobDirection {
     Clockwise,
     Counterclockwise,
 }
+
+impl KnobDirection {
+    pub fn to_float(&self) -> f32 {
+        match *self {
+            Self::Clockwise => 1.0,
+            Self::Counterclockwise => -1.0,
+        }
+    }
+}
