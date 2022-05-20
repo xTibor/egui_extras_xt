@@ -13,6 +13,18 @@ pub enum AngleKnobOrientation {
     Custom(f32),
 }
 
+impl AngleKnobOrientation {
+    pub fn rot2(&self) -> Rot2 {
+        match *self {
+            Self::Right => Rot2::from_angle(PI * 0.0),
+            Self::Bottom => Rot2::from_angle(PI * 0.5),
+            Self::Left => Rot2::from_angle(PI * 1.0),
+            Self::Top => Rot2::from_angle(PI * 1.5),
+            Self::Custom(angle) => Rot2::from_angle(angle),
+        }
+    }
+}
+
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum AngleKnobDirection {
     Clockwise,
@@ -34,11 +46,11 @@ pub enum AngleKnobPreset {
     Krita,
     LibreOffice,
     VLC,
-    // Multimedia software lacking knob widgets:
+    // Software without knob widgets:
     // - Blender
     // - Inkscape
     // - Kdenlive
-    // - MyPaint (canvas behaves Right/Clockwise/Signed)
+    // - MyPaint (no knobs but canvas rotation behaves Right/Clockwise/Signed)
 }
 
 impl AngleKnobPreset {
@@ -116,16 +128,10 @@ pub fn angle_knob(
         AngleKnobDirection::Counterclockwise => -1.0,
     };
 
-    let widget_rotation = match orientation {
-        AngleKnobOrientation::Right => Rot2::from_angle(PI * 0.0),
-        AngleKnobOrientation::Bottom => Rot2::from_angle(PI * 0.5),
-        AngleKnobOrientation::Left => Rot2::from_angle(PI * 1.0),
-        AngleKnobOrientation::Top => Rot2::from_angle(PI * 1.5),
-        AngleKnobOrientation::Custom(angle) => Rot2::from_angle(angle),
-    };
+    let rotation_matrix = orientation.rot2();
 
     if response.clicked() || response.dragged() {
-        let mut new_value = (widget_rotation.inverse()
+        let mut new_value = (rotation_matrix.inverse()
             * (response.interact_pointer_pos().unwrap() - rect.center()))
         .angle()
             * value_direction;
@@ -173,64 +179,49 @@ pub fn angle_knob(
         ui.painter()
             .circle(rect.center(), radius, visuals.bg_fill, visuals.fg_stroke);
 
-        {
-            let axis1_vec2 = widget_rotation * Vec2::DOWN * radius;
+        let paint_axis = |axis_direction| {
+            let axis_vec2 = rotation_matrix * axis_direction * radius;
 
             ui.painter().add(Shape::dashed_line(
-                &[rect.center() + axis1_vec2, rect.center() - axis1_vec2],
+                &[rect.center() + axis_vec2, rect.center() - axis_vec2],
                 ui.visuals().window_stroke(), // TODO: Semantically correct color
                 1.0,
                 1.0,
             ));
-        }
+        };
 
-        {
-            let axis2_vec2 = widget_rotation * Vec2::RIGHT * radius;
+        paint_axis(Vec2::DOWN);
+        paint_axis(Vec2::RIGHT);
 
-            ui.painter().add(Shape::dashed_line(
-                &[rect.center() + axis2_vec2, rect.center() - axis2_vec2],
-                ui.visuals().window_stroke(), // TODO: Semantically correct color
-                1.0,
-                1.0,
-            ));
-        }
+        let paint_stop = |stop_position: f32| {
+            let stop_vec2 =
+                rotation_matrix * Vec2::angled(stop_position * value_direction) * radius;
 
-        if let Some(min) = min {
-            let min_vec2 = widget_rotation * Vec2::angled(min * value_direction) * radius;
-            let min_alpha = 1.0
-                - ((min - *value).abs() / (PI * 1.5))
+            let stop_alpha = 1.0
+                - ((stop_position - *value).abs() / (PI * 1.5))
                     .clamp(0.0, 1.0)
                     .powf(5.0);
 
             // TODO: Semantically correct color
-            let min_stroke = Stroke::new(
+            let stop_stroke = Stroke::new(
                 visuals.fg_stroke.width,
-                visuals.fg_stroke.color.linear_multiply(min_alpha),
+                visuals.fg_stroke.color.linear_multiply(stop_alpha),
             );
 
             ui.painter()
-                .line_segment([rect.center(), rect.center() + min_vec2], min_stroke);
+                .line_segment([rect.center(), rect.center() + stop_vec2], stop_stroke);
+        };
+
+        if let Some(min) = min {
+            paint_stop(min);
         }
 
         if let Some(max) = max {
-            let max_vec2 = widget_rotation * Vec2::angled(max * value_direction) * radius;
-            let max_alpha = 1.0
-                - ((max - *value).abs() / (PI * 1.5))
-                    .clamp(0.0, 1.0)
-                    .powf(5.0);
-
-            // TODO: Semantically correct color
-            let max_stroke = Stroke::new(
-                visuals.fg_stroke.width,
-                visuals.fg_stroke.color.linear_multiply(max_alpha),
-            );
-
-            ui.painter()
-                .line_segment([rect.center(), rect.center() + max_vec2], max_stroke);
+            paint_stop(max);
         }
 
         {
-            let value_vec2 = widget_rotation * Vec2::angled(*value * value_direction) * radius;
+            let value_vec2 = rotation_matrix * Vec2::angled(*value * value_direction) * radius;
 
             ui.painter().line_segment(
                 [rect.center(), rect.center() + value_vec2],
