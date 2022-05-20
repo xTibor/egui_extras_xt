@@ -71,6 +71,7 @@ pub fn audio_knob(
     value: &mut f32,
     range: RangeInclusive<f32>,
     spread: f32,
+    thickness: f32,
 ) -> egui::Response {
     let desired_size = Vec2::splat(diameter);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
@@ -93,11 +94,14 @@ pub fn audio_knob(
             center_angle + spread_angle * direction.to_float(),
         );
 
+        let outer_radius = diameter / 2.0;
+        let inner_radius = outer_radius * (1.0 - thickness.clamp(0.0, 1.0));
+
         paint_arc(
             ui,
             rect.center(),
-            diameter / 6.0,
-            diameter / 2.0,
+            inner_radius,
+            outer_radius,
             min_angle,
             max_angle,
             ui.style().visuals.faint_bg_color,
@@ -107,8 +111,8 @@ pub fn audio_knob(
         paint_arc(
             ui,
             rect.center(),
-            diameter / 6.0 - visuals.expansion,
-            diameter / 2.0 + visuals.expansion,
+            (inner_radius - visuals.expansion).max(0.0),
+            outer_radius + visuals.expansion,
             remap_clamp(0.0, range.clone(), min_angle..=max_angle),
             remap_clamp(*value, range, min_angle..=max_angle),
             visuals.bg_fill,

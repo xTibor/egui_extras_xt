@@ -28,6 +28,7 @@ struct MyApp {
     // AudioKnob
     audio_knob_value: f32,
     audio_knob_spread: f32,
+    audio_knob_thickness: f32,
 }
 
 impl Default for MyApp {
@@ -48,6 +49,7 @@ impl Default for MyApp {
             // AudioKnob
             audio_knob_value: 0.75,
             audio_knob_spread: 0.75,
+            audio_knob_thickness: 0.66,
         }
     }
 }
@@ -122,6 +124,7 @@ impl eframe::App for MyApp {
                 ui.add_space(8.0);
                 ui.add(egui::Slider::new(&mut self.audio_knob_value, -1.0..=1.0));
                 ui.add(egui::Slider::new(&mut self.audio_knob_spread, 0.0..=1.0));
+                ui.add(egui::Slider::new(&mut self.audio_knob_thickness, 0.0..=1.0));
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
@@ -137,6 +140,7 @@ impl eframe::App for MyApp {
                             &mut self.audio_knob_value,
                             audio_knob_range,
                             self.audio_knob_spread,
+                            self.audio_knob_thickness,
                         );
                     }
                 });
