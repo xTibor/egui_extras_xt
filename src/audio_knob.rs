@@ -85,7 +85,8 @@ pub fn audio_knob(
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     if response.dragged() {
-        let delta = response.drag_delta().x - response.drag_delta().y;
+        let drag_delta = orientation.rot2().inverse() * response.drag_delta();
+        let delta = drag_delta.x + drag_delta.y * direction.to_float();
         *value = (*value + delta * (*range.end() - *range.start()) / diameter)
             .clamp(*range.start(), *range.end());
         response.mark_changed();
