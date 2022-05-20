@@ -1,4 +1,4 @@
-use std::f32::consts::{PI, TAU};
+use std::f32::consts::TAU;
 
 use eframe::egui;
 use eframe::emath::{Rot2, Vec2};
@@ -16,10 +16,10 @@ pub enum AngleKnobOrientation {
 impl AngleKnobOrientation {
     pub fn rot2(&self) -> Rot2 {
         match *self {
-            Self::Right => Rot2::from_angle(PI * 0.0),
-            Self::Bottom => Rot2::from_angle(PI * 0.5),
-            Self::Left => Rot2::from_angle(PI * 1.0),
-            Self::Top => Rot2::from_angle(PI * 1.5),
+            Self::Right => Rot2::from_angle(TAU * 0.00),
+            Self::Bottom => Rot2::from_angle(TAU * 0.25),
+            Self::Left => Rot2::from_angle(TAU * 0.50),
+            Self::Top => Rot2::from_angle(TAU * 0.75),
             Self::Custom(angle) => Rot2::from_angle(angle),
         }
     }
@@ -135,9 +135,9 @@ pub fn angle_knob(
             let prev_turns = (*value / TAU).round();
             new_value += prev_turns * TAU;
 
-            if new_value - *value > PI {
+            if new_value - *value > (TAU / 2.0) {
                 new_value -= TAU;
-            } else if new_value - *value < -PI {
+            } else if new_value - *value < -(TAU / 2.0) {
                 new_value += TAU;
             }
         }
@@ -189,7 +189,7 @@ pub fn angle_knob(
                 rotation_matrix * Vec2::angled(stop_position * value_direction) * radius;
 
             let stop_alpha = 1.0
-                - ((stop_position - *value).abs() / (PI * 1.5))
+                - ((stop_position - *value).abs() / (TAU * 0.75))
                     .clamp(0.0, 1.0)
                     .powf(5.0);
 

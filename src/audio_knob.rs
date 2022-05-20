@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
 use eframe::egui;
@@ -78,7 +78,8 @@ pub fn audio_knob(
     }
 
     if ui.is_rect_visible(rect) {
-        let (min_angle, max_angle) = (PI * -1.25, PI * 0.25);
+        let (center_angle, spread_angle) = (-(TAU / 4.0), (TAU / 2.0) * 0.75);
+        let (min_angle, max_angle) = (center_angle - spread_angle, center_angle + spread_angle);
         let visuals = *ui.style().interact(&response);
 
         paint_arc(
