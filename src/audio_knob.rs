@@ -1,12 +1,28 @@
 use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
-use eframe::egui;
+use eframe::egui::{self, Response, Ui, Widget};
 use eframe::emath::{almost_equal, lerp, remap_clamp, Pos2, Vec2};
 use eframe::epaint::{Color32, Shape, Stroke};
 use itertools::Itertools;
 
 use crate::common::{KnobDirection, KnobOrientation};
+
+// ----------------------------------------------------------------------------
+
+/// Combined into one function (rather than two) to make it easier
+/// for the borrow checker.
+type GetSetValue<'a> = Box<dyn 'a + FnMut(Option<f32>) -> f32>;
+
+fn get(get_set_value: &mut GetSetValue<'_>) -> f32 {
+    (get_set_value)(None)
+}
+
+fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
+    (get_set_value)(Some(value));
+}
+
+// ----------------------------------------------------------------------------
 
 fn paint_arc(
     ui: &mut egui::Ui,
@@ -71,63 +87,131 @@ fn paint_arc(
     ui.painter().add(Shape::closed_line(outline_points, stroke));
 }
 
-pub fn audio_knob(
-    ui: &mut egui::Ui,
+// ----------------------------------------------------------------------------
+
+#[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
+pub struct AudioKnob<'a> {
+    get_set_value: GetSetValue<'a>,
     diameter: f32,
-    orientation: KnobOrientation,
     direction: KnobDirection,
-    value: &mut f32,
+    orientation: KnobOrientation,
     range: RangeInclusive<f32>,
     spread: f32,
     thickness: f32,
-) -> egui::Response {
-    let desired_size = Vec2::splat(diameter);
-    let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
+}
 
-    if response.dragged() {
-        let drag_delta = orientation.rot2().inverse() * response.drag_delta();
-        let delta = drag_delta.x + drag_delta.y * direction.to_float();
-        *value = (*value + delta * (*range.end() - *range.start()) / diameter)
-            .clamp(*range.start(), *range.end());
-        response.mark_changed();
+impl<'a> AudioKnob<'a> {
+    pub fn new(value: &'a mut f32, range: RangeInclusive<f32>) -> Self {
+        Self::from_get_set(range, move |v: Option<f32>| {
+            if let Some(v) = v {
+                *value = v;
+            }
+            *value
+        })
     }
 
-    if ui.is_rect_visible(rect) {
-        let visuals = *ui.style().interact(&response);
-
-        let center_angle = (orientation.rot2() * Vec2::RIGHT).angle();
-        let spread_angle = (TAU / 2.0) * spread.clamp(0.0, 1.0);
-
-        let (min_angle, max_angle) = (
-            center_angle - spread_angle * direction.to_float(),
-            center_angle + spread_angle * direction.to_float(),
-        );
-
-        let outer_radius = diameter / 2.0;
-        let inner_radius = outer_radius * (1.0 - thickness.clamp(0.0, 1.0));
-
-        paint_arc(
-            ui,
-            rect.center(),
-            inner_radius,
-            outer_radius,
-            min_angle,
-            max_angle,
-            ui.style().visuals.faint_bg_color,
-            ui.style().visuals.window_stroke(),
-        );
-
-        paint_arc(
-            ui,
-            rect.center(),
-            (inner_radius - visuals.expansion).max(0.0),
-            outer_radius + visuals.expansion,
-            remap_clamp(0.0, range.clone(), min_angle..=max_angle),
-            remap_clamp(*value, range, min_angle..=max_angle),
-            visuals.bg_fill,
-            visuals.fg_stroke,
-        );
+    pub fn from_get_set(
+        range: RangeInclusive<f32>,
+        get_set_value: impl 'a + FnMut(Option<f32>) -> f32,
+    ) -> Self {
+        Self {
+            get_set_value: Box::new(get_set_value),
+            diameter: 32.0,
+            orientation: KnobOrientation::Top,
+            direction: KnobDirection::Clockwise,
+            range,
+            spread: 0.75,
+            thickness: 0.66,
+        }
     }
 
-    response
+    pub fn diameter(mut self, diameter: impl Into<f32>) -> Self {
+        self.diameter = diameter.into();
+        self
+    }
+
+    pub fn direction(mut self, direction: KnobDirection) -> Self {
+        self.direction = direction;
+        self
+    }
+
+    pub fn orientation(mut self, orientation: KnobOrientation) -> Self {
+        self.orientation = orientation;
+        self
+    }
+
+    pub fn spread(mut self, spread: impl Into<f32>) -> Self {
+        self.spread = spread.into();
+        self
+    }
+
+    pub fn thickness(mut self, thickness: impl Into<f32>) -> Self {
+        self.thickness = thickness.into();
+        self
+    }
+}
+
+impl<'a> Widget for AudioKnob<'a> {
+    fn ui(mut self, ui: &mut Ui) -> Response {
+        let desired_size = Vec2::splat(self.diameter);
+        let (rect, mut response) =
+            ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
+
+        if response.dragged() {
+            let drag_delta = self.orientation.rot2().inverse() * response.drag_delta();
+            let delta = drag_delta.x + drag_delta.y * self.direction.to_float();
+
+            let mut value = get(&mut self.get_set_value);
+
+            value = (value + delta * (self.range.end() - self.range.start()) / self.diameter)
+                .clamp(*self.range.start(), *self.range.end());
+
+            set(&mut self.get_set_value, value);
+
+            response.mark_changed();
+        }
+
+        if ui.is_rect_visible(rect) {
+            let visuals = *ui.style().interact(&response);
+
+            let center_angle = (self.orientation.rot2() * Vec2::RIGHT).angle();
+            let spread_angle = (TAU / 2.0) * self.spread.clamp(0.0, 1.0);
+
+            let (min_angle, max_angle) = (
+                center_angle - spread_angle * self.direction.to_float(),
+                center_angle + spread_angle * self.direction.to_float(),
+            );
+
+            let outer_radius = self.diameter / 2.0;
+            let inner_radius = outer_radius * (1.0 - self.thickness.clamp(0.0, 1.0));
+
+            paint_arc(
+                ui,
+                rect.center(),
+                inner_radius,
+                outer_radius,
+                min_angle,
+                max_angle,
+                ui.style().visuals.faint_bg_color,
+                ui.style().visuals.window_stroke(),
+            );
+
+            paint_arc(
+                ui,
+                rect.center(),
+                (inner_radius - visuals.expansion).max(0.0),
+                outer_radius + visuals.expansion,
+                remap_clamp(0.0, self.range.clone(), min_angle..=max_angle),
+                remap_clamp(
+                    get(&mut self.get_set_value),
+                    self.range,
+                    min_angle..=max_angle,
+                ),
+                visuals.bg_fill,
+                visuals.fg_stroke,
+            );
+        }
+
+        response
+    }
 }

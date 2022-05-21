@@ -10,7 +10,7 @@ mod angle_knob;
 use angle_knob::{angle_knob, AngleKnobMode};
 
 mod audio_knob;
-use audio_knob::audio_knob;
+use audio_knob::AudioKnob;
 
 struct MyApp {
     // Common properties
@@ -132,15 +132,13 @@ impl eframe::App for MyApp {
                         .into_iter()
                         .cartesian_product([64.0, 32.0])
                     {
-                        audio_knob(
-                            ui,
-                            audio_knob_size,
-                            self.common_orientation,
-                            self.common_direction,
-                            &mut self.audio_knob_value,
-                            audio_knob_range,
-                            self.audio_knob_spread,
-                            self.audio_knob_thickness,
+                        ui.add(
+                            AudioKnob::new(&mut self.audio_knob_value, audio_knob_range)
+                                .diameter(audio_knob_size)
+                                .orientation(self.common_orientation)
+                                .direction(self.common_direction)
+                                .spread(self.audio_knob_spread)
+                                .thickness(self.audio_knob_thickness),
                         );
                     }
                 });
