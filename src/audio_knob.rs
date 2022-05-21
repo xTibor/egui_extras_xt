@@ -24,22 +24,23 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 
 // ----------------------------------------------------------------------------
 
-#[derive(PartialEq, Debug, Clone, Copy)]
-pub enum AudioKnobShape {
+type AudioKnobShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
+
+pub enum AudioKnobShape<'a> {
     Circle,
     Squircle(f32),
-    Custom,
+    Custom(AudioKnobShapeFn<'a>),
 }
 
-impl AudioKnobShape {
+impl AudioKnobShape<'_> {
     pub fn eval(&self, theta: f32) -> f32 {
-        match *self {
+        match self {
             AudioKnobShape::Circle => 1.0,
             AudioKnobShape::Squircle(factor) => {
-                1.0 / (theta.cos().abs().powf(factor) + theta.sin().abs().powf(factor))
-                    .powf(1.0 / factor)
+                1.0 / (theta.cos().abs().powf(*factor) + theta.sin().abs().powf(*factor))
+                    .powf(1.0 / *factor)
             }
-            AudioKnobShape::Custom => todo!("add custom callback here"),
+            AudioKnobShape::Custom(callback) => callback(theta),
         }
     }
 }
@@ -56,7 +57,7 @@ fn paint_arc(
     fill: Color32,
     stroke: Stroke,
     rotation: Rot2,
-    shape: AudioKnobShape,
+    shape: &AudioKnobShape,
 ) {
     // NOTE: convex_polygon() is broken, spews rendering artifacts all over
     //   the window when it tries to render degenerate polygons:
@@ -126,7 +127,7 @@ pub struct AudioKnob<'a> {
     range: RangeInclusive<f32>,
     spread: f32,
     thickness: f32,
-    shape: AudioKnobShape,
+    shape: AudioKnobShape<'a>,
 }
 
 impl<'a> AudioKnob<'a> {
@@ -180,7 +181,7 @@ impl<'a> AudioKnob<'a> {
         self
     }
 
-    pub fn shape(mut self, shape: AudioKnobShape) -> Self {
+    pub fn shape(mut self, shape: AudioKnobShape<'a>) -> Self {
         self.shape = shape;
         self
     }
@@ -230,7 +231,7 @@ impl<'a> Widget for AudioKnob<'a> {
                 ui.style().visuals.faint_bg_color,
                 ui.style().visuals.window_stroke(),
                 self.orientation.rot2(),
-                self.shape,
+                &self.shape,
             );
 
             paint_arc(
@@ -247,7 +248,7 @@ impl<'a> Widget for AudioKnob<'a> {
                 visuals.bg_fill,
                 visuals.fg_stroke,
                 self.orientation.rot2(),
-                self.shape,
+                &self.shape,
             );
         }
 

@@ -29,7 +29,6 @@ struct MyApp {
     audio_knob_value: f32,
     audio_knob_spread: f32,
     audio_knob_thickness: f32,
-    audio_knob_shape: AudioKnobShape,
 }
 
 impl Default for MyApp {
@@ -51,7 +50,6 @@ impl Default for MyApp {
             audio_knob_value: 0.75,
             audio_knob_spread: 0.75,
             audio_knob_thickness: 0.66,
-            audio_knob_shape: AudioKnobShape::Circle,
         }
     }
 }
@@ -128,32 +126,6 @@ impl eframe::App for MyApp {
                 ui.add(egui::Slider::new(&mut self.audio_knob_spread, 0.0..=1.0));
                 ui.add(egui::Slider::new(&mut self.audio_knob_thickness, 0.0..=1.0));
 
-                ui.horizontal(|ui| {
-                    ui.selectable_value(
-                        &mut self.audio_knob_shape,
-                        AudioKnobShape::Circle,
-                        "○ Circle",
-                    );
-
-                    {
-                        let mut is_squircle =
-                            matches!(self.audio_knob_shape, AudioKnobShape::Squircle(..));
-
-                        ui.selectable_value(&mut is_squircle, true, "◻ Squircle");
-
-                        if is_squircle
-                            && !matches!(self.audio_knob_shape, AudioKnobShape::Squircle(..))
-                        {
-                            self.audio_knob_shape = AudioKnobShape::Squircle(4.0);
-                        }
-
-                        if let AudioKnobShape::Squircle(factor) = &mut self.audio_knob_shape {
-                            ui.add(egui::DragValue::new(factor));
-                            *factor = factor.max(0.01);
-                        }
-                    }
-                });
-
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
@@ -168,7 +140,7 @@ impl eframe::App for MyApp {
                                 .direction(self.common_direction)
                                 .spread(self.audio_knob_spread)
                                 .thickness(self.audio_knob_thickness)
-                                .shape(self.audio_knob_shape),
+                                .shape(AudioKnobShape::Squircle(4.0)),
                         );
                     }
                 });
