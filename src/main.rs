@@ -7,7 +7,7 @@ mod common;
 use common::{KnobDirection, KnobOrientation};
 
 mod angle_knob;
-use angle_knob::{angle_knob, AngleKnobMode};
+use angle_knob::{AngleKnob, AngleKnobMode};
 
 mod audio_knob;
 use audio_knob::AudioKnob;
@@ -243,17 +243,16 @@ impl eframe::App for MyApp {
 
                 ui.horizontal(|ui| {
                     for angle_knob_size in [64.0, 32.0] {
-                        angle_knob(
-                            ui,
-                            angle_knob_size,
-                            self.common_orientation,
-                            self.common_direction,
-                            self.angle_knob_mode,
-                            &mut self.angle_knob_value,
-                            self.angle_knob_minimum,
-                            self.angle_knob_maximum,
-                            self.angle_knob_snap_angle,
-                            self.angle_knob_shift_snap_angle,
+                        ui.add(
+                            AngleKnob::new(&mut self.angle_knob_value)
+                                .diameter(angle_knob_size)
+                                .orientation(self.common_orientation)
+                                .direction(self.common_direction)
+                                .mode(self.angle_knob_mode)
+                                .min(self.angle_knob_minimum)
+                                .max(self.angle_knob_maximum)
+                                .snap_angle(self.angle_knob_snap_angle)
+                                .shift_snap_angle(self.angle_knob_shift_snap_angle),
                         );
                     }
                 });
