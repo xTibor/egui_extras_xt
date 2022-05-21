@@ -48,7 +48,7 @@ impl Default for MyApp {
 
             // AudioKnob
             audio_knob_value: 0.75,
-            audio_knob_spread: 0.75,
+            audio_knob_spread: 1.0,
             audio_knob_thickness: 0.66,
         }
     }

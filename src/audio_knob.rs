@@ -150,9 +150,9 @@ impl<'a> AudioKnob<'a> {
             orientation: KnobOrientation::Top,
             direction: KnobDirection::Clockwise,
             range,
-            spread: 0.75,
+            spread: 1.0,
             thickness: 0.66,
-            shape: AudioKnobShape::Circle,
+            shape: AudioKnobShape::Squircle(4.0),
         }
     }
 
