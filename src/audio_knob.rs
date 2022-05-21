@@ -1,8 +1,8 @@
-use std::f32::consts::TAU;
+use std::f32::consts::{PI, TAU};
 use std::ops::RangeInclusive;
 
 use eframe::egui::{self, Response, Ui, Widget};
-use eframe::emath::{almost_equal, lerp, remap_clamp, Pos2, Vec2};
+use eframe::emath::{almost_equal, lerp, remap_clamp, Pos2, Rot2, Vec2};
 use eframe::epaint::{Color32, Shape, Stroke};
 use itertools::Itertools;
 
@@ -24,6 +24,28 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 
 // ----------------------------------------------------------------------------
 
+#[derive(PartialEq, Debug, Clone, Copy)]
+pub enum AudioKnobShape {
+    Circle,
+    Squircle(f32),
+    Custom,
+}
+
+impl AudioKnobShape {
+    pub fn eval(&self, theta: f32) -> f32 {
+        match *self {
+            AudioKnobShape::Circle => 1.0,
+            AudioKnobShape::Squircle(factor) => {
+                1.0 / (theta.cos().abs().powf(factor) + theta.sin().abs().powf(factor))
+                    .powf(1.0 / factor)
+            }
+            AudioKnobShape::Custom => todo!("add custom callback here"),
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+
 fn paint_arc(
     ui: &mut egui::Ui,
     center: Pos2,
@@ -33,6 +55,8 @@ fn paint_arc(
     end_angle: f32,
     fill: Color32,
     stroke: Stroke,
+    rotation: Rot2,
+    shape: AudioKnobShape,
 ) {
     // NOTE: convex_polygon() is broken, spews rendering artifacts all over
     //   the window when it tries to render degenerate polygons:
@@ -40,10 +64,12 @@ fn paint_arc(
 
     // HACK: convex_polygon() workaround
     if almost_equal(start_angle, end_angle, 0.001) {
+        let shape_radius = shape.eval((rotation * Vec2::RIGHT).angle() - start_angle);
+
         ui.painter().add(Shape::line_segment(
             [
-                center + Vec2::angled(start_angle) * inner_radius,
-                center + Vec2::angled(start_angle) * outer_radius,
+                center + Vec2::angled(start_angle) * inner_radius * shape_radius,
+                center + Vec2::angled(start_angle) * outer_radius * shape_radius,
             ],
             stroke,
         ));
@@ -55,7 +81,9 @@ fn paint_arc(
     let generate_arc_points = |radius| {
         (0..=n_points).map(move |i| {
             let angle = lerp(start_angle..=end_angle, i as f32 / n_points as f32);
-            center + Vec2::angled(angle) * radius
+            let shape_radius = shape.eval((rotation * Vec2::RIGHT).angle() - angle);
+
+            center + Vec2::angled(angle) * radius * shape_radius
         })
     };
 
@@ -98,6 +126,7 @@ pub struct AudioKnob<'a> {
     range: RangeInclusive<f32>,
     spread: f32,
     thickness: f32,
+    shape: AudioKnobShape,
 }
 
 impl<'a> AudioKnob<'a> {
@@ -122,6 +151,7 @@ impl<'a> AudioKnob<'a> {
             range,
             spread: 0.75,
             thickness: 0.66,
+            shape: AudioKnobShape::Circle,
         }
     }
 
@@ -147,6 +177,11 @@ impl<'a> AudioKnob<'a> {
 
     pub fn thickness(mut self, thickness: impl Into<f32>) -> Self {
         self.thickness = thickness.into();
+        self
+    }
+
+    pub fn shape(mut self, shape: AudioKnobShape) -> Self {
+        self.shape = shape;
         self
     }
 }
@@ -194,6 +229,8 @@ impl<'a> Widget for AudioKnob<'a> {
                 max_angle,
                 ui.style().visuals.faint_bg_color,
                 ui.style().visuals.window_stroke(),
+                self.orientation.rot2(),
+                self.shape,
             );
 
             paint_arc(
@@ -209,6 +246,8 @@ impl<'a> Widget for AudioKnob<'a> {
                 ),
                 visuals.bg_fill,
                 visuals.fg_stroke,
+                self.orientation.rot2(),
+                self.shape,
             );
         }
 
