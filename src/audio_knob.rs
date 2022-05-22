@@ -1,4 +1,4 @@
-use std::f32::consts::{PI, TAU};
+use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
 use eframe::egui::{self, Response, Ui, Widget};
@@ -37,8 +37,10 @@ impl AudioKnobShape<'_> {
         match self {
             AudioKnobShape::Circle => 1.0,
             AudioKnobShape::Squircle(factor) => {
-                1.0 / (theta.cos().abs().powf(*factor) + theta.sin().abs().powf(*factor))
-                    .powf(1.0 / *factor)
+                assert!(*factor > 0.0, "squircle factor must be positive");
+                let a = theta.cos().abs().powf(*factor);
+                let b = theta.sin().abs().powf(*factor);
+                1.0 / (a + b).powf(1.0 / *factor)
             }
             AudioKnobShape::Custom(callback) => callback(theta),
         }
