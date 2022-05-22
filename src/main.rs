@@ -12,6 +12,9 @@ use angle_knob::{AngleKnob, AngleKnobMode};
 mod audio_knob;
 use audio_knob::{AudioKnob, AudioKnobShape};
 
+mod compass_knob;
+use compass_knob::{compass_knob, CompassLabels};
+
 struct MyApp {
     // Common properties
     common_orientation: KnobOrientation,
@@ -29,6 +32,9 @@ struct MyApp {
     audio_knob_value: f32,
     audio_knob_spread: f32,
     audio_knob_thickness: f32,
+
+    // CompassKnob
+    compass_knob_value: f32,
 }
 
 impl Default for MyApp {
@@ -50,6 +56,9 @@ impl Default for MyApp {
             audio_knob_value: 0.75,
             audio_knob_spread: 1.0,
             audio_knob_thickness: 0.66,
+
+            // CompassKnob
+            compass_knob_value: 0.0,
         }
     }
 }
@@ -258,6 +267,24 @@ impl eframe::App for MyApp {
                         );
                     }
                 });
+
+                ui.add_space(8.0);
+                ui.separator();
+
+                ui.heading("CompassKnob");
+                ui.add_space(8.0);
+
+                ui.drag_angle(&mut self.compass_knob_value);
+                ui.add_space(8.0);
+
+                compass_knob(
+                    ui,
+                    &mut self.compass_knob_value,
+                    256.0,
+                    48.0,
+                    CompassLabels(["É", "K", "D", "NY"]),
+                    TAU / 2.0,
+                );
 
                 ui.add_space(8.0);
                 ui.separator();
