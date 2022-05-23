@@ -37,3 +37,15 @@ impl KnobDirection {
         }
     }
 }
+
+#[derive(PartialEq, Debug, Clone, Copy)]
+pub enum KnobMode {
+    Signed,
+    Unsigned,
+    SpinAround,
+}
+
+/// Wrap angle to `[0, TAU]` range.
+pub fn normalized_angle_unsigned(angle: f32) -> f32 {
+    ((angle % TAU) + TAU) % TAU
+}

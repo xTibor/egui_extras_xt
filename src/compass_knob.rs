@@ -4,10 +4,13 @@ use eframe::egui::{self, Ui};
 use eframe::emath::{normalized_angle, pos2, vec2, Align2};
 use eframe::epaint::{FontFamily, FontId, Shape};
 
+use crate::common::{normalized_angle_unsigned, KnobMode};
+
 pub struct CompassLabels<'a>(pub [&'a str; 4]);
 
 pub fn compass_knob(
     ui: &mut Ui,
+    mode: KnobMode,
     value: &mut f32,
     width: f32,
     height: f32,
@@ -18,12 +21,22 @@ pub fn compass_knob(
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
     if response.dragged() {
-        *value -= response.drag_delta().x / rect.width() * spread;
+        let mut new_value = *value - response.drag_delta().x / rect.width() * spread;
+
+        if mode == KnobMode::Signed {
+            new_value = normalized_angle(new_value);
+        }
+
+        if mode == KnobMode::Unsigned {
+            new_value = normalized_angle_unsigned(new_value);
+        }
+
+        *value = new_value;
         response.mark_changed();
     }
 
     let map_value_to_screen =
-        |v: f32| rect.center().x - (normalized_angle(*value) - v) * (rect.width() / spread);
+        |angle: f32| rect.center().x - (normalized_angle(*value) - angle) * (rect.width() / spread);
 
     if ui.is_rect_visible(rect) {
         let visuals = *ui.style().interact(&response);
@@ -48,7 +61,17 @@ pub fn compass_knob(
         ui.painter().text(
             rect.center_top(),
             Align2::CENTER_TOP,
-            format!("{}°", (((value.to_degrees() as isize) % 360) + 360) % 360),
+            format!("{:.0}°", value.to_degrees()),
+            FontId::new(height / 4.0, FontFamily::Proportional),
+            visuals.text_color(),
+        );
+
+        let left_degrees = (*value - (spread / 2.0)).to_degrees() as isize;
+
+        ui.painter().text(
+            rect.left_top(),
+            Align2::LEFT_TOP,
+            format!("{}°", left_degrees),
             FontId::new(height / 4.0, FontFamily::Proportional),
             visuals.text_color(),
         );

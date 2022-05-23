@@ -4,10 +4,10 @@ use eframe::egui::{self, global_dark_light_mode_switch};
 use itertools::Itertools;
 
 mod common;
-use common::{KnobDirection, KnobOrientation};
+use common::{KnobDirection, KnobMode, KnobOrientation};
 
 mod angle_knob;
-use angle_knob::{AngleKnob, AngleKnobMode};
+use angle_knob::AngleKnob;
 
 mod audio_knob;
 use audio_knob::{AudioKnob, AudioKnobShape};
@@ -19,10 +19,10 @@ struct MyApp {
     // Common properties
     common_orientation: KnobOrientation,
     common_direction: KnobDirection,
+    common_mode: KnobMode,
 
     // AngleKnob
     angle_knob_value: f32,
-    angle_knob_mode: AngleKnobMode,
     angle_knob_minimum: Option<f32>,
     angle_knob_maximum: Option<f32>,
     angle_knob_snap_angle: Option<f32>,
@@ -35,6 +35,7 @@ struct MyApp {
 
     // CompassKnob
     compass_knob_value: f32,
+    compass_knob_spread: f32,
 }
 
 impl Default for MyApp {
@@ -43,10 +44,10 @@ impl Default for MyApp {
             // Common properties
             common_orientation: KnobOrientation::Top,
             common_direction: KnobDirection::Clockwise,
+            common_mode: KnobMode::Signed,
 
             // AngleKnob
             angle_knob_value: TAU / 18.0,
-            angle_knob_mode: AngleKnobMode::Signed,
             angle_knob_minimum: None,
             angle_knob_maximum: None,
             angle_knob_snap_angle: None,
@@ -59,6 +60,7 @@ impl Default for MyApp {
 
             // CompassKnob
             compass_knob_value: 0.0,
+            compass_knob_spread: TAU / 2.0,
         }
     }
 }
@@ -125,6 +127,14 @@ impl eframe::App for MyApp {
                 );
             });
 
+            ui.horizontal(|ui| {
+                ui.selectable_value(&mut self.common_mode, KnobMode::Signed, "± Signed");
+
+                ui.selectable_value(&mut self.common_mode, KnobMode::Unsigned, "+ Unsigned");
+
+                ui.selectable_value(&mut self.common_mode, KnobMode::SpinAround, "🔃 SpinAround");
+            });
+
             ui.add_space(8.0);
             ui.separator();
 
@@ -161,26 +171,6 @@ impl eframe::App for MyApp {
                 ui.add_space(8.0);
 
                 ui.drag_angle(&mut self.angle_knob_value);
-
-                ui.horizontal(|ui| {
-                    ui.selectable_value(
-                        &mut self.angle_knob_mode,
-                        AngleKnobMode::Signed,
-                        "± Signed",
-                    );
-
-                    ui.selectable_value(
-                        &mut self.angle_knob_mode,
-                        AngleKnobMode::Unsigned,
-                        "+ Unsigned",
-                    );
-
-                    ui.selectable_value(
-                        &mut self.angle_knob_mode,
-                        AngleKnobMode::SpinAround,
-                        "🔃 SpinAround",
-                    );
-                });
 
                 ui.horizontal(|ui| {
                     {
@@ -259,7 +249,7 @@ impl eframe::App for MyApp {
                                 .diameter(angle_knob_size)
                                 .orientation(self.common_orientation)
                                 .direction(self.common_direction)
-                                .mode(self.angle_knob_mode)
+                                .mode(self.common_mode)
                                 .min(self.angle_knob_minimum)
                                 .max(self.angle_knob_maximum)
                                 .snap_angle(self.angle_knob_snap_angle)
@@ -275,15 +265,17 @@ impl eframe::App for MyApp {
                 ui.add_space(8.0);
 
                 ui.drag_angle(&mut self.compass_knob_value);
+                ui.drag_angle(&mut self.compass_knob_spread);
                 ui.add_space(8.0);
 
                 compass_knob(
                     ui,
+                    self.common_mode,
                     &mut self.compass_knob_value,
                     256.0,
                     48.0,
                     CompassLabels(["É", "K", "D", "NY"]),
-                    TAU / 2.0,
+                    self.compass_knob_spread,
                 );
 
                 ui.add_space(8.0);

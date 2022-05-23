@@ -4,7 +4,7 @@ use eframe::egui::{self, Response, Ui, Widget};
 use eframe::emath::Vec2;
 use eframe::epaint::{Shape, Stroke};
 
-use crate::common::{KnobDirection, KnobOrientation};
+use crate::common::{normalized_angle_unsigned, KnobDirection, KnobMode, KnobOrientation};
 
 // ----------------------------------------------------------------------------
 
@@ -21,13 +21,6 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 }
 
 // ----------------------------------------------------------------------------
-
-#[derive(PartialEq, Debug, Clone, Copy)]
-pub enum AngleKnobMode {
-    Signed,
-    Unsigned,
-    SpinAround,
-}
 
 #[non_exhaustive]
 #[derive(PartialEq, Debug, Clone, Copy)]
@@ -47,42 +40,42 @@ pub enum AngleKnobPreset {
 }
 
 impl AngleKnobPreset {
-    fn properties(&self) -> (KnobOrientation, KnobDirection, AngleKnobMode) {
+    fn properties(&self) -> (KnobOrientation, KnobDirection, KnobMode) {
         match *self {
             AngleKnobPreset::AdobePhotoshop => (
                 KnobOrientation::Right,
                 KnobDirection::Counterclockwise,
-                AngleKnobMode::Signed,
+                KnobMode::Signed,
             ),
             AngleKnobPreset::AdobePremierePro => (
                 KnobOrientation::Top,
                 KnobDirection::Clockwise,
-                AngleKnobMode::SpinAround,
+                KnobMode::SpinAround,
             ),
             AngleKnobPreset::Gimp => (
                 KnobOrientation::Right,
                 KnobDirection::Counterclockwise,
-                AngleKnobMode::Unsigned,
+                KnobMode::Unsigned,
             ),
             AngleKnobPreset::GoogleChromeDevTools => (
                 KnobOrientation::Top,
                 KnobDirection::Clockwise,
-                AngleKnobMode::Unsigned,
+                KnobMode::Unsigned,
             ),
             AngleKnobPreset::Krita => (
                 KnobOrientation::Right,
                 KnobDirection::Counterclockwise,
-                AngleKnobMode::Signed,
+                KnobMode::Signed,
             ),
             AngleKnobPreset::LibreOffice => (
                 KnobOrientation::Right,
                 KnobDirection::Counterclockwise,
-                AngleKnobMode::Unsigned,
+                KnobMode::Unsigned,
             ),
             AngleKnobPreset::QtWidgets => (
                 KnobOrientation::Bottom,
                 KnobDirection::Clockwise,
-                AngleKnobMode::Unsigned,
+                KnobMode::Unsigned,
             ),
         }
     }
@@ -94,7 +87,7 @@ pub struct AngleKnob<'a> {
     diameter: f32,
     orientation: KnobOrientation,
     direction: KnobDirection,
-    mode: AngleKnobMode,
+    mode: KnobMode,
     min: Option<f32>,
     max: Option<f32>,
     snap_angle: Option<f32>,
@@ -117,7 +110,7 @@ impl<'a> AngleKnob<'a> {
             diameter: 32.0,
             orientation: KnobOrientation::Top,
             direction: KnobDirection::Clockwise,
-            mode: AngleKnobMode::Unsigned,
+            mode: KnobMode::Unsigned,
             min: None,
             max: None,
             snap_angle: None,
@@ -145,7 +138,7 @@ impl<'a> AngleKnob<'a> {
         self
     }
 
-    pub fn mode(mut self, mode: AngleKnobMode) -> Self {
+    pub fn mode(mut self, mode: KnobMode) -> Self {
         self.mode = mode;
         self
     }
@@ -186,11 +179,11 @@ impl<'a> Widget for AngleKnob<'a> {
             .angle()
                 * self.direction.to_float();
 
-            if self.mode == AngleKnobMode::Unsigned {
-                new_value = (new_value + TAU) % TAU;
+            if self.mode == KnobMode::Unsigned {
+                new_value = normalized_angle_unsigned(new_value);
             }
 
-            if self.mode == AngleKnobMode::SpinAround {
+            if self.mode == KnobMode::SpinAround {
                 let prev_turns = (prev_value / TAU).round();
                 new_value += prev_turns * TAU;
 
