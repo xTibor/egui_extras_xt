@@ -48,7 +48,7 @@ pub fn compass_knob(
         }
     }
 
-    let map_value_to_screen =
+    let map_angle_to_screen =
         |angle: f32| rect.center().x - (*value - angle) * (rect.width() / spread);
 
     if ui.is_rect_visible(rect) {
@@ -79,35 +79,42 @@ pub fn compass_knob(
             visuals.text_color(),
         );
 
-        let left_degrees = (*value - (spread / 2.0)).to_degrees() as isize;
-        let right_degrees = (*value + (spread / 2.0)).to_degrees() as isize;
+        let left_degrees =
+            (((*value - (spread / 2.0)).to_degrees() / 10.0).floor() * 10.0) as isize;
+        let right_degrees =
+            (((*value + (spread / 2.0)).to_degrees() / 10.0).ceil() * 10.0) as isize;
 
-        ui.painter().text(
-            rect.left_top(),
-            Align2::LEFT_TOP,
-            format!("{}° .. {}°", left_degrees, right_degrees),
-            FontId::new(height / 4.0, FontFamily::Proportional),
-            visuals.text_color(),
-        );
+        for degree in (left_degrees..=right_degrees).step_by(10) {
+            let tick_x = map_angle_to_screen((degree as f32).to_radians());
 
-        for i in -2..=3 {
-            let x = map_value_to_screen(TAU / 4.0 * i as f32);
+            let tick_height = if degree % 90 == 0 {
+                1.0
+            } else if degree % 30 == 0 {
+                0.75
+            } else {
+                0.5
+            };
 
             ui.painter().line_segment(
                 [
-                    pos2(x, rect.top() + height * 0.5),
-                    pos2(x, rect.top() + height * 0.75),
+                    pos2(tick_x, rect.top() + height * 0.5),
+                    pos2(
+                        tick_x,
+                        rect.top() + height * 0.5 + height * 0.25 * tick_height,
+                    ),
                 ],
                 ui.style().visuals.noninteractive().fg_stroke,
             );
 
-            ui.painter().text(
-                pos2(x, rect.bottom()),
-                Align2::CENTER_BOTTOM,
-                labels.0[((i + 4) % 4) as usize],
-                FontId::new(height / 4.0, FontFamily::Proportional),
-                ui.style().visuals.text_color(),
-            );
+            if degree % 90 == 0 {
+                ui.painter().text(
+                    pos2(tick_x, rect.bottom()),
+                    Align2::CENTER_BOTTOM,
+                    labels.0[((((degree / 90) % 4) + 4) % 4) as usize],
+                    FontId::new(height / 4.0, FontFamily::Proportional),
+                    ui.style().visuals.text_color(),
+                );
+            }
         }
     }
 
