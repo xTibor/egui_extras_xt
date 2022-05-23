@@ -20,13 +20,13 @@ struct MyApp {
     common_orientation: KnobOrientation,
     common_direction: KnobDirection,
     common_mode: KnobMode,
+    common_snap_angle: Option<f32>,
+    common_shift_snap_angle: Option<f32>,
 
     // AngleKnob
     angle_knob_value: f32,
     angle_knob_minimum: Option<f32>,
     angle_knob_maximum: Option<f32>,
-    angle_knob_snap_angle: Option<f32>,
-    angle_knob_shift_snap_angle: Option<f32>,
 
     // AudioKnob
     audio_knob_value: f32,
@@ -45,13 +45,13 @@ impl Default for MyApp {
             common_orientation: KnobOrientation::Top,
             common_direction: KnobDirection::Clockwise,
             common_mode: KnobMode::Signed,
+            common_snap_angle: None,
+            common_shift_snap_angle: None,
 
             // AngleKnob
             angle_knob_value: TAU / 18.0,
             angle_knob_minimum: None,
             angle_knob_maximum: None,
-            angle_knob_snap_angle: None,
-            angle_knob_shift_snap_angle: None,
 
             // AudioKnob
             audio_knob_value: 0.75,
@@ -135,6 +135,41 @@ impl eframe::App for MyApp {
                 ui.selectable_value(&mut self.common_mode, KnobMode::SpinAround, "🔃 SpinAround");
             });
 
+            ui.horizontal(|ui| {
+                {
+                    let mut snap_enabled = self.common_snap_angle.is_some();
+                    ui.toggle_value(&mut snap_enabled, "Snap angle");
+
+                    self.common_snap_angle = match (snap_enabled, self.common_snap_angle) {
+                        (true, None) => Some(TAU / 24.0),
+                        (false, Some(_)) => None,
+                        _ => self.common_snap_angle,
+                    };
+
+                    if let Some(value) = &mut self.common_snap_angle {
+                        ui.drag_angle(value);
+                        *value = value.max(TAU / 360.0);
+                    }
+                }
+
+                {
+                    let mut shift_snap_enabled = self.common_shift_snap_angle.is_some();
+                    ui.toggle_value(&mut shift_snap_enabled, "Shift snap angle");
+
+                    self.common_shift_snap_angle =
+                        match (shift_snap_enabled, self.common_shift_snap_angle) {
+                            (true, None) => Some(TAU / 24.0),
+                            (false, Some(_)) => None,
+                            _ => self.common_shift_snap_angle,
+                        };
+
+                    if let Some(value) = &mut self.common_shift_snap_angle {
+                        ui.drag_angle(value);
+                        *value = value.max(TAU / 360.0);
+                    }
+                }
+            });
+
             ui.add_space(8.0);
             ui.separator();
 
@@ -204,42 +239,6 @@ impl eframe::App for MyApp {
                     }
                 });
 
-                ui.horizontal(|ui| {
-                    {
-                        let mut snap_enabled = self.angle_knob_snap_angle.is_some();
-                        ui.toggle_value(&mut snap_enabled, "Snap");
-
-                        self.angle_knob_snap_angle =
-                            match (snap_enabled, self.angle_knob_snap_angle) {
-                                (true, None) => Some(TAU / 24.0),
-                                (false, Some(_)) => None,
-                                _ => self.angle_knob_snap_angle,
-                            };
-
-                        if let Some(value) = &mut self.angle_knob_snap_angle {
-                            ui.drag_angle(value);
-                            *value = value.max(TAU / 360.0);
-                        }
-                    }
-
-                    {
-                        let mut shift_snap_enabled = self.angle_knob_shift_snap_angle.is_some();
-                        ui.toggle_value(&mut shift_snap_enabled, "Shift snap");
-
-                        self.angle_knob_shift_snap_angle =
-                            match (shift_snap_enabled, self.angle_knob_shift_snap_angle) {
-                                (true, None) => Some(TAU / 24.0),
-                                (false, Some(_)) => None,
-                                _ => self.angle_knob_shift_snap_angle,
-                            };
-
-                        if let Some(value) = &mut self.angle_knob_shift_snap_angle {
-                            ui.drag_angle(value);
-                            *value = value.max(TAU / 360.0);
-                        }
-                    }
-                });
-
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
@@ -252,8 +251,8 @@ impl eframe::App for MyApp {
                                 .mode(self.common_mode)
                                 .min(self.angle_knob_minimum)
                                 .max(self.angle_knob_maximum)
-                                .snap_angle(self.angle_knob_snap_angle)
-                                .shift_snap_angle(self.angle_knob_shift_snap_angle),
+                                .snap_angle(self.common_snap_angle)
+                                .shift_snap_angle(self.common_shift_snap_angle),
                         );
                     }
                 });
@@ -276,6 +275,8 @@ impl eframe::App for MyApp {
                     48.0,
                     CompassLabels(["É", "K", "D", "NY"]),
                     self.compass_knob_spread,
+                    self.common_snap_angle,
+                    self.common_shift_snap_angle,
                 );
 
                 ui.add_space(8.0);
