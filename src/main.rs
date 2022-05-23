@@ -22,11 +22,11 @@ struct MyApp {
     common_mode: KnobMode,
     common_snap_angle: Option<f32>,
     common_shift_snap_angle: Option<f32>,
+    common_minimum_angle: Option<f32>,
+    common_maximum_angle: Option<f32>,
 
     // AngleKnob
     angle_knob_value: f32,
-    angle_knob_minimum: Option<f32>,
-    angle_knob_maximum: Option<f32>,
 
     // AudioKnob
     audio_knob_value: f32,
@@ -47,11 +47,11 @@ impl Default for MyApp {
             common_mode: KnobMode::Signed,
             common_snap_angle: None,
             common_shift_snap_angle: None,
+            common_minimum_angle: None,
+            common_maximum_angle: None,
 
             // AngleKnob
             angle_knob_value: TAU / 18.0,
-            angle_knob_minimum: None,
-            angle_knob_maximum: None,
 
             // AudioKnob
             audio_knob_value: 0.75,
@@ -170,6 +170,38 @@ impl eframe::App for MyApp {
                 }
             });
 
+            ui.horizontal(|ui| {
+                {
+                    let mut minimum_enabled = self.common_minimum_angle.is_some();
+                    ui.toggle_value(&mut minimum_enabled, "Minimum");
+
+                    self.common_minimum_angle = match (minimum_enabled, self.common_minimum_angle) {
+                        (true, None) => Some(-TAU),
+                        (false, Some(_)) => None,
+                        _ => self.common_minimum_angle,
+                    };
+
+                    if let Some(value) = &mut self.common_minimum_angle {
+                        ui.drag_angle(value);
+                    }
+                }
+
+                {
+                    let mut maximum_enabled = self.common_maximum_angle.is_some();
+                    ui.toggle_value(&mut maximum_enabled, "Maximum");
+
+                    self.common_maximum_angle = match (maximum_enabled, self.common_maximum_angle) {
+                        (true, None) => Some(TAU),
+                        (false, Some(_)) => None,
+                        _ => self.common_maximum_angle,
+                    };
+
+                    if let Some(value) = &mut self.common_maximum_angle {
+                        ui.drag_angle(value);
+                    }
+                }
+            });
+
             ui.add_space(8.0);
             ui.separator();
 
@@ -206,39 +238,6 @@ impl eframe::App for MyApp {
                 ui.add_space(8.0);
 
                 ui.drag_angle(&mut self.angle_knob_value);
-
-                ui.horizontal(|ui| {
-                    {
-                        let mut minimum_enabled = self.angle_knob_minimum.is_some();
-                        ui.toggle_value(&mut minimum_enabled, "Minimum");
-
-                        self.angle_knob_minimum = match (minimum_enabled, self.angle_knob_minimum) {
-                            (true, None) => Some(-TAU),
-                            (false, Some(_)) => None,
-                            _ => self.angle_knob_minimum,
-                        };
-
-                        if let Some(value) = &mut self.angle_knob_minimum {
-                            ui.drag_angle(value);
-                        }
-                    }
-
-                    {
-                        let mut maximum_enabled = self.angle_knob_maximum.is_some();
-                        ui.toggle_value(&mut maximum_enabled, "Maximum");
-
-                        self.angle_knob_maximum = match (maximum_enabled, self.angle_knob_maximum) {
-                            (true, None) => Some(TAU),
-                            (false, Some(_)) => None,
-                            _ => self.angle_knob_maximum,
-                        };
-
-                        if let Some(value) = &mut self.angle_knob_maximum {
-                            ui.drag_angle(value);
-                        }
-                    }
-                });
-
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
@@ -249,8 +248,8 @@ impl eframe::App for MyApp {
                                 .orientation(self.common_orientation)
                                 .direction(self.common_direction)
                                 .mode(self.common_mode)
-                                .min(self.angle_knob_minimum)
-                                .max(self.angle_knob_maximum)
+                                .min(self.common_minimum_angle)
+                                .max(self.common_maximum_angle)
                                 .snap_angle(self.common_snap_angle)
                                 .shift_snap_angle(self.common_shift_snap_angle),
                         );
@@ -273,10 +272,12 @@ impl eframe::App for MyApp {
                     &mut self.compass_knob_value,
                     256.0,
                     48.0,
-                    CompassLabels(["É", "K", "D", "NY"]),
+                    CompassLabels(["N", "E", "S", "W"]),
                     self.compass_knob_spread,
                     self.common_snap_angle,
                     self.common_shift_snap_angle,
+                    self.common_minimum_angle,
+                    self.common_maximum_angle,
                 );
 
                 ui.add_space(8.0);

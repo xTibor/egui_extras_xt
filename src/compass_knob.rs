@@ -18,13 +18,13 @@ pub fn compass_knob(
     spread: f32,
     snap_angle: Option<f32>,
     shift_snap_angle: Option<f32>,
+    min: Option<f32>,
+    max: Option<f32>,
 ) -> egui::Response {
     let desired_size = egui::vec2(width, height);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
-    if response.dragged() {
-        let mut new_value = *value - response.drag_delta().x / rect.width() * spread;
-
+    let constraint_value = |mut new_value| {
         if mode == KnobMode::Signed {
             new_value = normalized_angle(new_value);
         }
@@ -33,7 +33,20 @@ pub fn compass_knob(
             new_value = normalized_angle_unsigned(new_value);
         }
 
-        *value = new_value;
+        if let Some(min) = min {
+            new_value = new_value.max(min);
+        }
+
+        if let Some(max) = max {
+            new_value = new_value.min(max);
+        }
+
+        new_value
+    };
+
+    if response.dragged() {
+        let new_value = *value - response.drag_delta().x / rect.width() * spread;
+        *value = constraint_value(new_value);
         response.mark_changed();
     }
 
@@ -44,7 +57,9 @@ pub fn compass_knob(
             snap_angle
         } {
             assert!(angle > 0.0, "non-positive snap angles are not supported");
-            *value = (*value / angle).round() * angle;
+            let new_value = (*value / angle).round() * angle;
+            *value = constraint_value(new_value);
+            response.mark_changed();
         }
     }
 
@@ -60,6 +75,8 @@ pub fn compass_knob(
             ui.style().visuals.extreme_bg_color,
             ui.style().visuals.noninteractive().fg_stroke,
         );
+
+        ui.set_clip_rect(rect);
 
         ui.painter().add(Shape::convex_polygon(
             vec![
@@ -115,6 +132,23 @@ pub fn compass_knob(
                     ui.style().visuals.text_color(),
                 );
             }
+        }
+
+        let paint_stop = |angle: f32| {
+            let stop_x = map_angle_to_screen(angle);
+
+            ui.painter().line_segment(
+                [pos2(stop_x, rect.top()), pos2(stop_x, rect.bottom())],
+                ui.style().visuals.noninteractive().fg_stroke,
+            );
+        };
+
+        if let Some(min) = min {
+            paint_stop(min);
+        }
+
+        if let Some(max) = max {
+            paint_stop(max);
         }
     }
 
