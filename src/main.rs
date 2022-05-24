@@ -13,7 +13,7 @@ mod audio_knob;
 use audio_knob::{AudioKnob, AudioKnobShape};
 
 mod compass_knob;
-use compass_knob::{compass_knob, CompassLabels};
+use compass_knob::{CompassKnob, CompassLabels};
 
 struct MyApp {
     // Common properties
@@ -266,18 +266,17 @@ impl eframe::App for MyApp {
                 ui.drag_angle(&mut self.compass_knob_spread);
                 ui.add_space(8.0);
 
-                compass_knob(
-                    ui,
-                    self.common_mode,
-                    &mut self.compass_knob_value,
-                    256.0,
-                    48.0,
-                    CompassLabels(["N", "E", "S", "W"]),
-                    self.compass_knob_spread,
-                    self.common_snap_angle,
-                    self.common_shift_snap_angle,
-                    self.common_minimum_angle,
-                    self.common_maximum_angle,
+                ui.add(
+                    CompassKnob::new(&mut self.compass_knob_value)
+                        .mode(self.common_mode)
+                        .width(256.0)
+                        .height(48.0)
+                        .spread(self.compass_knob_spread)
+                        .labels(CompassLabels(["N", "E", "S", "W"]))
+                        .snap_angle(self.common_snap_angle)
+                        .shift_snap_angle(self.common_shift_snap_angle)
+                        .min(self.common_minimum_angle)
+                        .max(self.common_maximum_angle),
                 );
 
                 ui.add_space(8.0);
