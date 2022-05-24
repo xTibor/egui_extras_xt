@@ -1,6 +1,7 @@
 use std::f32::consts::TAU;
 
 use eframe::egui::{self, global_dark_light_mode_switch};
+use eframe::epaint::Color32;
 use itertools::Itertools;
 
 mod common;
@@ -13,7 +14,7 @@ mod audio_knob;
 use audio_knob::{AudioKnob, AudioKnobShape};
 
 mod compass_knob;
-use compass_knob::CompassKnob;
+use compass_knob::{CompassKnob, CompassKnobTarget, CompassKnobTargetShape};
 
 struct MyApp {
     // Common properties
@@ -280,7 +281,33 @@ impl eframe::App for MyApp {
                         .shift_snap_angle(self.common_shift_snap_angle)
                         .min(self.common_minimum_angle)
                         .max(self.common_maximum_angle)
-                        .animated(self.compass_knob_animated),
+                        .animated(self.compass_knob_animated)
+                        .targets(&[
+                            CompassKnobTarget::new(
+                                TAU * 0.00,
+                                CompassKnobTargetShape::Square,
+                                Some("Test"),
+                                Color32::from_rgb(0x00, 0xA0, 0x00),
+                            ),
+                            CompassKnobTarget::new(
+                                TAU * 0.25,
+                                CompassKnobTargetShape::Square,
+                                Some("Sweet"),
+                                Color32::from_rgb(0x00, 0x00, 0xFF),
+                            ),
+                            CompassKnobTarget::new(
+                                TAU * 0.50,
+                                CompassKnobTargetShape::DownArrow,
+                                Some("Reece's"),
+                                Color32::from_rgb(0xFF, 0xFF, 0x00),
+                            ),
+                            CompassKnobTarget::new(
+                                TAU * 0.75,
+                                CompassKnobTargetShape::UpArrow,
+                                Some("Big Smoke"),
+                                Color32::from_rgb(0xFF, 0x00, 0x00),
+                            ),
+                        ]),
                 );
 
                 ui.add_space(8.0);

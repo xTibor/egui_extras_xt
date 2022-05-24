@@ -1,8 +1,9 @@
 use std::f32::consts::TAU;
 
 use eframe::egui::{self, Response, Ui, Widget};
-use eframe::emath::{normalized_angle, pos2, vec2, Align2};
-use eframe::epaint::{FontFamily, FontId, Shape};
+use eframe::emath::{normalized_angle, pos2, vec2, Align2, Vec2, Rect};
+use eframe::epaint::color::tint_color_towards;
+use eframe::epaint::{Color32, FontFamily, FontId, Shape, Stroke};
 
 use crate::common::{normalized_angle_unsigned_incl, KnobMode};
 
@@ -24,6 +25,40 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 
 pub type CompassLabels<'a> = [&'a str; 4];
 
+// ----------------------------------------------------------------------------
+
+#[derive(Clone, Copy)]
+pub enum CompassKnobTargetShape {
+    DownArrow,
+    UpArrow,
+    Square,
+}
+
+pub struct CompassKnobTarget<'a> {
+    angle: f32,
+    shape: CompassKnobTargetShape,
+    label: Option<&'a str>,
+    color: Color32,
+}
+
+impl<'a> CompassKnobTarget<'a> {
+    pub fn new(
+        angle: f32,
+        shape: CompassKnobTargetShape,
+        label: Option<&'a str>,
+        color: Color32,
+    ) -> Self {
+        Self {
+            angle,
+            shape,
+            label,
+            color,
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct CompassKnob<'a> {
     get_set_value: GetSetValue<'a>,
@@ -37,6 +72,7 @@ pub struct CompassKnob<'a> {
     min: Option<f32>,
     max: Option<f32>,
     animated: bool,
+    targets: &'a [CompassKnobTarget<'a>],
 }
 
 impl<'a> CompassKnob<'a> {
@@ -62,6 +98,7 @@ impl<'a> CompassKnob<'a> {
             min: None,
             max: None,
             animated: false,
+            targets: &[],
         }
     }
 
@@ -112,6 +149,11 @@ impl<'a> CompassKnob<'a> {
 
     pub fn animated(mut self, animated: bool) -> Self {
         self.animated = animated;
+        self
+    }
+
+    pub fn targets(mut self, targets: &'a [CompassKnobTarget]) -> Self {
+        self.targets = targets;
         self
     }
 }
@@ -192,22 +234,84 @@ impl<'a> Widget for CompassKnob<'a> {
 
             ui.set_clip_rect(rect);
 
-            ui.painter().add(Shape::convex_polygon(
-                vec![
-                    rect.center(),
-                    rect.center() - vec2(self.height / 6.0, self.height / 4.0),
-                    rect.center() - vec2(-self.height / 6.0, self.height / 4.0),
-                ],
+            let paint_target = |angle,
+                                label: Option<&str>,
+                                arrow_shape,
+                                text_color,
+                                arrow_color,
+                                arrow_stroke| {
+                let target_x = map_angle_to_screen(angle);
+
+                let label_center = pos2(target_x, rect.top() + self.height * 0.125);
+                let arrow_center = pos2(target_x, rect.top() + self.height * 0.375);
+
+                let arrow_size = self.height / 6.0;
+
+                match arrow_shape {
+                    CompassKnobTargetShape::DownArrow => {
+                        ui.painter().add(Shape::convex_polygon(
+                            vec![
+                                arrow_center + Vec2::angled(TAU * (3.0 / 12.0)) * arrow_size,
+                                arrow_center + Vec2::angled(TAU * (7.0 / 12.0)) * arrow_size,
+                                arrow_center + Vec2::angled(TAU * (11.0 / 12.0)) * arrow_size,
+                            ],
+                            arrow_color,
+                            arrow_stroke,
+                        ));
+                    }
+                    CompassKnobTargetShape::UpArrow => {
+                        ui.painter().add(Shape::convex_polygon(
+                            vec![
+                                arrow_center + Vec2::angled(TAU * (1.0 / 12.0)) * arrow_size,
+                                arrow_center + Vec2::angled(TAU * (5.0 / 12.0)) * arrow_size,
+                                arrow_center + Vec2::angled(TAU * (9.0 / 12.0)) * arrow_size,
+                            ],
+                            arrow_color,
+                            arrow_stroke,
+                        ));
+                    }
+                    CompassKnobTargetShape::Square => {
+                        ui.painter().rect(Rect::from_center_size(arrow_center, Vec2::splat(arrow_size * 2.0f32.sqrt())), 0.0, arrow_color, arrow_stroke);
+                    },
+                }
+
+                if let Some(label) = label {
+                    ui.painter().text(
+                        label_center,
+                        Align2::CENTER_CENTER,
+                        label,
+                        FontId::new(self.height / 4.0, FontFamily::Proportional),
+                        text_color,
+                    );
+                }
+            };
+
+            for &CompassKnobTarget {
+                angle,
+                shape,
+                label,
+                color,
+            } in self.targets.iter()
+            {
+                let tinted_color = tint_color_towards(color, ui.style().visuals.text_color());
+
+                paint_target(
+                    angle,
+                    label,
+                    shape,
+                    tinted_color,
+                    color,
+                    Stroke::new(1.0, tinted_color),
+                );
+            }
+
+            paint_target(
+                value,
+                Some(&format!("{:.0}°", value.to_degrees())),
+                CompassKnobTargetShape::DownArrow,
+                visuals.text_color(),
                 visuals.bg_fill,
                 visuals.fg_stroke,
-            ));
-
-            ui.painter().text(
-                rect.center_top(),
-                Align2::CENTER_TOP,
-                format!("{:.0}°", value.to_degrees()),
-                FontId::new(self.height / 4.0, FontFamily::Proportional),
-                visuals.text_color(),
             );
 
             let round_bounds_to = 10.0;
