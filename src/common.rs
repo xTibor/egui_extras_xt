@@ -45,7 +45,18 @@ pub enum KnobMode {
     SpinAround,
 }
 
-/// Wrap angle to `[0, TAU]` range.
-pub fn normalized_angle_unsigned(angle: f32) -> f32 {
+/// Wrap angle to `(0..TAU)` range.
+pub fn normalized_angle_unsigned_excl(angle: f32) -> f32 {
     ((angle % TAU) + TAU) % TAU
+}
+
+/// Wrap angle to `(0..=TAU)` range.
+pub fn normalized_angle_unsigned_incl(angle: f32) -> f32 {
+    if angle < 0.0 {
+        ((angle % TAU) + TAU) % TAU
+    } else if angle > TAU {
+        angle % TAU
+    } else {
+        angle
+    }
 }

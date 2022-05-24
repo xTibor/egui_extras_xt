@@ -4,7 +4,7 @@ use eframe::egui::{self, Response, Ui, Widget};
 use eframe::emath::Vec2;
 use eframe::epaint::{Shape, Stroke};
 
-use crate::common::{normalized_angle_unsigned, KnobDirection, KnobMode, KnobOrientation};
+use crate::common::{normalized_angle_unsigned_excl, KnobDirection, KnobMode, KnobOrientation};
 
 // ----------------------------------------------------------------------------
 
@@ -180,7 +180,7 @@ impl<'a> Widget for AngleKnob<'a> {
                 * self.direction.to_float();
 
             if self.mode == KnobMode::Unsigned {
-                new_value = normalized_angle_unsigned(new_value);
+                new_value = normalized_angle_unsigned_excl(new_value);
             }
 
             if self.mode == KnobMode::SpinAround {

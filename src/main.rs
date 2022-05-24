@@ -276,7 +276,8 @@ impl eframe::App for MyApp {
                         .snap_angle(self.common_snap_angle)
                         .shift_snap_angle(self.common_shift_snap_angle)
                         .min(self.common_minimum_angle)
-                        .max(self.common_maximum_angle),
+                        .max(self.common_maximum_angle)
+                        .animated(true),
                 );
 
                 ui.add_space(8.0);

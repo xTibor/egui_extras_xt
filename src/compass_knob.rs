@@ -4,7 +4,7 @@ use eframe::egui::{self, Response, Ui, Widget};
 use eframe::emath::{normalized_angle, pos2, vec2, Align2};
 use eframe::epaint::{FontFamily, FontId, Shape};
 
-use crate::common::{normalized_angle_unsigned, KnobMode};
+use crate::common::{normalized_angle_unsigned_incl, KnobMode};
 
 // ----------------------------------------------------------------------------
 
@@ -36,6 +36,7 @@ pub struct CompassKnob<'a> {
     shift_snap_angle: Option<f32>,
     min: Option<f32>,
     max: Option<f32>,
+    animated: bool,
 }
 
 impl<'a> CompassKnob<'a> {
@@ -60,6 +61,7 @@ impl<'a> CompassKnob<'a> {
             shift_snap_angle: Some(TAU / 36.0),
             min: None,
             max: None,
+            animated: false,
         }
     }
 
@@ -107,6 +109,11 @@ impl<'a> CompassKnob<'a> {
         self.shift_snap_angle = shift_snap_angle;
         self
     }
+
+    pub fn animated(mut self, animated: bool) -> Self {
+        self.animated = animated;
+        self
+    }
 }
 
 impl<'a> Widget for CompassKnob<'a> {
@@ -117,11 +124,13 @@ impl<'a> Widget for CompassKnob<'a> {
 
         let constrain_value = |mut value| {
             if self.mode == KnobMode::Signed {
+                // Animations require inclusive normalization bounds (-PI..=PI)
                 value = normalized_angle(value);
             }
 
             if self.mode == KnobMode::Unsigned {
-                value = normalized_angle_unsigned(value);
+                // Animations require inclusive normalization bounds (0..=TAU)
+                value = normalized_angle_unsigned_incl(value);
             }
 
             if let Some(min) = self.min {
@@ -143,6 +152,12 @@ impl<'a> Widget for CompassKnob<'a> {
         }
 
         if response.drag_released() {
+            if self.animated {
+                ui.ctx().clear_animations();
+                ui.ctx()
+                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1);
+            }
+
             if let Some(angle) = if ui.input().modifiers.shift_only() {
                 self.shift_snap_angle
             } else {
@@ -157,7 +172,13 @@ impl<'a> Widget for CompassKnob<'a> {
 
         if ui.is_rect_visible(rect) {
             let visuals = *ui.style().interact(&response);
-            let value = get(&mut self.get_set_value);
+
+            let value = if self.animated && !response.dragged() {
+                ui.ctx()
+                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1)
+            } else {
+                get(&mut self.get_set_value)
+            };
 
             let map_angle_to_screen =
                 |angle: f32| rect.center().x - (value - angle) * (rect.width() / self.spread);
