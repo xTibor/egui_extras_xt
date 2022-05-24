@@ -179,6 +179,15 @@ impl<'a> Widget for AngleKnob<'a> {
             .angle()
                 * self.direction.to_float();
 
+            if let Some(angle) = if ui.input().modifiers.shift_only() {
+                self.shift_snap_angle
+            } else {
+                self.snap_angle
+            } {
+                assert!(angle > 0.0, "non-positive snap angles are not supported");
+                new_value = (new_value / angle).round() * angle;
+            }
+
             if self.mode == KnobMode::Unsigned {
                 new_value = normalized_angle_unsigned_excl(new_value);
             }
@@ -192,15 +201,6 @@ impl<'a> Widget for AngleKnob<'a> {
                 } else if new_value - prev_value < -(TAU / 2.0) {
                     new_value += TAU;
                 }
-            }
-
-            if let Some(angle) = if ui.input().modifiers.shift_only() {
-                self.shift_snap_angle
-            } else {
-                self.snap_angle
-            } {
-                assert!(angle > 0.0, "non-positive snap angles are not supported");
-                new_value = (new_value / angle).round() * angle;
             }
 
             if let Some(min) = self.min {
