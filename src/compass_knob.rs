@@ -210,13 +210,17 @@ impl<'a> Widget for CompassKnob<'a> {
                 visuals.text_color(),
             );
 
-            let left_degrees =
-                (((value - (self.spread / 2.0)).to_degrees() / 10.0).floor() * 10.0) as isize;
+            let round_bounds_to = 10.0;
 
-            let right_degrees =
-                (((value + (self.spread / 2.0)).to_degrees() / 10.0).ceil() * 10.0) as isize;
+            let start_degrees = (((value - (self.spread / 2.0)).to_degrees() / round_bounds_to)
+                .floor()
+                * round_bounds_to) as isize;
 
-            for degree in (left_degrees..=right_degrees).step_by(10) {
+            let end_degrees = (((value + (self.spread / 2.0)).to_degrees() / round_bounds_to)
+                .ceil()
+                * round_bounds_to) as isize;
+
+            for degree in (start_degrees..=end_degrees).step_by(5) {
                 let tick_x = map_angle_to_screen((degree as f32).to_radians());
 
                 let (tick_height, tick_label) = if degree % 90 == 0 {
@@ -224,8 +228,12 @@ impl<'a> Widget for CompassKnob<'a> {
                     (1.0, Some(tick_label))
                 } else if degree % 30 == 0 {
                     (0.75, None)
-                } else {
+                } else if degree % 10 == 0 {
                     (0.5, None)
+                } else if degree % 5 == 0 {
+                    (0.3, None)
+                } else {
+                    unreachable!()
                 };
 
                 ui.painter().line_segment(
