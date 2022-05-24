@@ -22,7 +22,7 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 
 // ----------------------------------------------------------------------------
 
-pub struct CompassLabels<'a>(pub [&'a str; 4]);
+pub type CompassLabels<'a> = [&'a str; 4];
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct CompassKnob<'a> {
@@ -55,7 +55,7 @@ impl<'a> CompassKnob<'a> {
             width: 256.0,
             height: 48.0,
             spread: TAU / 2.0,
-            labels: CompassLabels(["N", "E", "S", "W"]),
+            labels: ["N", "E", "S", "W"],
             snap_angle: None,
             shift_snap_angle: Some(TAU / 36.0),
             min: None,
@@ -109,8 +109,6 @@ impl<'a> CompassKnob<'a> {
     }
 }
 
-impl CompassKnob<'_> {}
-
 impl<'a> Widget for CompassKnob<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = egui::vec2(self.width, self.height);
@@ -157,13 +155,12 @@ impl<'a> Widget for CompassKnob<'a> {
             }
         }
 
-        let value = get(&mut self.get_set_value);
-        let map_angle_to_screen = |angle: f32| {
-            rect.center().x - (value - angle) * (rect.width() / self.spread)
-        };
-
         if ui.is_rect_visible(rect) {
             let visuals = *ui.style().interact(&response);
+            let value = get(&mut self.get_set_value);
+
+            let map_angle_to_screen =
+                |angle: f32| rect.center().x - (value - angle) * (rect.width() / self.spread);
 
             ui.painter().rect(
                 rect,
@@ -187,18 +184,16 @@ impl<'a> Widget for CompassKnob<'a> {
             ui.painter().text(
                 rect.center_top(),
                 Align2::CENTER_TOP,
-                format!("{:.0}°", get(&mut self.get_set_value).to_degrees()),
+                format!("{:.0}°", value.to_degrees()),
                 FontId::new(self.height / 4.0, FontFamily::Proportional),
                 visuals.text_color(),
             );
 
             let left_degrees =
-                (((get(&mut self.get_set_value) - (self.spread / 2.0)).to_degrees() / 10.0).floor()
-                    * 10.0) as isize;
+                (((value - (self.spread / 2.0)).to_degrees() / 10.0).floor() * 10.0) as isize;
 
             let right_degrees =
-                (((get(&mut self.get_set_value) + (self.spread / 2.0)).to_degrees() / 10.0).ceil()
-                    * 10.0) as isize;
+                (((value + (self.spread / 2.0)).to_degrees() / 10.0).ceil() * 10.0) as isize;
 
             for degree in (left_degrees..=right_degrees).step_by(10) {
                 let tick_x = map_angle_to_screen((degree as f32).to_radians());
@@ -226,7 +221,7 @@ impl<'a> Widget for CompassKnob<'a> {
                     ui.painter().text(
                         pos2(tick_x, rect.bottom()),
                         Align2::CENTER_BOTTOM,
-                        self.labels.0[((((degree / 90) % 4) + 4) % 4) as usize],
+                        self.labels[((((degree / 90) % 4) + 4) % 4) as usize],
                         FontId::new(self.height / 4.0, FontFamily::Proportional),
                         ui.style().visuals.text_color(),
                     );
