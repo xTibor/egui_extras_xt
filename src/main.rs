@@ -36,6 +36,7 @@ struct MyApp {
     // CompassKnob
     compass_knob_value: f32,
     compass_knob_spread: f32,
+    compass_knob_animated: bool,
 }
 
 impl Default for MyApp {
@@ -61,6 +62,7 @@ impl Default for MyApp {
             // CompassKnob
             compass_knob_value: 0.0,
             compass_knob_spread: TAU / 2.0,
+            compass_knob_animated: true,
         }
     }
 }
@@ -264,6 +266,7 @@ impl eframe::App for MyApp {
 
                 ui.drag_angle(&mut self.compass_knob_value);
                 ui.drag_angle(&mut self.compass_knob_spread);
+                ui.checkbox(&mut self.compass_knob_animated, "Animated");
                 ui.add_space(8.0);
 
                 ui.add(
@@ -277,7 +280,7 @@ impl eframe::App for MyApp {
                         .shift_snap_angle(self.common_shift_snap_angle)
                         .min(self.common_minimum_angle)
                         .max(self.common_maximum_angle)
-                        .animated(true),
+                        .animated(self.compass_knob_animated),
                 );
 
                 ui.add_space(8.0);
