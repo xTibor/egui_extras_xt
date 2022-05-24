@@ -1,11 +1,11 @@
 use std::f32::consts::TAU;
 
 use eframe::egui::{self, Response, Ui, Widget};
-use eframe::emath::{normalized_angle, pos2, vec2, Align2, Vec2, Rect};
+use eframe::emath::{normalized_angle, pos2, vec2, Align2, Rect, Vec2};
 use eframe::epaint::color::tint_color_towards;
 use eframe::epaint::{Color32, FontFamily, FontId, Shape, Stroke};
 
-use crate::common::{normalized_angle_unsigned_incl, KnobMode};
+use crate::common::{normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, KnobMode};
 
 // ----------------------------------------------------------------------------
 
@@ -42,18 +42,28 @@ pub struct CompassKnobTarget<'a> {
 }
 
 impl<'a> CompassKnobTarget<'a> {
-    pub fn new(
-        angle: f32,
-        shape: CompassKnobTargetShape,
-        label: Option<&'a str>,
-        color: Color32,
-    ) -> Self {
+    pub fn new(angle: f32) -> Self {
         Self {
-            angle,
-            shape,
-            label,
-            color,
+            angle: normalized_angle_unsigned_excl(angle),
+            shape: CompassKnobTargetShape::Square,
+            label: None,
+            color: Color32::GRAY,
         }
+    }
+
+    pub fn shape(mut self, shape: CompassKnobTargetShape) -> Self {
+        self.shape = shape;
+        self
+    }
+
+    pub fn label(mut self, label: &'a str) -> Self {
+        self.label = Some(label);
+        self
+    }
+
+    pub fn color(mut self, color: Color32) -> Self {
+        self.color = color;
+        self
     }
 }
 
@@ -234,57 +244,61 @@ impl<'a> Widget for CompassKnob<'a> {
 
             ui.set_clip_rect(rect);
 
-            let paint_target = |angle,
-                                label: Option<&str>,
-                                arrow_shape,
-                                text_color,
+            let paint_target =
+                |angle, label: Option<&str>, arrow_shape, text_color, arrow_color, arrow_stroke| {
+                    let target_x = map_angle_to_screen(angle);
+
+                    let label_center = pos2(target_x, rect.top() + self.height * 0.125);
+                    let arrow_center = pos2(target_x, rect.top() + self.height * 0.375);
+
+                    let arrow_size = self.height / 6.0;
+
+                    match arrow_shape {
+                        CompassKnobTargetShape::DownArrow => {
+                            ui.painter().add(Shape::convex_polygon(
+                                vec![
+                                    arrow_center + Vec2::angled(TAU * (3.0 / 12.0)) * arrow_size,
+                                    arrow_center + Vec2::angled(TAU * (7.0 / 12.0)) * arrow_size,
+                                    arrow_center + Vec2::angled(TAU * (11.0 / 12.0)) * arrow_size,
+                                ],
                                 arrow_color,
-                                arrow_stroke| {
-                let target_x = map_angle_to_screen(angle);
-
-                let label_center = pos2(target_x, rect.top() + self.height * 0.125);
-                let arrow_center = pos2(target_x, rect.top() + self.height * 0.375);
-
-                let arrow_size = self.height / 6.0;
-
-                match arrow_shape {
-                    CompassKnobTargetShape::DownArrow => {
-                        ui.painter().add(Shape::convex_polygon(
-                            vec![
-                                arrow_center + Vec2::angled(TAU * (3.0 / 12.0)) * arrow_size,
-                                arrow_center + Vec2::angled(TAU * (7.0 / 12.0)) * arrow_size,
-                                arrow_center + Vec2::angled(TAU * (11.0 / 12.0)) * arrow_size,
-                            ],
-                            arrow_color,
-                            arrow_stroke,
-                        ));
+                                arrow_stroke,
+                            ));
+                        }
+                        CompassKnobTargetShape::UpArrow => {
+                            ui.painter().add(Shape::convex_polygon(
+                                vec![
+                                    arrow_center + Vec2::angled(TAU * (1.0 / 12.0)) * arrow_size,
+                                    arrow_center + Vec2::angled(TAU * (5.0 / 12.0)) * arrow_size,
+                                    arrow_center + Vec2::angled(TAU * (9.0 / 12.0)) * arrow_size,
+                                ],
+                                arrow_color,
+                                arrow_stroke,
+                            ));
+                        }
+                        CompassKnobTargetShape::Square => {
+                            ui.painter().rect(
+                                Rect::from_center_size(
+                                    arrow_center,
+                                    Vec2::splat(arrow_size * 2.0f32.sqrt()),
+                                ),
+                                0.0,
+                                arrow_color,
+                                arrow_stroke,
+                            );
+                        }
                     }
-                    CompassKnobTargetShape::UpArrow => {
-                        ui.painter().add(Shape::convex_polygon(
-                            vec![
-                                arrow_center + Vec2::angled(TAU * (1.0 / 12.0)) * arrow_size,
-                                arrow_center + Vec2::angled(TAU * (5.0 / 12.0)) * arrow_size,
-                                arrow_center + Vec2::angled(TAU * (9.0 / 12.0)) * arrow_size,
-                            ],
-                            arrow_color,
-                            arrow_stroke,
-                        ));
-                    }
-                    CompassKnobTargetShape::Square => {
-                        ui.painter().rect(Rect::from_center_size(arrow_center, Vec2::splat(arrow_size * 2.0f32.sqrt())), 0.0, arrow_color, arrow_stroke);
-                    },
-                }
 
-                if let Some(label) = label {
-                    ui.painter().text(
-                        label_center,
-                        Align2::CENTER_CENTER,
-                        label,
-                        FontId::new(self.height / 4.0, FontFamily::Proportional),
-                        text_color,
-                    );
-                }
-            };
+                    if let Some(label) = label {
+                        ui.painter().text(
+                            label_center,
+                            Align2::CENTER_CENTER,
+                            label,
+                            FontId::new(self.height / 4.0, FontFamily::Proportional),
+                            text_color,
+                        );
+                    }
+                };
 
             for &CompassKnobTarget {
                 angle,

@@ -283,30 +283,22 @@ impl eframe::App for MyApp {
                         .max(self.common_maximum_angle)
                         .animated(self.compass_knob_animated)
                         .targets(&[
-                            CompassKnobTarget::new(
-                                TAU * 0.00,
-                                CompassKnobTargetShape::Square,
-                                Some("Test"),
-                                Color32::from_rgb(0x00, 0xA0, 0x00),
-                            ),
-                            CompassKnobTarget::new(
-                                TAU * 0.25,
-                                CompassKnobTargetShape::Square,
-                                Some("Sweet"),
-                                Color32::from_rgb(0x00, 0x00, 0xFF),
-                            ),
-                            CompassKnobTarget::new(
-                                TAU * 0.50,
-                                CompassKnobTargetShape::DownArrow,
-                                Some("Reece's"),
-                                Color32::from_rgb(0xFF, 0xFF, 0x00),
-                            ),
-                            CompassKnobTarget::new(
-                                TAU * 0.75,
-                                CompassKnobTargetShape::UpArrow,
-                                Some("Big Smoke"),
-                                Color32::from_rgb(0xFF, 0x00, 0x00),
-                            ),
+                            CompassKnobTarget::new(TAU * 0.00)
+                                .shape(CompassKnobTargetShape::Square)
+                                .label("Test")
+                                .color(Color32::from_rgb(0x00, 0xA0, 0x00)),
+                            CompassKnobTarget::new(TAU * 0.25)
+                                .shape(CompassKnobTargetShape::Square)
+                                .label("Sweet")
+                                .color(Color32::from_rgb(0x00, 0x00, 0xFF)),
+                            CompassKnobTarget::new(TAU * 0.50)
+                                .shape(CompassKnobTargetShape::DownArrow)
+                                .label("Reece's")
+                                .color(Color32::from_rgb(0xFF, 0xFF, 0x00)),
+                            CompassKnobTarget::new(TAU * 0.75)
+                                .shape(CompassKnobTargetShape::UpArrow)
+                                .label("Big Smoke")
+                                .color(Color32::from_rgb(0xFF, 0x00, 0x00)),
                         ]),
                 );
 
