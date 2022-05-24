@@ -198,12 +198,13 @@ impl<'a> Widget for CompassKnob<'a> {
             for degree in (left_degrees..=right_degrees).step_by(10) {
                 let tick_x = map_angle_to_screen((degree as f32).to_radians());
 
-                let tick_height = if degree % 90 == 0 {
-                    1.0
+                let (tick_height, tick_label) = if degree % 90 == 0 {
+                    let tick_label = self.labels[(degree / 90).rem_euclid(4) as usize];
+                    (1.0, Some(tick_label))
                 } else if degree % 30 == 0 {
-                    0.75
+                    (0.75, None)
                 } else {
-                    0.5
+                    (0.5, None)
                 };
 
                 ui.painter().line_segment(
@@ -217,11 +218,11 @@ impl<'a> Widget for CompassKnob<'a> {
                     ui.style().visuals.noninteractive().fg_stroke,
                 );
 
-                if degree % 90 == 0 {
+                if let Some(tick_label) = tick_label {
                     ui.painter().text(
                         pos2(tick_x, rect.bottom()),
                         Align2::CENTER_BOTTOM,
-                        self.labels[((((degree / 90) % 4) + 4) % 4) as usize],
+                        tick_label,
                         FontId::new(self.height / 4.0, FontFamily::Proportional),
                         ui.style().visuals.text_color(),
                     );
