@@ -423,8 +423,8 @@ impl<'a> Widget for CompassKnob<'a> {
                     }
                 };
 
-                let start_tau = ((value - (self.spread / 2.0)) / TAU).floor() as isize;
-                let end_tau = ((value + (self.spread / 2.0)) / TAU).ceil() as isize;
+                let start_tau = ((value - (self.spread.abs() / 2.0)) / TAU).floor() as isize;
+                let end_tau = ((value + (self.spread.abs() / 2.0)) / TAU).ceil() as isize;
 
                 for tau in start_tau..=end_tau {
                     for marker in self.markers.iter() {
@@ -455,13 +455,13 @@ impl<'a> Widget for CompassKnob<'a> {
             {
                 let round_bounds_to = 10.0;
 
-                let start_degrees = (((value - (self.spread / 2.0)).to_degrees() / round_bounds_to)
-                    .floor()
-                    * round_bounds_to) as isize;
+                let start_degrees =
+                    (((value - (self.spread.abs() / 2.0)).to_degrees() / round_bounds_to).floor()
+                        * round_bounds_to) as isize;
 
-                let end_degrees = (((value + (self.spread / 2.0)).to_degrees() / round_bounds_to)
-                    .ceil()
-                    * round_bounds_to) as isize;
+                let end_degrees =
+                    (((value + (self.spread.abs() / 2.0)).to_degrees() / round_bounds_to).ceil()
+                        * round_bounds_to) as isize;
 
                 for degree in (start_degrees..=end_degrees).step_by(5) {
                     let tick_x = map_angle_to_screen((degree as f32).to_radians());
