@@ -3,7 +3,8 @@ use std::f32::consts::TAU;
 use eframe::egui::{self, Response, Ui, Widget};
 use eframe::emath::{normalized_angle, pos2, vec2, Align2, Rect, Vec2};
 use eframe::epaint::color::tint_color_towards;
-use eframe::epaint::{Color32, FontFamily, FontId, Rounding, Shape, Stroke};
+use eframe::epaint::{Color32, FontFamily, FontId, Shape, Stroke};
+use itertools::Itertools;
 
 use crate::common::{normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, KnobMode};
 
@@ -36,6 +37,7 @@ pub enum CompassKnobMarkerShape {
     LeftArrow,
     DownArrow,
     Diamond,
+    Star(usize, f32),
 }
 
 pub struct CompassKnobMarker<'a> {
@@ -352,6 +354,41 @@ impl<'a> Widget for CompassKnob<'a> {
                                     marker_rect.center_bottom(),
                                     marker_rect.left_center(),
                                 ],
+                                marker_color,
+                                marker_stroke,
+                            ));
+                        }
+                        CompassKnobMarkerShape::Star(rays, ratio) => {
+                            assert!(rays >= 2, "star-shaped markers must have at least 2 rays");
+                            assert!(
+                                (0.0..=1.0).contains(&ratio),
+                                "ray ratio of star-shaped markers must be normalized"
+                            );
+
+                            let outer_radius = marker_rect.width() * 0.5;
+                            let inner_radius = outer_radius * ratio;
+                            let star_rotation = -TAU * 0.25;
+
+                            let outer_points = (0..rays).map(|point_index| {
+                                marker_rect.center()
+                                    + Vec2::angled(
+                                        star_rotation
+                                            + TAU * ((point_index as f32 + 0.0) / rays as f32),
+                                    ) * outer_radius
+                            });
+
+                            let inner_points = (0..rays).map(|point_index| {
+                                marker_rect.center()
+                                    + Vec2::angled(
+                                        star_rotation
+                                            + TAU * ((point_index as f32 + 0.5) / rays as f32),
+                                    ) * inner_radius
+                            });
+
+                            // TODO: Broken polygon renderer
+                            // https://github.com/emilk/egui/issues/513
+                            ui.painter().add(Shape::convex_polygon(
+                                outer_points.interleave(inner_points).collect_vec(),
                                 marker_color,
                                 marker_stroke,
                             ));
