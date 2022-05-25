@@ -28,30 +28,30 @@ pub type CompassLabels<'a> = [&'a str; 4];
 // ----------------------------------------------------------------------------
 
 #[derive(Clone, Copy)]
-pub enum CompassKnobTargetShape {
+pub enum CompassKnobMarkerShape {
     DownArrow,
     UpArrow,
     Square,
 }
 
-pub struct CompassKnobTarget<'a> {
+pub struct CompassKnobMarker<'a> {
     angle: f32,
-    shape: CompassKnobTargetShape,
+    shape: CompassKnobMarkerShape,
     label: Option<&'a str>,
     color: Color32,
 }
 
-impl<'a> CompassKnobTarget<'a> {
+impl<'a> CompassKnobMarker<'a> {
     pub fn new(angle: f32) -> Self {
         Self {
             angle: normalized_angle_unsigned_excl(angle),
-            shape: CompassKnobTargetShape::Square,
+            shape: CompassKnobMarkerShape::Square,
             label: None,
             color: Color32::GRAY,
         }
     }
 
-    pub fn shape(mut self, shape: CompassKnobTargetShape) -> Self {
+    pub fn shape(mut self, shape: CompassKnobMarkerShape) -> Self {
         self.shape = shape;
         self
     }
@@ -82,7 +82,7 @@ pub struct CompassKnob<'a> {
     min: Option<f32>,
     max: Option<f32>,
     animated: bool,
-    targets: &'a [CompassKnobTarget<'a>],
+    markers: &'a [CompassKnobMarker<'a>],
 }
 
 impl<'a> CompassKnob<'a> {
@@ -108,7 +108,7 @@ impl<'a> CompassKnob<'a> {
             min: None,
             max: None,
             animated: false,
-            targets: &[],
+            markers: &[],
         }
     }
 
@@ -162,8 +162,8 @@ impl<'a> CompassKnob<'a> {
         self
     }
 
-    pub fn targets(mut self, targets: &'a [CompassKnobTarget]) -> Self {
-        self.targets = targets;
+    pub fn markers(mut self, markers: &'a [CompassKnobMarker]) -> Self {
+        self.markers = markers;
         self
     }
 }
@@ -244,47 +244,58 @@ impl<'a> Widget for CompassKnob<'a> {
 
             ui.set_clip_rect(rect);
 
-            let paint_target =
-                |angle, label: Option<&str>, arrow_shape, text_color, arrow_color, arrow_stroke| {
+            {
+                let paint_marker = |angle,
+                                    label: Option<&str>,
+                                    text_color,
+                                    marker_shape,
+                                    marker_color,
+                                    marker_stroke| {
                     let target_x = map_angle_to_screen(angle);
 
                     let label_center = pos2(target_x, rect.top() + self.height * 0.125);
-                    let arrow_center = pos2(target_x, rect.top() + self.height * 0.375);
+                    let marker_center = pos2(target_x, rect.top() + self.height * 0.375);
 
-                    let arrow_size = self.height / 6.0;
+                    let marker_radius = self.height / 6.0;
 
-                    match arrow_shape {
-                        CompassKnobTargetShape::DownArrow => {
+                    match marker_shape {
+                        CompassKnobMarkerShape::DownArrow => {
                             ui.painter().add(Shape::convex_polygon(
                                 vec![
-                                    arrow_center + Vec2::angled(TAU * (3.0 / 12.0)) * arrow_size,
-                                    arrow_center + Vec2::angled(TAU * (7.0 / 12.0)) * arrow_size,
-                                    arrow_center + Vec2::angled(TAU * (11.0 / 12.0)) * arrow_size,
+                                    marker_center
+                                        + Vec2::angled(TAU * (3.0 / 12.0)) * marker_radius,
+                                    marker_center
+                                        + Vec2::angled(TAU * (7.0 / 12.0)) * marker_radius,
+                                    marker_center
+                                        + Vec2::angled(TAU * (11.0 / 12.0)) * marker_radius,
                                 ],
-                                arrow_color,
-                                arrow_stroke,
+                                marker_color,
+                                marker_stroke,
                             ));
                         }
-                        CompassKnobTargetShape::UpArrow => {
+                        CompassKnobMarkerShape::UpArrow => {
                             ui.painter().add(Shape::convex_polygon(
                                 vec![
-                                    arrow_center + Vec2::angled(TAU * (1.0 / 12.0)) * arrow_size,
-                                    arrow_center + Vec2::angled(TAU * (5.0 / 12.0)) * arrow_size,
-                                    arrow_center + Vec2::angled(TAU * (9.0 / 12.0)) * arrow_size,
+                                    marker_center
+                                        + Vec2::angled(TAU * (1.0 / 12.0)) * marker_radius,
+                                    marker_center
+                                        + Vec2::angled(TAU * (5.0 / 12.0)) * marker_radius,
+                                    marker_center
+                                        + Vec2::angled(TAU * (9.0 / 12.0)) * marker_radius,
                                 ],
-                                arrow_color,
-                                arrow_stroke,
+                                marker_color,
+                                marker_stroke,
                             ));
                         }
-                        CompassKnobTargetShape::Square => {
+                        CompassKnobMarkerShape::Square => {
                             ui.painter().rect(
                                 Rect::from_center_size(
-                                    arrow_center,
-                                    Vec2::splat(arrow_size * 2.0f32.sqrt()),
+                                    marker_center,
+                                    Vec2::splat(marker_radius * 2.0f32.sqrt()),
                                 ),
                                 0.0,
-                                arrow_color,
-                                arrow_stroke,
+                                marker_color,
+                                marker_stroke,
                             );
                         }
                     }
@@ -300,97 +311,96 @@ impl<'a> Widget for CompassKnob<'a> {
                     }
                 };
 
-            for &CompassKnobTarget {
-                angle,
-                shape,
-                label,
-                color,
-            } in self.targets.iter()
-            {
-                let tinted_color = tint_color_towards(color, ui.style().visuals.text_color());
+                for marker in self.markers.iter() {
+                    let tinted_color =
+                        tint_color_towards(marker.color, ui.style().visuals.text_color()); // TODO: Better color
 
-                paint_target(
-                    angle,
-                    label,
-                    shape,
-                    tinted_color,
-                    color,
-                    Stroke::new(1.0, tinted_color),
+                    paint_marker(
+                        marker.angle,
+                        marker.label,
+                        tinted_color,
+                        marker.shape,
+                        marker.color,
+                        Stroke::new(1.0, tinted_color),
+                    );
+                }
+
+                paint_marker(
+                    value,
+                    Some(&format!("{:.0}°", value.to_degrees())),
+                    visuals.text_color(),
+                    CompassKnobMarkerShape::DownArrow,
+                    visuals.bg_fill,
+                    visuals.fg_stroke,
                 );
             }
 
-            paint_target(
-                value,
-                Some(&format!("{:.0}°", value.to_degrees())),
-                CompassKnobTargetShape::DownArrow,
-                visuals.text_color(),
-                visuals.bg_fill,
-                visuals.fg_stroke,
-            );
+            {
+                let round_bounds_to = 10.0;
 
-            let round_bounds_to = 10.0;
+                let start_degrees = (((value - (self.spread / 2.0)).to_degrees() / round_bounds_to)
+                    .floor()
+                    * round_bounds_to) as isize;
 
-            let start_degrees = (((value - (self.spread / 2.0)).to_degrees() / round_bounds_to)
-                .floor()
-                * round_bounds_to) as isize;
+                let end_degrees = (((value + (self.spread / 2.0)).to_degrees() / round_bounds_to)
+                    .ceil()
+                    * round_bounds_to) as isize;
 
-            let end_degrees = (((value + (self.spread / 2.0)).to_degrees() / round_bounds_to)
-                .ceil()
-                * round_bounds_to) as isize;
+                for degree in (start_degrees..=end_degrees).step_by(5) {
+                    let tick_x = map_angle_to_screen((degree as f32).to_radians());
 
-            for degree in (start_degrees..=end_degrees).step_by(5) {
-                let tick_x = map_angle_to_screen((degree as f32).to_radians());
+                    let tick_position = pos2(tick_x, rect.top() + (self.height * 0.5));
+                    let tick_size = vec2(0.0, self.height * 0.25);
 
-                let (tick_height, tick_label) = if degree % 90 == 0 {
-                    let tick_label = self.labels[(degree / 90).rem_euclid(4) as usize];
-                    (1.0, Some(tick_label))
-                } else if degree % 30 == 0 {
-                    (0.75, None)
-                } else if degree % 10 == 0 {
-                    (0.5, None)
-                } else if degree % 5 == 0 {
-                    (0.3, None)
-                } else {
-                    unreachable!()
-                };
+                    let tick_label_center = pos2(tick_x, rect.top() + (self.height * 0.875));
 
-                ui.painter().line_segment(
-                    [
-                        pos2(tick_x, rect.top() + self.height * 0.5),
-                        pos2(
-                            tick_x,
-                            rect.top() + self.height * 0.5 + self.height * 0.25 * tick_height,
-                        ),
-                    ],
-                    ui.style().visuals.noninteractive().fg_stroke,
-                );
+                    let (tick_scale, tick_label) = if degree % 90 == 0 {
+                        let label_index = (degree / 90).rem_euclid(4) as usize;
+                        (1.0, Some(self.labels[label_index]))
+                    } else if degree % 30 == 0 {
+                        (0.75, None)
+                    } else if degree % 10 == 0 {
+                        (0.5, None)
+                    } else if degree % 5 == 0 {
+                        (0.3, None)
+                    } else {
+                        unreachable!()
+                    };
 
-                if let Some(tick_label) = tick_label {
-                    ui.painter().text(
-                        pos2(tick_x, rect.bottom()),
-                        Align2::CENTER_BOTTOM,
-                        tick_label,
-                        FontId::new(self.height / 4.0, FontFamily::Proportional),
-                        ui.style().visuals.text_color(),
+                    ui.painter().line_segment(
+                        [tick_position, tick_position + tick_size * tick_scale],
+                        ui.style().visuals.noninteractive().fg_stroke,
                     );
+
+                    if let Some(tick_label) = tick_label {
+                        ui.painter().text(
+                            tick_label_center,
+                            Align2::CENTER_CENTER,
+                            tick_label,
+                            FontId::new(self.height / 4.0, FontFamily::Proportional),
+                            ui.style().visuals.text_color(),
+                        );
+                    }
                 }
             }
 
-            let paint_stop = |angle: f32| {
-                let stop_x = map_angle_to_screen(angle);
+            {
+                let paint_stop = |angle: f32| {
+                    let stop_x = map_angle_to_screen(angle);
 
-                ui.painter().line_segment(
-                    [pos2(stop_x, rect.top()), pos2(stop_x, rect.bottom())],
-                    ui.style().visuals.noninteractive().fg_stroke,
-                );
-            };
+                    ui.painter().line_segment(
+                        [pos2(stop_x, rect.top()), pos2(stop_x, rect.bottom())],
+                        ui.style().visuals.noninteractive().fg_stroke,
+                    );
+                };
 
-            if let Some(min) = self.min {
-                paint_stop(min);
-            }
+                if let Some(min) = self.min {
+                    paint_stop(min);
+                }
 
-            if let Some(max) = self.max {
-                paint_stop(max);
+                if let Some(max) = self.max {
+                    paint_stop(max);
+                }
             }
         }
 

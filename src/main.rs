@@ -14,7 +14,7 @@ mod audio_knob;
 use audio_knob::{AudioKnob, AudioKnobShape};
 
 mod compass_knob;
-use compass_knob::{CompassKnob, CompassKnobTarget, CompassKnobTargetShape};
+use compass_knob::{CompassKnob, CompassKnobMarker, CompassKnobMarkerShape};
 
 struct MyApp {
     // Common properties
@@ -282,21 +282,21 @@ impl eframe::App for MyApp {
                         .min(self.common_minimum_angle)
                         .max(self.common_maximum_angle)
                         .animated(self.compass_knob_animated)
-                        .targets(&[
-                            CompassKnobTarget::new(TAU * 0.00)
-                                .shape(CompassKnobTargetShape::Square)
+                        .markers(&[
+                            CompassKnobMarker::new(TAU * 0.00)
+                                .shape(CompassKnobMarkerShape::Square)
                                 .label("Test")
                                 .color(Color32::from_rgb(0x00, 0xA0, 0x00)),
-                            CompassKnobTarget::new(TAU * 0.25)
-                                .shape(CompassKnobTargetShape::Square)
+                            CompassKnobMarker::new(TAU * 0.25)
+                                .shape(CompassKnobMarkerShape::Square)
                                 .label("Sweet")
                                 .color(Color32::from_rgb(0x00, 0x00, 0xFF)),
-                            CompassKnobTarget::new(TAU * 0.50)
-                                .shape(CompassKnobTargetShape::DownArrow)
+                            CompassKnobMarker::new(TAU * 0.50)
+                                .shape(CompassKnobMarkerShape::DownArrow)
                                 .label("Reece's")
                                 .color(Color32::from_rgb(0xFF, 0xFF, 0x00)),
-                            CompassKnobTarget::new(TAU * 0.75)
-                                .shape(CompassKnobTargetShape::UpArrow)
+                            CompassKnobMarker::new(TAU * 0.75)
+                                .shape(CompassKnobMarkerShape::UpArrow)
                                 .label("Big Smoke")
                                 .color(Color32::from_rgb(0xFF, 0x00, 0x00)),
                         ]),
