@@ -260,164 +260,186 @@ impl<'a> Widget for CompassKnob<'a> {
                                     marker_shape,
                                     marker_color,
                                     marker_stroke| {
-                    let label_center =
-                        pos2(map_angle_to_screen(angle), rect.top() + self.height * 0.125);
-
-                    let marker_rect = {
-                        let center =
-                            pos2(map_angle_to_screen(angle), rect.top() + self.height * 0.375);
-                        Rect::from_center_size(center, Vec2::splat(self.height * 0.25))
-                    };
-
-                    match marker_shape {
-                        CompassKnobMarkerShape::Square => {
-                            ui.painter()
-                                .rect(marker_rect, 0.0, marker_color, marker_stroke);
-                        }
-                        CompassKnobMarkerShape::Circle => {
-                            ui.painter().rect(
-                                marker_rect,
-                                marker_rect.width() / 2.0,
-                                marker_color,
-                                marker_stroke,
-                            );
-                        }
-                        CompassKnobMarkerShape::RightArrow => {
-                            let marker_rect = Rect::from_center_size(
-                                marker_rect.center(),
-                                marker_rect.size() * vec2(3.0f32.sqrt() / 2.0, 1.0),
-                            );
-
-                            ui.painter().add(Shape::convex_polygon(
-                                vec![
-                                    marker_rect.right_center(),
-                                    marker_rect.left_bottom(),
-                                    marker_rect.left_top(),
-                                ],
-                                marker_color,
-                                marker_stroke,
-                            ));
-                        }
-                        CompassKnobMarkerShape::UpArrow => {
-                            let marker_rect = Rect::from_center_size(
-                                marker_rect.center(),
-                                marker_rect.size() * vec2(1.0, 3.0f32.sqrt() / 2.0),
-                            );
-
-                            ui.painter().add(Shape::convex_polygon(
-                                vec![
-                                    marker_rect.center_top(),
-                                    marker_rect.right_bottom(),
-                                    marker_rect.left_bottom(),
-                                ],
-                                marker_color,
-                                marker_stroke,
-                            ));
-                        }
-                        CompassKnobMarkerShape::LeftArrow => {
-                            let marker_rect = Rect::from_center_size(
-                                marker_rect.center(),
-                                marker_rect.size() * vec2(3.0f32.sqrt() / 2.0, 1.0),
-                            );
-
-                            ui.painter().add(Shape::convex_polygon(
-                                vec![
-                                    marker_rect.left_center(),
-                                    marker_rect.right_top(),
-                                    marker_rect.right_bottom(),
-                                ],
-                                marker_color,
-                                marker_stroke,
-                            ));
-                        }
-                        CompassKnobMarkerShape::DownArrow => {
-                            let marker_rect = Rect::from_center_size(
-                                marker_rect.center(),
-                                marker_rect.size() * vec2(1.0, 3.0f32.sqrt() / 2.0),
-                            );
-
-                            ui.painter().add(Shape::convex_polygon(
-                                vec![
-                                    marker_rect.left_top(),
-                                    marker_rect.right_top(),
-                                    marker_rect.center_bottom(),
-                                ],
-                                marker_color,
-                                marker_stroke,
-                            ));
-                        }
-                        CompassKnobMarkerShape::Diamond => {
-                            ui.painter().add(Shape::convex_polygon(
-                                vec![
-                                    marker_rect.center_top(),
-                                    marker_rect.right_center(),
-                                    marker_rect.center_bottom(),
-                                    marker_rect.left_center(),
-                                ],
-                                marker_color,
-                                marker_stroke,
-                            ));
-                        }
-                        CompassKnobMarkerShape::Star(rays, ratio) => {
-                            assert!(rays >= 2, "star-shaped markers must have at least 2 rays");
-                            assert!(
-                                (0.0..=1.0).contains(&ratio),
-                                "ray ratio of star-shaped markers must be normalized"
-                            );
-
-                            let outer_radius = marker_rect.width() * 0.5;
-                            let inner_radius = outer_radius * ratio;
-                            let star_rotation = -TAU * 0.25;
-
-                            let outer_points = (0..rays).map(|point_index| {
-                                marker_rect.center()
-                                    + Vec2::angled(
-                                        star_rotation
-                                            + TAU * ((point_index as f32 + 0.0) / rays as f32),
-                                    ) * outer_radius
-                            });
-
-                            let inner_points = (0..rays).map(|point_index| {
-                                marker_rect.center()
-                                    + Vec2::angled(
-                                        star_rotation
-                                            + TAU * ((point_index as f32 + 0.5) / rays as f32),
-                                    ) * inner_radius
-                            });
-
-                            // TODO: Broken polygon renderer
-                            // https://github.com/emilk/egui/issues/513
-                            ui.painter().add(Shape::convex_polygon(
-                                outer_points.interleave(inner_points).collect_vec(),
-                                marker_color,
-                                marker_stroke,
-                            ));
+                    // Early exit when the marker is outside of the bounds of the widget,
+                    // plus some safety margin to avoid markers abruptly popping in from the sides.
+                    {
+                        let safety_margin = rect.width() / 4.0;
+                        if !((rect.left() - safety_margin)..=(rect.right() + safety_margin))
+                            .contains(&map_angle_to_screen(angle))
+                        {
+                            return;
                         }
                     }
 
-                    if let Some(label) = label {
-                        ui.painter().text(
-                            label_center,
-                            Align2::CENTER_CENTER,
-                            label,
-                            FontId::new(self.height / 4.0, FontFamily::Proportional),
-                            text_color,
-                        );
+                    // Draw marker shape
+                    {
+                        let marker_rect = {
+                            let center =
+                                pos2(map_angle_to_screen(angle), rect.top() + self.height * 0.375);
+                            Rect::from_center_size(center, Vec2::splat(self.height * 0.25))
+                        };
+
+                        match marker_shape {
+                            CompassKnobMarkerShape::Square => {
+                                ui.painter()
+                                    .rect(marker_rect, 0.0, marker_color, marker_stroke);
+                            }
+                            CompassKnobMarkerShape::Circle => {
+                                ui.painter().rect(
+                                    marker_rect,
+                                    marker_rect.width() / 2.0,
+                                    marker_color,
+                                    marker_stroke,
+                                );
+                            }
+                            CompassKnobMarkerShape::RightArrow => {
+                                let marker_rect = Rect::from_center_size(
+                                    marker_rect.center(),
+                                    marker_rect.size() * vec2(3.0f32.sqrt() / 2.0, 1.0),
+                                );
+
+                                ui.painter().add(Shape::convex_polygon(
+                                    vec![
+                                        marker_rect.right_center(),
+                                        marker_rect.left_bottom(),
+                                        marker_rect.left_top(),
+                                    ],
+                                    marker_color,
+                                    marker_stroke,
+                                ));
+                            }
+                            CompassKnobMarkerShape::UpArrow => {
+                                let marker_rect = Rect::from_center_size(
+                                    marker_rect.center(),
+                                    marker_rect.size() * vec2(1.0, 3.0f32.sqrt() / 2.0),
+                                );
+
+                                ui.painter().add(Shape::convex_polygon(
+                                    vec![
+                                        marker_rect.center_top(),
+                                        marker_rect.right_bottom(),
+                                        marker_rect.left_bottom(),
+                                    ],
+                                    marker_color,
+                                    marker_stroke,
+                                ));
+                            }
+                            CompassKnobMarkerShape::LeftArrow => {
+                                let marker_rect = Rect::from_center_size(
+                                    marker_rect.center(),
+                                    marker_rect.size() * vec2(3.0f32.sqrt() / 2.0, 1.0),
+                                );
+
+                                ui.painter().add(Shape::convex_polygon(
+                                    vec![
+                                        marker_rect.left_center(),
+                                        marker_rect.right_top(),
+                                        marker_rect.right_bottom(),
+                                    ],
+                                    marker_color,
+                                    marker_stroke,
+                                ));
+                            }
+                            CompassKnobMarkerShape::DownArrow => {
+                                let marker_rect = Rect::from_center_size(
+                                    marker_rect.center(),
+                                    marker_rect.size() * vec2(1.0, 3.0f32.sqrt() / 2.0),
+                                );
+
+                                ui.painter().add(Shape::convex_polygon(
+                                    vec![
+                                        marker_rect.left_top(),
+                                        marker_rect.right_top(),
+                                        marker_rect.center_bottom(),
+                                    ],
+                                    marker_color,
+                                    marker_stroke,
+                                ));
+                            }
+                            CompassKnobMarkerShape::Diamond => {
+                                ui.painter().add(Shape::convex_polygon(
+                                    vec![
+                                        marker_rect.center_top(),
+                                        marker_rect.right_center(),
+                                        marker_rect.center_bottom(),
+                                        marker_rect.left_center(),
+                                    ],
+                                    marker_color,
+                                    marker_stroke,
+                                ));
+                            }
+                            CompassKnobMarkerShape::Star(rays, ratio) => {
+                                assert!(rays >= 2, "star-shaped markers must have at least 2 rays");
+                                assert!(
+                                    (0.0..=1.0).contains(&ratio),
+                                    "ray ratio of star-shaped markers must be normalized"
+                                );
+
+                                let outer_radius = marker_rect.width() * 0.5;
+                                let inner_radius = outer_radius * ratio;
+                                let star_rotation = -TAU * 0.25;
+
+                                let outer_points = (0..rays).map(|point_index| {
+                                    marker_rect.center()
+                                        + Vec2::angled(
+                                            star_rotation
+                                                + TAU * ((point_index as f32 + 0.0) / rays as f32),
+                                        ) * outer_radius
+                                });
+
+                                let inner_points = (0..rays).map(|point_index| {
+                                    marker_rect.center()
+                                        + Vec2::angled(
+                                            star_rotation
+                                                + TAU * ((point_index as f32 + 0.5) / rays as f32),
+                                        ) * inner_radius
+                                });
+
+                                // TODO: Broken polygon renderer
+                                // https://github.com/emilk/egui/issues/513
+                                ui.painter().add(Shape::convex_polygon(
+                                    outer_points.interleave(inner_points).collect_vec(),
+                                    marker_color,
+                                    marker_stroke,
+                                ));
+                            }
+                        }
+                    }
+
+                    // Draw marker text label
+                    {
+                        let label_center =
+                            pos2(map_angle_to_screen(angle), rect.top() + self.height * 0.125);
+
+                        if let Some(label) = label {
+                            ui.painter().text(
+                                label_center,
+                                Align2::CENTER_CENTER,
+                                label,
+                                FontId::new(self.height / 4.0, FontFamily::Proportional),
+                                text_color,
+                            );
+                        }
                     }
                 };
 
-                for marker in self.markers.iter() {
-                    let tinted_color =
-                        tint_color_towards(marker.color, ui.style().visuals.text_color());
+                let start_tau = ((value - (self.spread / 2.0)) / TAU).floor() as isize;
+                let end_tau = ((value + (self.spread / 2.0)) / TAU).ceil() as isize;
 
-                    paint_marker(
-                        marker.angle,
-                        marker.label,
-                        tinted_color,
-                        marker.shape,
-                        marker.color,
-                        Stroke::new(1.0, tinted_color),
-                    );
+                for tau in start_tau..=end_tau {
+                    for marker in self.markers.iter() {
+                        let tinted_color =
+                            tint_color_towards(marker.color, ui.style().visuals.text_color());
+
+                        paint_marker(
+                            (tau as f32 * TAU) + marker.angle,
+                            marker.label,
+                            tinted_color,
+                            marker.shape,
+                            marker.color,
+                            Stroke::new(1.0, tinted_color),
+                        );
+                    }
                 }
 
                 paint_marker(
