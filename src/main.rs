@@ -291,6 +291,10 @@ impl eframe::App for MyApp {
                                 .shape(CompassKnobMarkerShape::Star(5, 0.5))
                                 .label("Test")
                                 .color(Color32::from_rgb(0x00, 0xA0, 0x00)),
+                            CompassKnobMarker::new(TAU * 0.125)
+                                .shape(CompassKnobMarkerShape::Emoji('🐱'))
+                                .label("Cat")
+                                .color(Color32::from_rgb(0xF0, 0x80, 0x00)),
                             CompassKnobMarker::new(TAU * 0.25)
                                 .shape(CompassKnobMarkerShape::Square)
                                 .label("Sweet")

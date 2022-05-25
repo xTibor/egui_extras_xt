@@ -38,6 +38,7 @@ pub enum CompassKnobMarkerShape {
     DownArrow,
     Diamond,
     Star(usize, f32),
+    Emoji(char),
 }
 
 pub struct CompassKnobMarker<'a> {
@@ -402,6 +403,15 @@ impl<'a> Widget for CompassKnob<'a> {
                                     marker_color,
                                     marker_stroke,
                                 ));
+                            }
+                            CompassKnobMarkerShape::Emoji(emoji) => {
+                                ui.painter().text(
+                                    marker_rect.center(),
+                                    Align2::CENTER_CENTER,
+                                    emoji,
+                                    FontId::new(marker_rect.height(), FontFamily::Proportional),
+                                    marker_color,
+                                );
                             }
                         }
                     }
