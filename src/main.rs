@@ -277,7 +277,7 @@ impl eframe::App for MyApp {
                 ui.add(
                     CompassKnob::new(&mut self.compass_knob_value)
                         .mode(self.common_mode)
-                        .width(256.0)
+                        .width(512.0)
                         .height(48.0)
                         .spread(self.compass_knob_spread)
                         .labels(["N", "E", "S", "W"])
