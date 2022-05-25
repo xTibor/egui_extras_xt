@@ -288,7 +288,7 @@ impl eframe::App for MyApp {
                         .animated(self.common_animated)
                         .markers(&[
                             CompassKnobMarker::new(TAU * 0.00)
-                                .shape(CompassKnobMarkerShape::Square)
+                                .shape(CompassKnobMarkerShape::RightArrow)
                                 .label("Test")
                                 .color(Color32::from_rgb(0x00, 0xA0, 0x00)),
                             CompassKnobMarker::new(TAU * 0.25)
