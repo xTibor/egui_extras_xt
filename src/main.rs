@@ -21,6 +21,7 @@ struct MyApp {
     common_orientation: KnobOrientation,
     common_direction: KnobDirection,
     common_mode: KnobMode,
+    common_animated: bool,
     common_snap: Option<f32>,
     common_shift_snap: Option<f32>,
     common_minimum_angle: Option<f32>,
@@ -37,7 +38,6 @@ struct MyApp {
     // CompassKnob
     compass_knob_value: f32,
     compass_knob_spread: f32,
-    compass_knob_animated: bool,
 }
 
 impl Default for MyApp {
@@ -47,6 +47,7 @@ impl Default for MyApp {
             common_orientation: KnobOrientation::Top,
             common_direction: KnobDirection::Clockwise,
             common_mode: KnobMode::Signed,
+            common_animated: true,
             common_snap: None,
             common_shift_snap: None,
             common_minimum_angle: None,
@@ -63,7 +64,6 @@ impl Default for MyApp {
             // CompassKnob
             compass_knob_value: 0.0,
             compass_knob_spread: TAU / 2.0,
-            compass_knob_animated: true,
         }
     }
 }
@@ -206,6 +206,7 @@ impl eframe::App for MyApp {
                 }
             });
 
+            ui.checkbox(&mut self.common_animated, "Animated");
             ui.add_space(8.0);
             ui.separator();
 
@@ -230,7 +231,10 @@ impl eframe::App for MyApp {
                                 .direction(self.common_direction)
                                 .spread(self.audio_knob_spread)
                                 .thickness(self.audio_knob_thickness)
-                                .shape(AudioKnobShape::Squircle(4.0)),
+                                .shape(AudioKnobShape::Squircle(4.0))
+                                .animated(self.common_animated)
+                                .snap(self.common_snap)
+                                .shift_snap(self.common_shift_snap),
                         );
                     }
                 });
@@ -268,7 +272,6 @@ impl eframe::App for MyApp {
 
                 ui.drag_angle(&mut self.compass_knob_value);
                 ui.drag_angle(&mut self.compass_knob_spread);
-                ui.checkbox(&mut self.compass_knob_animated, "Animated");
                 ui.add_space(8.0);
 
                 ui.add(
@@ -282,7 +285,7 @@ impl eframe::App for MyApp {
                         .shift_snap(self.common_shift_snap)
                         .min(self.common_minimum_angle)
                         .max(self.common_maximum_angle)
-                        .animated(self.compass_knob_animated)
+                        .animated(self.common_animated)
                         .markers(&[
                             CompassKnobMarker::new(TAU * 0.00)
                                 .shape(CompassKnobMarkerShape::Square)

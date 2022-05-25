@@ -130,6 +130,9 @@ pub struct AudioKnob<'a> {
     spread: f32,
     thickness: f32,
     shape: AudioKnobShape<'a>,
+    animated: bool,
+    snap: Option<f32>,
+    shift_snap: Option<f32>,
 }
 
 impl<'a> AudioKnob<'a> {
@@ -155,6 +158,9 @@ impl<'a> AudioKnob<'a> {
             spread: 1.0,
             thickness: 0.66,
             shape: AudioKnobShape::Squircle(4.0),
+            animated: true,
+            snap: None,
+            shift_snap: None,
         }
     }
 
@@ -187,6 +193,21 @@ impl<'a> AudioKnob<'a> {
         self.shape = shape;
         self
     }
+
+    pub fn animated(mut self, animated: bool) -> Self {
+        self.animated = animated;
+        self
+    }
+
+    pub fn snap(mut self, snap: Option<f32>) -> Self {
+        self.snap = snap;
+        self
+    }
+
+    pub fn shift_snap(mut self, shift_snap: Option<f32>) -> Self {
+        self.shift_snap = shift_snap;
+        self
+    }
 }
 
 impl<'a> Widget for AudioKnob<'a> {
@@ -195,22 +216,51 @@ impl<'a> Widget for AudioKnob<'a> {
         let (rect, mut response) =
             ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
+        let constrain_value = |value: f32| value.clamp(*self.range.start(), *self.range.end());
+
         if response.dragged() {
             let drag_delta = self.orientation.rot2().inverse() * response.drag_delta();
+
+            let mut new_value = get(&mut self.get_set_value);
+
             let delta = drag_delta.x + drag_delta.y * self.direction.to_float();
+            new_value += delta * (self.range.end() - self.range.start()) / self.diameter;
 
-            let mut value = get(&mut self.get_set_value);
-
-            value = (value + delta * (self.range.end() - self.range.start()) / self.diameter)
-                .clamp(*self.range.start(), *self.range.end());
-
-            set(&mut self.get_set_value, value);
-
+            set(&mut self.get_set_value, constrain_value(new_value));
             response.mark_changed();
+        }
+
+        if response.drag_released() {
+            if self.animated {
+                ui.ctx().clear_animations();
+                ui.ctx()
+                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1);
+            }
+
+            if let Some(snap_angle) = if ui.input().modifiers.shift_only() {
+                self.shift_snap
+            } else {
+                self.snap
+            } {
+                assert!(
+                    snap_angle > 0.0,
+                    "non-positive snap angles are not supported"
+                );
+                let new_value = (get(&mut self.get_set_value) / snap_angle).round() * snap_angle;
+                set(&mut self.get_set_value, constrain_value(new_value));
+                response.mark_changed();
+            }
         }
 
         if ui.is_rect_visible(rect) {
             let visuals = *ui.style().interact(&response);
+
+            let value = if self.animated && !response.dragged() {
+                ui.ctx()
+                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1)
+            } else {
+                get(&mut self.get_set_value)
+            };
 
             let center_angle = (self.orientation.rot2() * Vec2::RIGHT).angle();
             let spread_angle = (TAU / 2.0) * self.spread.clamp(0.0, 1.0);
@@ -242,11 +292,7 @@ impl<'a> Widget for AudioKnob<'a> {
                 (inner_radius - visuals.expansion).max(0.0),
                 outer_radius + visuals.expansion,
                 remap_clamp(0.0, self.range.clone(), min_angle..=max_angle),
-                remap_clamp(
-                    get(&mut self.get_set_value),
-                    self.range,
-                    min_angle..=max_angle,
-                ),
+                remap_clamp(value, self.range, min_angle..=max_angle),
                 visuals.bg_fill,
                 visuals.fg_stroke,
                 self.orientation.rot2(),
