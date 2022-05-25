@@ -90,8 +90,8 @@ pub struct AngleKnob<'a> {
     mode: KnobMode,
     min: Option<f32>,
     max: Option<f32>,
-    snap_angle: Option<f32>,
-    shift_snap_angle: Option<f32>,
+    snap: Option<f32>,
+    shift_snap: Option<f32>,
 }
 
 impl<'a> AngleKnob<'a> {
@@ -113,8 +113,8 @@ impl<'a> AngleKnob<'a> {
             mode: KnobMode::Unsigned,
             min: None,
             max: None,
-            snap_angle: None,
-            shift_snap_angle: Some(TAU / 24.0),
+            snap: None,
+            shift_snap: Some(TAU / 24.0),
         }
     }
 
@@ -153,13 +153,13 @@ impl<'a> AngleKnob<'a> {
         self
     }
 
-    pub fn snap_angle(mut self, snap_angle: Option<f32>) -> Self {
-        self.snap_angle = snap_angle;
+    pub fn snap(mut self, snap: Option<f32>) -> Self {
+        self.snap = snap;
         self
     }
 
-    pub fn shift_snap_angle(mut self, shift_snap_angle: Option<f32>) -> Self {
-        self.shift_snap_angle = shift_snap_angle;
+    pub fn shift_snap(mut self, shift_snap: Option<f32>) -> Self {
+        self.shift_snap = shift_snap;
         self
     }
 }
@@ -179,13 +179,16 @@ impl<'a> Widget for AngleKnob<'a> {
             .angle()
                 * self.direction.to_float();
 
-            if let Some(angle) = if ui.input().modifiers.shift_only() {
-                self.shift_snap_angle
+            if let Some(snap_angle) = if ui.input().modifiers.shift_only() {
+                self.shift_snap
             } else {
-                self.snap_angle
+                self.snap
             } {
-                assert!(angle > 0.0, "non-positive snap angles are not supported");
-                new_value = (new_value / angle).round() * angle;
+                assert!(
+                    snap_angle > 0.0,
+                    "non-positive snap angles are not supported"
+                );
+                new_value = (new_value / snap_angle).round() * snap_angle;
             }
 
             if self.mode == KnobMode::Unsigned {

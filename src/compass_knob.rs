@@ -77,8 +77,8 @@ pub struct CompassKnob<'a> {
     height: f32,
     spread: f32,
     labels: CompassLabels<'a>,
-    snap_angle: Option<f32>,
-    shift_snap_angle: Option<f32>,
+    snap: Option<f32>,
+    shift_snap: Option<f32>,
     min: Option<f32>,
     max: Option<f32>,
     animated: bool,
@@ -103,8 +103,8 @@ impl<'a> CompassKnob<'a> {
             height: 48.0,
             spread: TAU / 2.0,
             labels: ["N", "E", "S", "W"],
-            snap_angle: None,
-            shift_snap_angle: Some(TAU / 36.0),
+            snap: None,
+            shift_snap: Some(TAU / 36.0),
             min: None,
             max: None,
             animated: false,
@@ -147,13 +147,13 @@ impl<'a> CompassKnob<'a> {
         self
     }
 
-    pub fn snap_angle(mut self, snap_angle: Option<f32>) -> Self {
-        self.snap_angle = snap_angle;
+    pub fn snap(mut self, snap: Option<f32>) -> Self {
+        self.snap = snap;
         self
     }
 
-    pub fn shift_snap_angle(mut self, shift_snap_angle: Option<f32>) -> Self {
-        self.shift_snap_angle = shift_snap_angle;
+    pub fn shift_snap(mut self, shift_snap: Option<f32>) -> Self {
+        self.shift_snap = shift_snap;
         self
     }
 
@@ -210,13 +210,16 @@ impl<'a> Widget for CompassKnob<'a> {
                     .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1);
             }
 
-            if let Some(angle) = if ui.input().modifiers.shift_only() {
-                self.shift_snap_angle
+            if let Some(snap_angle) = if ui.input().modifiers.shift_only() {
+                self.shift_snap
             } else {
-                self.snap_angle
+                self.snap
             } {
-                assert!(angle > 0.0, "non-positive snap angles are not supported");
-                let new_value = (get(&mut self.get_set_value) / angle).round() * angle;
+                assert!(
+                    snap_angle > 0.0,
+                    "non-positive snap angles are not supported"
+                );
+                let new_value = (get(&mut self.get_set_value) / snap_angle).round() * snap_angle;
                 set(&mut self.get_set_value, constrain_value(new_value));
                 response.mark_changed();
             }
