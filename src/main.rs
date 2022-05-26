@@ -5,13 +5,13 @@ use eframe::epaint::Color32;
 use itertools::Itertools;
 
 mod common;
-use common::{KnobDirection, KnobMode, KnobOrientation};
+use common::{KnobDirection, KnobMode, KnobOrientation, KnobShape};
 
 mod angle_knob;
 use angle_knob::AngleKnob;
 
 mod audio_knob;
-use audio_knob::{AudioKnob, AudioKnobShape};
+use audio_knob::AudioKnob;
 
 mod compass_knob;
 use compass_knob::{CompassKnob, CompassKnobMarker, CompassKnobMarkerShape};
@@ -231,7 +231,7 @@ impl eframe::App for MyApp {
                                 .direction(self.common_direction)
                                 .spread(self.audio_knob_spread)
                                 .thickness(self.audio_knob_thickness)
-                                .shape(AudioKnobShape::Squircle(4.0))
+                                .shape(KnobShape::Squircle(4.0))
                                 .animated(self.common_animated)
                                 .snap(self.common_snap)
                                 .shift_snap(self.common_shift_snap),

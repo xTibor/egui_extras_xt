@@ -4,7 +4,9 @@ use eframe::egui::{self, Response, Ui, Widget};
 use eframe::emath::Vec2;
 use eframe::epaint::{Shape, Stroke};
 
-use crate::common::{normalized_angle_unsigned_excl, KnobDirection, KnobMode, KnobOrientation};
+use crate::common::{
+    normalized_angle_unsigned_excl, KnobDirection, KnobMode, KnobOrientation, KnobShape,
+};
 
 // ----------------------------------------------------------------------------
 
@@ -87,6 +89,7 @@ pub struct AngleKnob<'a> {
     diameter: f32,
     orientation: KnobOrientation,
     direction: KnobDirection,
+    shape: KnobShape<'a>,
     mode: KnobMode,
     min: Option<f32>,
     max: Option<f32>,
@@ -110,6 +113,7 @@ impl<'a> AngleKnob<'a> {
             diameter: 32.0,
             orientation: KnobOrientation::Top,
             direction: KnobDirection::Clockwise,
+            shape: KnobShape::Circle,
             mode: KnobMode::Unsigned,
             min: None,
             max: None,
@@ -135,6 +139,11 @@ impl<'a> AngleKnob<'a> {
 
     pub fn orientation(mut self, orientation: KnobOrientation) -> Self {
         self.orientation = orientation;
+        self
+    }
+
+    pub fn shape(mut self, shape: KnobShape<'a>) -> Self {
+        self.shape = shape;
         self
     }
 
