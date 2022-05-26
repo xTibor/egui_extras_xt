@@ -61,8 +61,9 @@ type KnobShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
 
 pub enum KnobShape<'a> {
     Circle,
-    Squircle(f32),
     Square,
+    Squircle(f32),
+    Polygon(usize),
     Custom(KnobShapeFn<'a>),
 }
 
@@ -72,13 +73,17 @@ impl KnobShape<'_> {
     pub fn eval(&self, theta: f32) -> f32 {
         match self {
             KnobShape::Circle => 1.0,
+            KnobShape::Square => (1.0 / theta.cos().abs()).min(1.0 / theta.sin().abs()),
             KnobShape::Squircle(factor) => {
                 assert!(*factor > 0.0, "squircle factor must be positive");
                 let a = theta.cos().abs().powf(*factor);
                 let b = theta.sin().abs().powf(*factor);
                 1.0 / (a + b).powf(1.0 / *factor)
             }
-            KnobShape::Square => (1.0 / theta.cos().abs()).min(1.0 / theta.sin().abs()),
+            KnobShape::Polygon(n) => {
+                assert!(*n >= 3, "polygon must have at least 3 sides");
+                1.0 / ((*n as f32 / 2.0 * theta).cos().asin() * 2.0 / *n as f32).cos()
+            }
             KnobShape::Custom(callback) => callback(theta),
         }
     }
