@@ -67,7 +67,7 @@ pub enum KnobShape<'a> {
 }
 
 impl KnobShape<'_> {
-    const RESOLUTION: usize = 128;
+    const RESOLUTION: usize = 32;
 
     pub fn eval(&self, theta: f32) -> f32 {
         match self {

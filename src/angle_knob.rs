@@ -242,47 +242,53 @@ impl<'a> Widget for AngleKnob<'a> {
                 self.orientation.rot2(),
             );
 
-            let paint_axis = |axis_direction| {
-                // TODO: shape.eval()
-                let axis_vec2 = rotation_matrix * axis_direction * radius;
+            {
+                let paint_axis = |axis_angle| {
+                    let axis_vec2 = rotation_matrix
+                        * Vec2::angled(axis_angle * self.direction.to_float())
+                        * (self.shape.eval(axis_angle * self.direction.to_float()) * radius);
 
-                ui.painter().add(Shape::dashed_line(
-                    &[rect.center() + axis_vec2, rect.center() - axis_vec2],
-                    ui.visuals().window_stroke(), // TODO: Semantically correct color
-                    1.0,
-                    1.0,
-                ));
-            };
+                    ui.painter().add(Shape::dashed_line(
+                        &[rect.center(), rect.center() + axis_vec2],
+                        ui.visuals().window_stroke(), // TODO: Semantically correct color
+                        1.0,
+                        1.0,
+                    ));
+                };
 
-            paint_axis(Vec2::DOWN);
-            paint_axis(Vec2::RIGHT);
-
-            let mut paint_stop = |stop_position: f32| {
-                let stop_vec2 = rotation_matrix
-                    * Vec2::angled(stop_position * self.direction.to_float())
-                    * (self.shape.eval(stop_position * self.direction.to_float()) * radius);
-
-                let stop_alpha = 1.0
-                    - ((stop_position - value).abs() / (TAU * 0.75))
-                        .clamp(0.0, 1.0)
-                        .powf(5.0);
-
-                // TODO: Semantically correct color
-                let stop_stroke = Stroke::new(
-                    visuals.fg_stroke.width,
-                    visuals.fg_stroke.color.linear_multiply(stop_alpha),
-                );
-
-                ui.painter()
-                    .line_segment([rect.center(), rect.center() + stop_vec2], stop_stroke);
-            };
-
-            if let Some(min) = self.min {
-                paint_stop(min);
+                for axis in 0..4 {
+                    paint_axis(axis as f32 * (TAU / 4.0));
+                }
             }
 
-            if let Some(max) = self.max {
-                paint_stop(max);
+            {
+                let mut paint_stop = |stop_position: f32| {
+                    let stop_vec2 = rotation_matrix
+                        * Vec2::angled(stop_position * self.direction.to_float())
+                        * (self.shape.eval(stop_position * self.direction.to_float()) * radius);
+
+                    let stop_alpha = 1.0
+                        - ((stop_position - value).abs() / (TAU * 0.75))
+                            .clamp(0.0, 1.0)
+                            .powf(5.0);
+
+                    // TODO: Semantically correct color
+                    let stop_stroke = Stroke::new(
+                        visuals.fg_stroke.width,
+                        visuals.fg_stroke.color.linear_multiply(stop_alpha),
+                    );
+
+                    ui.painter()
+                        .line_segment([rect.center(), rect.center() + stop_vec2], stop_stroke);
+                };
+
+                if let Some(min) = self.min {
+                    paint_stop(min);
+                }
+
+                if let Some(max) = self.max {
+                    paint_stop(max);
+                }
             }
 
             {
