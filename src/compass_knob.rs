@@ -6,7 +6,9 @@ use eframe::epaint::color::tint_color_towards;
 use eframe::epaint::{Color32, FontFamily, FontId, Shape, Stroke};
 use itertools::Itertools;
 
-use crate::common::{normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, KnobMode};
+use crate::common::{
+    normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, KnobDirection, KnobMode,
+};
 
 // ----------------------------------------------------------------------------
 
@@ -80,6 +82,7 @@ impl<'a> CompassKnobMarker<'a> {
 pub struct CompassKnob<'a> {
     get_set_value: GetSetValue<'a>,
     mode: KnobMode,
+    direction: KnobDirection,
     width: f32,
     height: f32,
     spread: f32,
@@ -106,6 +109,7 @@ impl<'a> CompassKnob<'a> {
         Self {
             get_set_value: Box::new(get_set_value),
             mode: KnobMode::Unsigned,
+            direction: KnobDirection::Clockwise,
             width: 256.0,
             height: 48.0,
             spread: TAU / 2.0,
@@ -121,6 +125,11 @@ impl<'a> CompassKnob<'a> {
 
     pub fn mode(mut self, mode: KnobMode) -> Self {
         self.mode = mode;
+        self
+    }
+
+    pub fn direction(mut self, direction: KnobDirection) -> Self {
+        self.direction = direction;
         self
     }
 
@@ -204,8 +213,9 @@ impl<'a> Widget for CompassKnob<'a> {
         };
 
         if response.dragged() {
-            let new_value =
-                get(&mut self.get_set_value) - response.drag_delta().x / rect.width() * self.spread;
+            let new_value = get(&mut self.get_set_value)
+                - response.drag_delta().x / rect.width()
+                    * (self.spread * self.direction.to_float());
             set(&mut self.get_set_value, constrain_value(new_value));
             response.mark_changed();
         }
@@ -242,8 +252,10 @@ impl<'a> Widget for CompassKnob<'a> {
                 get(&mut self.get_set_value)
             };
 
-            let map_angle_to_screen =
-                |angle: f32| rect.center().x - (value - angle) * (rect.width() / self.spread);
+            let map_angle_to_screen = |angle: f32| {
+                rect.center().x
+                    - (value - angle) * (rect.width() / (self.spread * self.direction.to_float()))
+            };
 
             ui.painter().rect(
                 rect,
