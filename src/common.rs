@@ -62,11 +62,12 @@ type KnobShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
 pub enum KnobShape<'a> {
     Circle,
     Squircle(f32),
+    RadiusTest,
     Custom(KnobShapeFn<'a>),
 }
 
 impl KnobShape<'_> {
-    const RESOLUTION: usize = 32;
+    const RESOLUTION: usize = 128;
 
     pub fn eval(&self, theta: f32) -> f32 {
         match self {
@@ -76,6 +77,19 @@ impl KnobShape<'_> {
                 let a = theta.cos().abs().powf(*factor);
                 let b = theta.sin().abs().powf(*factor);
                 1.0 / (a + b).powf(1.0 / *factor)
+            }
+            KnobShape::RadiusTest => {
+                let theta = (theta + TAU / 8.0).rem_euclid(TAU);
+
+                if ((TAU * 0.00)..(TAU * 0.25)).contains(&theta) {
+                    0.4
+                } else if ((TAU * 0.25)..(TAU * 0.50)).contains(&theta) {
+                    0.6
+                } else if ((TAU * 0.50)..(TAU * 0.75)).contains(&theta) {
+                    0.8
+                } else {
+                    1.0
+                }
             }
             KnobShape::Custom(callback) => callback(theta),
         }
@@ -93,7 +107,7 @@ impl KnobShape<'_> {
         let outline_points = (0..Self::RESOLUTION)
             .map(move |i| {
                 let angle = i as f32 / Self::RESOLUTION as f32 * TAU;
-                let shape_radius = self.eval((rotation * Vec2::RIGHT).angle() - angle);
+                let shape_radius = self.eval(angle - (rotation * Vec2::RIGHT).angle());
                 center + Vec2::angled(angle) * radius * shape_radius
             })
             .collect_vec();
@@ -131,7 +145,7 @@ impl KnobShape<'_> {
 
         // HACK: convex_polygon() workaround
         if almost_equal(start_angle, end_angle, 0.001) {
-            let shape_radius = self.eval((rotation * Vec2::RIGHT).angle() - start_angle);
+            let shape_radius = self.eval(start_angle - (rotation * Vec2::RIGHT).angle());
 
             ui.painter().add(Shape::line_segment(
                 [
@@ -146,7 +160,7 @@ impl KnobShape<'_> {
         let generate_arc_points = |radius| {
             (0..=Self::RESOLUTION).map(move |i| {
                 let angle = lerp(start_angle..=end_angle, i as f32 / Self::RESOLUTION as f32);
-                let shape_radius = self.eval((rotation * Vec2::RIGHT).angle() - angle);
+                let shape_radius = self.eval(angle - (rotation * Vec2::RIGHT).angle());
                 center + Vec2::angled(angle) * radius * shape_radius
             })
         };

@@ -260,7 +260,7 @@ impl<'a> Widget for AngleKnob<'a> {
             let mut paint_stop = |stop_position: f32| {
                 let stop_vec2 = rotation_matrix
                     * Vec2::angled(stop_position * self.direction.to_float())
-                    * (self.shape.eval(stop_position) * radius);
+                    * (self.shape.eval(stop_position * self.direction.to_float()) * radius);
 
                 let stop_alpha = 1.0
                     - ((stop_position - value).abs() / (TAU * 0.75))
@@ -288,7 +288,7 @@ impl<'a> Widget for AngleKnob<'a> {
             {
                 let value_vec2 = rotation_matrix
                     * Vec2::angled(value * self.direction.to_float())
-                    * (self.shape.eval(value) * radius);
+                    * (self.shape.eval(value * self.direction.to_float()) * radius);
 
                 ui.painter().line_segment(
                     [rect.center(), rect.center() + value_vec2],

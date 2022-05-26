@@ -249,13 +249,13 @@ impl eframe::App for MyApp {
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
-                    for angle_knob_size in [64.0, 32.0] {
+                    for angle_knob_size in [256.0, 64.0, 32.0] {
                         ui.add(
                             AngleKnob::new(&mut self.angle_knob_value)
                                 .diameter(angle_knob_size)
                                 .orientation(self.common_orientation)
                                 .direction(self.common_direction)
-                                .shape(KnobShape::Squircle(4.0))
+                                .shape(KnobShape::RadiusTest)
                                 .mode(self.common_mode)
                                 .min(self.common_minimum_angle)
                                 .max(self.common_maximum_angle)
