@@ -255,6 +255,7 @@ impl eframe::App for MyApp {
                                 .diameter(angle_knob_size)
                                 .orientation(self.common_orientation)
                                 .direction(self.common_direction)
+                                .shape(KnobShape::Squircle(4.0))
                                 .mode(self.common_mode)
                                 .min(self.common_minimum_angle)
                                 .max(self.common_maximum_angle)

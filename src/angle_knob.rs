@@ -228,13 +228,22 @@ impl<'a> Widget for AngleKnob<'a> {
         }
 
         if ui.is_rect_visible(rect) {
-            let visuals = ui.style().interact(&response);
+            let visuals = ui.style().interact(&response).clone();
             let radius = self.diameter / 2.0;
 
-            ui.painter()
-                .circle(rect.center(), radius, visuals.bg_fill, visuals.fg_stroke);
+            let value = get(&mut self.get_set_value);
+
+            self.shape.paint_shape(
+                ui,
+                rect.center(),
+                radius,
+                visuals.bg_fill,
+                visuals.fg_stroke,
+                self.orientation.rot2(),
+            );
 
             let paint_axis = |axis_direction| {
+                // TODO: shape.eval()
                 let axis_vec2 = rotation_matrix * axis_direction * radius;
 
                 ui.painter().add(Shape::dashed_line(
@@ -251,10 +260,10 @@ impl<'a> Widget for AngleKnob<'a> {
             let mut paint_stop = |stop_position: f32| {
                 let stop_vec2 = rotation_matrix
                     * Vec2::angled(stop_position * self.direction.to_float())
-                    * radius;
+                    * (self.shape.eval(stop_position) * radius);
 
                 let stop_alpha = 1.0
-                    - ((stop_position - get(&mut self.get_set_value)).abs() / (TAU * 0.75))
+                    - ((stop_position - value).abs() / (TAU * 0.75))
                         .clamp(0.0, 1.0)
                         .powf(5.0);
 
@@ -278,8 +287,8 @@ impl<'a> Widget for AngleKnob<'a> {
 
             {
                 let value_vec2 = rotation_matrix
-                    * Vec2::angled(get(&mut self.get_set_value) * self.direction.to_float())
-                    * radius;
+                    * Vec2::angled(value * self.direction.to_float())
+                    * (self.shape.eval(value) * radius);
 
                 ui.painter().line_segment(
                     [rect.center(), rect.center() + value_vec2],

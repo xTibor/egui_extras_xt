@@ -56,6 +56,7 @@ pub enum KnobMode {
 
 // ----------------------------------------------------------------------------
 
+/// A polar function defining the shape of a knob widget.
 type KnobShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
 
 pub enum KnobShape<'a> {
@@ -89,7 +90,27 @@ impl KnobShape<'_> {
         stroke: Stroke,
         rotation: Rot2,
     ) {
-        todo!()
+        let outline_points = (0..Self::RESOLUTION)
+            .map(move |i| {
+                let angle = i as f32 / Self::RESOLUTION as f32 * TAU;
+                let shape_radius = self.eval((rotation * Vec2::RIGHT).angle() - angle);
+                center + Vec2::angled(angle) * radius * shape_radius
+            })
+            .collect_vec();
+
+        // https://github.com/emilk/egui/issues/513
+        outline_points
+            .iter()
+            .circular_tuple_windows()
+            .for_each(|(point_1, point_2)| {
+                ui.painter().add(Shape::convex_polygon(
+                    vec![center, *point_1, *point_2],
+                    fill,
+                    Stroke::new(1.0, fill),
+                ));
+            });
+
+        ui.painter().add(Shape::closed_line(outline_points, stroke));
     }
 
     pub fn paint_arc(
@@ -126,7 +147,6 @@ impl KnobShape<'_> {
             (0..=Self::RESOLUTION).map(move |i| {
                 let angle = lerp(start_angle..=end_angle, i as f32 / Self::RESOLUTION as f32);
                 let shape_radius = self.eval((rotation * Vec2::RIGHT).angle() - angle);
-
                 center + Vec2::angled(angle) * radius * shape_radius
             })
         };
@@ -157,6 +177,13 @@ impl KnobShape<'_> {
             .collect();
 
         ui.painter().add(Shape::closed_line(outline_points, stroke));
+
+        // TODO: Remove hacks and paint the arc with a single call:
+        // Shape::concave_polygon(
+        //     outline_points, // outer_arc.chain(inner_arc.rev())
+        //     fill,
+        //     stroke,
+        // )
     }
 }
 
