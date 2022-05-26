@@ -233,6 +233,12 @@ impl<'a> Widget for AngleKnob<'a> {
 
             let value = get(&mut self.get_set_value);
 
+            let angle_to_shape_outline = |angle: f32| {
+                rotation_matrix
+                    * Vec2::angled(angle * self.direction.to_float())
+                    * (self.shape.eval(angle * self.direction.to_float()) * radius)
+            };
+
             self.shape.paint_shape(
                 ui,
                 rect.center(),
@@ -244,12 +250,11 @@ impl<'a> Widget for AngleKnob<'a> {
 
             {
                 let paint_axis = |axis_angle| {
-                    let axis_vec2 = rotation_matrix
-                        * Vec2::angled(axis_angle * self.direction.to_float())
-                        * (self.shape.eval(axis_angle * self.direction.to_float()) * radius);
-
                     ui.painter().add(Shape::dashed_line(
-                        &[rect.center(), rect.center() + axis_vec2],
+                        &[
+                            rect.center(),
+                            rect.center() + angle_to_shape_outline(axis_angle),
+                        ],
                         ui.visuals().window_stroke(), // TODO: Semantically correct color
                         1.0,
                         1.0,
@@ -262,24 +267,27 @@ impl<'a> Widget for AngleKnob<'a> {
             }
 
             {
-                let mut paint_stop = |stop_position: f32| {
-                    let stop_vec2 = rotation_matrix
-                        * Vec2::angled(stop_position * self.direction.to_float())
-                        * (self.shape.eval(stop_position * self.direction.to_float()) * radius);
+                let paint_stop = |stop_position: f32| {
+                    let stop_stroke = {
+                        let stop_alpha = 1.0
+                            - ((stop_position - value).abs() / (TAU * 0.75))
+                                .clamp(0.0, 1.0)
+                                .powf(5.0);
 
-                    let stop_alpha = 1.0
-                        - ((stop_position - value).abs() / (TAU * 0.75))
-                            .clamp(0.0, 1.0)
-                            .powf(5.0);
+                        // TODO: Semantically correct color
+                        Stroke::new(
+                            visuals.fg_stroke.width,
+                            visuals.fg_stroke.color.linear_multiply(stop_alpha),
+                        )
+                    };
 
-                    // TODO: Semantically correct color
-                    let stop_stroke = Stroke::new(
-                        visuals.fg_stroke.width,
-                        visuals.fg_stroke.color.linear_multiply(stop_alpha),
+                    ui.painter().line_segment(
+                        [
+                            rect.center(),
+                            rect.center() + angle_to_shape_outline(stop_position),
+                        ],
+                        stop_stroke,
                     );
-
-                    ui.painter()
-                        .line_segment([rect.center(), rect.center() + stop_vec2], stop_stroke);
                 };
 
                 if let Some(min) = self.min {
@@ -292,12 +300,8 @@ impl<'a> Widget for AngleKnob<'a> {
             }
 
             {
-                let value_vec2 = rotation_matrix
-                    * Vec2::angled(value * self.direction.to_float())
-                    * (self.shape.eval(value * self.direction.to_float()) * radius);
-
                 ui.painter().line_segment(
-                    [rect.center(), rect.center() + value_vec2],
+                    [rect.center(), rect.center() + angle_to_shape_outline(value)],
                     visuals.fg_stroke, // TODO: Semantically correct color
                 );
 
@@ -309,7 +313,7 @@ impl<'a> Widget for AngleKnob<'a> {
                 );
 
                 ui.painter().circle(
-                    rect.center() + value_vec2,
+                    rect.center() + angle_to_shape_outline(value),
                     self.diameter / 24.0,
                     visuals.text_color(), // TODO: Semantically correct color
                     visuals.fg_stroke,    // TODO: Semantically correct color
