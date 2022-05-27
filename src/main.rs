@@ -231,7 +231,7 @@ impl eframe::App for MyApp {
                                 .direction(self.common_direction)
                                 .spread(self.audio_knob_spread)
                                 .thickness(self.audio_knob_thickness)
-                                .shape(KnobShape::Squircle(1.5))
+                                .shape(KnobShape::Squircle(4.0))
                                 .animated(self.common_animated)
                                 .snap(self.common_snap)
                                 .shift_snap(self.common_shift_snap),
@@ -255,7 +255,7 @@ impl eframe::App for MyApp {
                                 .diameter(angle_knob_size)
                                 .orientation(self.common_orientation)
                                 .direction(self.common_direction)
-                                .shape(KnobShape::Squircle(4.0))
+                                .shape(KnobShape::Circle)
                                 .mode(self.common_mode)
                                 .min(self.common_minimum_angle)
                                 .max(self.common_maximum_angle)
