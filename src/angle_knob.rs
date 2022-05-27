@@ -181,7 +181,7 @@ impl<'a> AngleKnob<'a> {
         self
     }
 
-    pub fn axis_count(mut self, axis_count: impl Into<usize>) -> Self {
+    pub fn axis_count(mut self, axis_count: usize) -> Self {
         self.axis_count = axis_count.into();
         self
     }

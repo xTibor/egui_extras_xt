@@ -262,7 +262,9 @@ impl eframe::App for MyApp {
                                 .min(self.common_minimum_angle)
                                 .max(self.common_maximum_angle)
                                 .snap(self.common_snap)
-                                .shift_snap(self.common_shift_snap),
+                                .shift_snap(self.common_shift_snap)
+                                .show_axes(true)
+                                .axis_count(4),
                         );
                     }
                 });
