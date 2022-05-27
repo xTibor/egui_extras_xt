@@ -231,7 +231,7 @@ impl eframe::App for MyApp {
                                 .direction(self.common_direction)
                                 .spread(self.audio_knob_spread)
                                 .thickness(self.audio_knob_thickness)
-                                .shape(KnobShape::Squircle(4.0))
+                                .shape(KnobShape::Squircle(1.5))
                                 .animated(self.common_animated)
                                 .snap(self.common_snap)
                                 .shift_snap(self.common_shift_snap),
@@ -289,26 +289,51 @@ impl eframe::App for MyApp {
                         .max(self.common_maximum_angle)
                         .animated(self.common_animated)
                         .markers(&[
-                            CompassKnobMarker::new(TAU * 0.00)
+                            CompassKnobMarker::new(0.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::Star(5, 0.5))
                                 .label("Test")
                                 .color(Color32::from_rgb(0x00, 0xA0, 0x00)),
-                            CompassKnobMarker::new(TAU * 0.125)
-                                .shape(CompassKnobMarkerShape::Emoji('🐱'))
-                                .label("Cat")
-                                .color(Color32::from_rgb(0xF0, 0x80, 0x00)),
-                            CompassKnobMarker::new(TAU * 0.25)
+                            // Grand Theft Auto style markers
+                            CompassKnobMarker::new(100.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::Square)
                                 .label("Sweet")
                                 .color(Color32::from_rgb(0x00, 0x00, 0xFF)),
-                            CompassKnobMarker::new(TAU * 0.50)
+                            CompassKnobMarker::new(120.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::DownArrow)
                                 .label("Reece's")
                                 .color(Color32::from_rgb(0xFF, 0xFF, 0x00)),
-                            CompassKnobMarker::new(TAU * 0.75)
+                            CompassKnobMarker::new(140.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::UpArrow)
                                 .label("Big Smoke")
                                 .color(Color32::from_rgb(0xFF, 0x00, 0x00)),
+                            // Emoji markers
+                            CompassKnobMarker::new(553.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Emoji('🐱'))
+                                .label("Cat")
+                                .color(Color32::from_rgb(0xF8, 0xE9, 0xFF)),
+                            CompassKnobMarker::new(563.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Emoji('🐶'))
+                                .label("Dog")
+                                .color(Color32::from_rgb(0xC0, 0x8C, 0x85)),
+                            // All knob shapes
+                            CompassKnobMarker::new(240.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Square),
+                            CompassKnobMarker::new(250.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Circle),
+                            CompassKnobMarker::new(260.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::RightArrow),
+                            CompassKnobMarker::new(270.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::UpArrow),
+                            CompassKnobMarker::new(280.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::LeftArrow),
+                            CompassKnobMarker::new(290.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::DownArrow),
+                            CompassKnobMarker::new(300.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Diamond),
+                            CompassKnobMarker::new(310.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Star(5, 0.5)),
+                            CompassKnobMarker::new(320.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Emoji('🗿')),
                         ]),
                 );
 
