@@ -92,6 +92,7 @@ pub struct CompassKnob<'a> {
     min: Option<f32>,
     max: Option<f32>,
     animated: bool,
+    show_cursor: bool,
     markers: &'a [CompassKnobMarker<'a>],
 }
 
@@ -119,6 +120,7 @@ impl<'a> CompassKnob<'a> {
             min: None,
             max: None,
             animated: false,
+            show_cursor: true,
             markers: &[],
         }
     }
@@ -175,6 +177,11 @@ impl<'a> CompassKnob<'a> {
 
     pub fn animated(mut self, animated: bool) -> Self {
         self.animated = animated;
+        self
+    }
+
+    pub fn show_cursor(mut self, show_cursor: bool) -> Self {
+        self.show_cursor = show_cursor;
         self
     }
 
@@ -464,14 +471,16 @@ impl<'a> Widget for CompassKnob<'a> {
                     }
                 }
 
-                paint_marker(
-                    value,
-                    Some(&format!("{:.0}°", value.to_degrees())),
-                    visuals.text_color(),
-                    CompassKnobMarkerShape::DownArrow,
-                    visuals.bg_fill,
-                    visuals.fg_stroke,
-                );
+                if self.show_cursor {
+                    paint_marker(
+                        value,
+                        Some(&format!("{:.0}°", value.to_degrees())),
+                        visuals.text_color(),
+                        CompassKnobMarkerShape::DownArrow,
+                        visuals.bg_fill,
+                        visuals.fg_stroke,
+                    );
+                }
             }
 
             {

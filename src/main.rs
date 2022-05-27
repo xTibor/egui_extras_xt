@@ -38,6 +38,7 @@ struct MyApp {
     // CompassKnob
     compass_knob_value: f32,
     compass_knob_spread: f32,
+    compass_knob_show_cursor: bool,
 }
 
 impl Default for MyApp {
@@ -64,6 +65,7 @@ impl Default for MyApp {
             // CompassKnob
             compass_knob_value: 0.0,
             compass_knob_spread: TAU / 2.0,
+            compass_knob_show_cursor: true,
         }
     }
 }
@@ -273,6 +275,7 @@ impl eframe::App for MyApp {
 
                 ui.drag_angle(&mut self.compass_knob_value);
                 ui.drag_angle(&mut self.compass_knob_spread);
+                ui.checkbox(&mut self.compass_knob_show_cursor, "Show cursor");
                 ui.add_space(8.0);
 
                 ui.add(
@@ -288,6 +291,7 @@ impl eframe::App for MyApp {
                         .min(self.common_minimum_angle)
                         .max(self.common_maximum_angle)
                         .animated(self.common_animated)
+                        .show_cursor(self.compass_knob_show_cursor)
                         .markers(&[
                             CompassKnobMarker::new(0.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::Star(5, 0.5))
