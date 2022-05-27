@@ -87,6 +87,7 @@ impl KnobShape<'_> {
             }
             KnobShape::SuperPolygon(n, factor) => {
                 assert!(*n >= 3, "polygon must have at least 3 sides");
+                assert!(*factor > 0.0, "polygon factor must be positive");
                 assert!(
                     (0.0..=2.0).contains(factor),
                     "polygon factor must be between 0.0 and 2.0"
