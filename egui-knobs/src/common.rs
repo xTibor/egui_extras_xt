@@ -60,12 +60,15 @@ pub enum KnobMode {
 /// A polar function defining the shape of a knob widget.
 pub type KnobShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
 
+#[non_exhaustive]
 pub enum KnobShape<'a> {
     Circle,
     Square,
     Squircle(f32),
     Polygon(usize),
     SuperPolygon(usize, f32),
+    Rotated(Box<KnobShape<'a>>, f32),
+    Mix(Box<KnobShape<'a>>, Box<KnobShape<'a>>, f32),
     Custom(KnobShapeFn<'a>),
 }
 
@@ -98,6 +101,10 @@ impl KnobShape<'_> {
                 let a = ((0.25 * (*n as f32) * theta).cos()).abs().powf(*factor);
                 let b = ((0.25 * (*n as f32) * theta).sin()).abs().powf(*factor);
                 (a + b).powf(-1.0 / *factor)
+            }
+            KnobShape::Rotated(shape, rotation) => shape.eval(theta - rotation),
+            KnobShape::Mix(shape_a, shape_b, t) => {
+                (shape_a.eval(theta) * (1.0 - t)) + (shape_b.eval(theta) * t)
             }
             KnobShape::Custom(callback) => callback(theta),
         }
