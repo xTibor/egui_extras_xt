@@ -10,7 +10,7 @@ use egui_knobs::{
     KnobMode, KnobOrientation, KnobShape,
 };
 
-struct MyApp {
+struct EguiKnobsExampleApp {
     // Common properties
     common_orientation: KnobOrientation,
     common_direction: KnobDirection,
@@ -35,7 +35,7 @@ struct MyApp {
     compass_knob_show_cursor: bool,
 }
 
-impl Default for MyApp {
+impl Default for EguiKnobsExampleApp {
     fn default() -> Self {
         Self {
             // Common properties
@@ -64,7 +64,7 @@ impl Default for MyApp {
     }
 }
 
-impl eframe::App for MyApp {
+impl eframe::App for EguiKnobsExampleApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
@@ -347,5 +347,9 @@ impl eframe::App for MyApp {
 fn main() {
     let options = eframe::NativeOptions::default();
 
-    eframe::run_native("Knobs", options, Box::new(|_cc| Box::new(MyApp::default())));
+    eframe::run_native(
+        "Knobs",
+        options,
+        Box::new(|_cc| Box::new(EguiKnobsExampleApp::default())),
+    );
 }
