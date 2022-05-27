@@ -1,8 +1,8 @@
 use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
-use eframe::egui::{self, Response, Ui, Widget};
-use eframe::emath::{remap_clamp, Vec2};
+use egui::{self, Response, Ui, Widget};
+use emath::{remap_clamp, Vec2};
 
 use crate::common::{KnobDirection, KnobOrientation, KnobShape};
 

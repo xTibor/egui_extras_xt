@@ -2,19 +2,13 @@ use std::f32::consts::TAU;
 
 use eframe::egui::{self, global_dark_light_mode_switch, DragValue};
 use eframe::epaint::Color32;
+
 use itertools::Itertools;
 
-mod common;
-use common::{KnobDirection, KnobMode, KnobOrientation, KnobShape};
-
-mod angle_knob;
-use angle_knob::AngleKnob;
-
-mod audio_knob;
-use audio_knob::AudioKnob;
-
-mod compass_knob;
-use compass_knob::{CompassKnob, CompassKnobMarker, CompassKnobMarkerShape};
+use egui_knobs::{
+    AngleKnob, AudioKnob, CompassKnob, CompassKnobMarker, CompassKnobMarkerShape, KnobDirection,
+    KnobMode, KnobOrientation, KnobShape,
+};
 
 struct MyApp {
     // Common properties

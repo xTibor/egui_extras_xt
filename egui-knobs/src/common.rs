@@ -1,8 +1,9 @@
 use std::f32::consts::TAU;
 
-use eframe::egui::Ui;
-use eframe::emath::{almost_equal, lerp, Pos2, Rot2, Vec2};
-use eframe::epaint::{Color32, Shape, Stroke};
+use egui::Ui;
+use emath::{almost_equal, lerp, Pos2, Rot2, Vec2};
+use epaint::{Color32, Shape, Stroke};
+
 use itertools::Itertools;
 
 // ----------------------------------------------------------------------------

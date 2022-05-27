@@ -1,9 +1,10 @@
 use std::f32::consts::TAU;
 
-use eframe::egui::{self, Response, Ui, Widget};
-use eframe::emath::{normalized_angle, pos2, vec2, Align2, Rect, Vec2};
-use eframe::epaint::color::tint_color_towards;
-use eframe::epaint::{Color32, FontFamily, FontId, Shape, Stroke};
+use egui::{self, Response, Ui, Widget};
+use emath::{normalized_angle, pos2, vec2, Align2, Rect, Vec2};
+use epaint::color::tint_color_towards;
+use epaint::{Color32, FontFamily, FontId, Shape, Stroke};
+
 use itertools::Itertools;
 
 use crate::common::{

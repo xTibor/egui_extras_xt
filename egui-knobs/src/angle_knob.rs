@@ -1,8 +1,8 @@
 use std::f32::consts::TAU;
 
-use eframe::egui::{self, Response, Ui, Widget};
-use eframe::emath::Vec2;
-use eframe::epaint::{Shape, Stroke};
+use egui::{self, Response, Ui, Widget};
+use emath::Vec2;
+use epaint::{Shape, Stroke};
 
 use crate::common::{
     normalized_angle_unsigned_excl, KnobDirection, KnobMode, KnobOrientation, KnobShape,
