@@ -319,7 +319,7 @@ impl eframe::App for MyApp {
                                 .shape(CompassKnobMarkerShape::Emoji('🐶'))
                                 .label("Dog")
                                 .color(Color32::from_rgb(0xC0, 0x8C, 0x85)),
-                            // All knob shapes
+                            // All marker shapes
                             CompassKnobMarker::new(240.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::Square),
                             CompassKnobMarker::new(250.0f32.to_radians())
