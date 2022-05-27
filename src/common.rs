@@ -92,9 +92,10 @@ impl KnobShape<'_> {
                     "polygon factor must be between 0.0 and 2.0"
                 );
 
-                (((0.25 * (*n as f32) * theta).cos()).abs().powf(*factor)
-                    + ((0.25 * (*n as f32) * theta).sin()).abs().powf(*factor))
-                .powf(-1.0 / *factor)
+                // https://mathworld.wolfram.com/Superellipse.html
+                let a = ((0.25 * (*n as f32) * theta).cos()).abs().powf(*factor);
+                let b = ((0.25 * (*n as f32) * theta).sin()).abs().powf(*factor);
+                (a + b).powf(-1.0 / *factor)
             }
             KnobShape::Custom(callback) => callback(theta),
         }
