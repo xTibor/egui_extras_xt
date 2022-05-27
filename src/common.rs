@@ -64,6 +64,7 @@ pub enum KnobShape<'a> {
     Square,
     Squircle(f32),
     Polygon(usize),
+    SuperPolygon(usize, f32),
     Custom(KnobShapeFn<'a>),
 }
 
@@ -83,6 +84,17 @@ impl KnobShape<'_> {
             KnobShape::Polygon(n) => {
                 assert!(*n >= 3, "polygon must have at least 3 sides");
                 1.0 / ((*n as f32 / 2.0 * theta).cos().asin() * 2.0 / *n as f32).cos()
+            }
+            KnobShape::SuperPolygon(n, factor) => {
+                assert!(*n >= 3, "polygon must have at least 3 sides");
+                assert!(
+                    (0.0..=2.0).contains(factor),
+                    "polygon factor must be between 0.0 and 2.0"
+                );
+
+                (((0.25 * (*n as f32) * theta).cos()).abs().powf(*factor)
+                    + ((0.25 * (*n as f32) * theta).sin()).abs().powf(*factor))
+                .powf(-1.0 / *factor)
             }
             KnobShape::Custom(callback) => callback(theta),
         }
