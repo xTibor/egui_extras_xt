@@ -18,7 +18,7 @@ pub enum KnobOrientation {
 }
 
 impl KnobOrientation {
-    pub fn rot2(&self) -> Rot2 {
+    pub(crate) fn rot2(&self) -> Rot2 {
         match *self {
             Self::Right => Rot2::from_angle(TAU * 0.00),
             Self::Bottom => Rot2::from_angle(TAU * 0.25),
@@ -38,7 +38,7 @@ pub enum KnobDirection {
 }
 
 impl KnobDirection {
-    pub fn to_float(&self) -> f32 {
+    pub(crate) fn to_float(&self) -> f32 {
         match *self {
             Self::Clockwise => 1.0,
             Self::Counterclockwise => -1.0,
@@ -58,7 +58,7 @@ pub enum KnobMode {
 // ----------------------------------------------------------------------------
 
 /// A polar function defining the shape of a knob widget.
-type KnobShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
+pub type KnobShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
 
 pub enum KnobShape<'a> {
     Circle,
@@ -72,7 +72,7 @@ pub enum KnobShape<'a> {
 impl KnobShape<'_> {
     const RESOLUTION: usize = 32;
 
-    pub fn eval(&self, theta: f32) -> f32 {
+    pub(crate) fn eval(&self, theta: f32) -> f32 {
         match self {
             KnobShape::Circle => 1.0,
             KnobShape::Square => (1.0 / theta.cos().abs()).min(1.0 / theta.sin().abs()),
@@ -103,7 +103,7 @@ impl KnobShape<'_> {
         }
     }
 
-    pub fn paint_shape(
+    pub(crate) fn paint_shape(
         &self,
         ui: &mut Ui,
         center: Pos2,
@@ -135,7 +135,7 @@ impl KnobShape<'_> {
         ui.painter().add(Shape::closed_line(outline_points, stroke));
     }
 
-    pub fn paint_arc(
+    pub(crate) fn paint_arc(
         &self,
         ui: &mut Ui,
         center: Pos2,
