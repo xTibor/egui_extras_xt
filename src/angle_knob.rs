@@ -95,6 +95,8 @@ pub struct AngleKnob<'a> {
     max: Option<f32>,
     snap: Option<f32>,
     shift_snap: Option<f32>,
+    show_axes: bool,
+    axis_count: usize,
 }
 
 impl<'a> AngleKnob<'a> {
@@ -119,6 +121,8 @@ impl<'a> AngleKnob<'a> {
             max: None,
             snap: None,
             shift_snap: Some(TAU / 24.0),
+            show_axes: true,
+            axis_count: 4,
         }
     }
 
@@ -169,6 +173,16 @@ impl<'a> AngleKnob<'a> {
 
     pub fn shift_snap(mut self, shift_snap: Option<f32>) -> Self {
         self.shift_snap = shift_snap;
+        self
+    }
+
+    pub fn show_axes(mut self, show_axes: bool) -> Self {
+        self.show_axes = show_axes;
+        self
+    }
+
+    pub fn axis_count(mut self, axis_count: impl Into<usize>) -> Self {
+        self.axis_count = axis_count.into();
         self
     }
 }
@@ -261,8 +275,10 @@ impl<'a> Widget for AngleKnob<'a> {
                     ));
                 };
 
-                for axis in 0..4 {
-                    paint_axis(axis as f32 * (TAU / 4.0));
+                if self.show_axes {
+                    for axis in 0..self.axis_count {
+                        paint_axis(axis as f32 * (TAU / (self.axis_count as f32)));
+                    }
                 }
             }
 
