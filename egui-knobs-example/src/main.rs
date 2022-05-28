@@ -211,12 +211,26 @@ impl eframe::App for EguiKnobsExampleApp {
                 ui.heading("SevenSegment");
                 ui.add_space(8.0);
 
-                ui.add(egui::Slider::new(&mut self.seven_segment_thickness, 0.0..=128.0));
-                ui.add(egui::Slider::new(&mut self.seven_segment_spacing, 0.0..=128.0));
-                ui.add(egui::Slider::new(&mut self.seven_segment_slant, 0.0..=128.0));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_thickness,
+                    0.0..=128.0,
+                ));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_spacing,
+                    0.0..=128.0,
+                ));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_slant,
+                    0.0..=128.0,
+                ));
                 ui.add_space(8.0);
 
-                seven_segment(ui, self.seven_segment_thickness, self.seven_segment_spacing, self.seven_segment_slant);
+                seven_segment(
+                    ui,
+                    self.seven_segment_thickness,
+                    self.seven_segment_spacing,
+                    self.seven_segment_slant,
+                );
 
                 ui.add_space(8.0);
                 ui.separator();
