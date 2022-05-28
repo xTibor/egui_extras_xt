@@ -83,7 +83,7 @@ impl KnobShape<'_> {
                 assert!(*factor > 0.0, "squircle factor must be positive");
                 let a = theta.cos().abs().powf(*factor);
                 let b = theta.sin().abs().powf(*factor);
-                1.0 / (a + b).powf(1.0 / *factor)
+                (a + b).powf(-1.0 / *factor)
             }
             KnobShape::Polygon(n) => {
                 assert!(*n >= 3, "polygon must have at least 3 sides");
@@ -98,8 +98,8 @@ impl KnobShape<'_> {
                 );
 
                 // https://mathworld.wolfram.com/Superellipse.html
-                let a = ((0.25 * (*n as f32) * theta).cos()).abs().powf(*factor);
-                let b = ((0.25 * (*n as f32) * theta).sin()).abs().powf(*factor);
+                let a = (0.25 * (*n as f32) * theta).cos().abs().powf(*factor);
+                let b = (0.25 * (*n as f32) * theta).sin().abs().powf(*factor);
                 (a + b).powf(-1.0 / *factor)
             }
             KnobShape::Rotated(shape, rotation) => shape.eval(theta - rotation),
