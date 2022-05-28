@@ -10,6 +10,9 @@ use egui_knobs::{
     WidgetShape, Winding, WrapMode,
 };
 
+mod seven_segment;
+use seven_segment::seven_segment;
+
 struct EguiKnobsExampleApp {
     // Common properties
     common_orientation: Orientation,
@@ -195,6 +198,8 @@ impl eframe::App for EguiKnobsExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                seven_segment(ui);
+
                 ui.heading("AudioKnob");
                 ui.add_space(8.0);
                 ui.add(egui::Slider::new(&mut self.audio_knob_value, -1.0..=1.0));
