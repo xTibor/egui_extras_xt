@@ -163,7 +163,7 @@ pub struct CompassMarker<'a> {
     angle: f32,
     shape: CompassMarkerShape,
     label: Option<&'a str>,
-    color: Color32,
+    color: Option<Color32>,
 }
 
 impl<'a> CompassMarker<'a> {
@@ -172,7 +172,7 @@ impl<'a> CompassMarker<'a> {
             angle: normalized_angle_unsigned_excl(angle),
             shape: CompassMarkerShape::Square,
             label: None,
-            color: Color32::GRAY,
+            color: None,
         }
     }
 
@@ -187,7 +187,7 @@ impl<'a> CompassMarker<'a> {
     }
 
     pub fn color(mut self, color: Color32) -> Self {
-        self.color = color;
+        self.color = Some(color);
         self
     }
 }
@@ -441,17 +441,22 @@ impl<'a> Widget for CompassWidget<'a> {
 
                 for tau in start_tau..=end_tau {
                     for marker in self.markers.iter() {
-                        let tinted_color =
-                            tint_color_towards(marker.color, ui.style().visuals.text_color());
+                        let marker_color = marker.color.unwrap_or(ui.style().visuals.text_color());
+
+                        let marker_stroke = {
+                            let stroke_color =
+                                tint_color_towards(marker_color, ui.style().visuals.text_color());
+                            Stroke::new(1.0, stroke_color)
+                        };
 
                         paint_marker(
                             ui,
                             (tau as f32 * TAU) + marker.angle,
                             marker.label,
-                            tinted_color,
+                            marker_color,
                             marker.shape,
-                            marker.color,
-                            Stroke::new(1.0, tinted_color),
+                            marker_color,
+                            marker_stroke,
                         );
                     }
                 }
