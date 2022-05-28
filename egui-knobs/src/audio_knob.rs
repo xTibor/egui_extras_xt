@@ -4,7 +4,7 @@ use std::ops::RangeInclusive;
 use egui::{self, Response, Ui, Widget};
 use emath::{remap_clamp, Vec2};
 
-use crate::common::{KnobShape, Orientation, Winding};
+use crate::common::{Orientation, WidgetShape, Winding};
 
 // ----------------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ pub struct AudioKnob<'a> {
     range: RangeInclusive<f32>,
     spread: f32,
     thickness: f32,
-    shape: KnobShape<'a>,
+    shape: WidgetShape<'a>,
     animated: bool,
     snap: Option<f32>,
     shift_snap: Option<f32>,
@@ -59,7 +59,7 @@ impl<'a> AudioKnob<'a> {
             range,
             spread: 1.0,
             thickness: 0.66,
-            shape: KnobShape::Squircle(4.0),
+            shape: WidgetShape::Squircle(4.0),
             animated: true,
             snap: None,
             shift_snap: None,
@@ -91,7 +91,7 @@ impl<'a> AudioKnob<'a> {
         self
     }
 
-    pub fn shape(mut self, shape: KnobShape<'a>) -> Self {
+    pub fn shape(mut self, shape: WidgetShape<'a>) -> Self {
         self.shape = shape;
         self
     }

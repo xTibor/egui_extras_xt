@@ -58,38 +58,38 @@ pub enum WrapMode {
 // ----------------------------------------------------------------------------
 
 /// A polar function defining the shape of a knob widget.
-pub type KnobShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
+pub type WidgetShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
 
 #[non_exhaustive]
-pub enum KnobShape<'a> {
+pub enum WidgetShape<'a> {
     Circle,
     Square,
     Squircle(f32),
     Polygon(usize),
     SuperPolygon(usize, f32),
-    Rotated(Box<KnobShape<'a>>, f32),
-    Mix(Box<KnobShape<'a>>, Box<KnobShape<'a>>, f32),
-    Custom(KnobShapeFn<'a>),
+    Rotated(Box<WidgetShape<'a>>, f32),
+    Mix(Box<WidgetShape<'a>>, Box<WidgetShape<'a>>, f32),
+    Custom(WidgetShapeFn<'a>),
 }
 
-impl KnobShape<'_> {
+impl WidgetShape<'_> {
     const RESOLUTION: usize = 32;
 
     pub(crate) fn eval(&self, theta: f32) -> f32 {
         match self {
-            KnobShape::Circle => 1.0,
-            KnobShape::Square => (1.0 / theta.cos().abs()).min(1.0 / theta.sin().abs()),
-            KnobShape::Squircle(factor) => {
+            WidgetShape::Circle => 1.0,
+            WidgetShape::Square => (1.0 / theta.cos().abs()).min(1.0 / theta.sin().abs()),
+            WidgetShape::Squircle(factor) => {
                 assert!(*factor > 0.0, "squircle factor must be positive");
                 let a = theta.cos().abs().powf(*factor);
                 let b = theta.sin().abs().powf(*factor);
                 (a + b).powf(-1.0 / *factor)
             }
-            KnobShape::Polygon(n) => {
+            WidgetShape::Polygon(n) => {
                 assert!(*n >= 3, "polygon must have at least 3 sides");
                 1.0 / ((*n as f32 / 2.0 * theta).cos().asin() * 2.0 / *n as f32).cos()
             }
-            KnobShape::SuperPolygon(n, factor) => {
+            WidgetShape::SuperPolygon(n, factor) => {
                 assert!(*n >= 3, "polygon must have at least 3 sides");
                 assert!(*factor > 0.0, "polygon factor must be positive");
                 assert!(
@@ -102,11 +102,11 @@ impl KnobShape<'_> {
                 let b = (0.25 * (*n as f32) * theta).sin().abs().powf(*factor);
                 (a + b).powf(-1.0 / *factor)
             }
-            KnobShape::Rotated(shape, rotation) => shape.eval(theta - rotation),
-            KnobShape::Mix(shape_a, shape_b, t) => {
+            WidgetShape::Rotated(shape, rotation) => shape.eval(theta - rotation),
+            WidgetShape::Mix(shape_a, shape_b, t) => {
                 (shape_a.eval(theta) * (1.0 - t)) + (shape_b.eval(theta) * t)
             }
-            KnobShape::Custom(callback) => callback(theta),
+            WidgetShape::Custom(callback) => callback(theta),
         }
     }
 

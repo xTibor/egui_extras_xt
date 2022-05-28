@@ -5,5 +5,5 @@ mod compass_widget;
 
 pub use angle_knob::{AngleKnob, AngleKnobPreset};
 pub use audio_knob::AudioKnob;
-pub use common::{KnobShape, KnobShapeFn, Orientation, Winding, WrapMode};
+pub use common::{Orientation, WidgetShape, WidgetShapeFn, Winding, WrapMode};
 pub use compass_widget::{CompassMarker, CompassMarkerShape, CompassWidget};

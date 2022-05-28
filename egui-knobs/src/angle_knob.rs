@@ -4,7 +4,7 @@ use egui::{self, Response, Ui, Widget};
 use emath::Vec2;
 use epaint::{Shape, Stroke};
 
-use crate::common::{normalized_angle_unsigned_excl, KnobShape, Orientation, Winding, WrapMode};
+use crate::common::{normalized_angle_unsigned_excl, Orientation, WidgetShape, Winding, WrapMode};
 
 // ----------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ pub struct AngleKnob<'a> {
     diameter: f32,
     orientation: Orientation,
     winding: Winding,
-    shape: KnobShape<'a>,
+    shape: WidgetShape<'a>,
     wrap: WrapMode,
     min: Option<f32>,
     max: Option<f32>,
@@ -107,7 +107,7 @@ impl<'a> AngleKnob<'a> {
             diameter: 32.0,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
-            shape: KnobShape::Circle,
+            shape: WidgetShape::Circle,
             wrap: WrapMode::Unsigned,
             min: None,
             max: None,
@@ -138,7 +138,7 @@ impl<'a> AngleKnob<'a> {
         self
     }
 
-    pub fn shape(mut self, shape: KnobShape<'a>) -> Self {
+    pub fn shape(mut self, shape: WidgetShape<'a>) -> Self {
         self.shape = shape;
         self
     }

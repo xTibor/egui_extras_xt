@@ -6,8 +6,8 @@ use eframe::epaint::Color32;
 use itertools::Itertools;
 
 use egui_knobs::{
-    AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, KnobShape, Orientation,
-    Winding, WrapMode,
+    AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, Orientation,
+    WidgetShape, Winding, WrapMode,
 };
 
 struct EguiKnobsExampleApp {
@@ -215,7 +215,7 @@ impl eframe::App for EguiKnobsExampleApp {
                                 .winding(self.common_winding)
                                 .spread(self.audio_knob_spread)
                                 .thickness(self.audio_knob_thickness)
-                                .shape(KnobShape::Squircle(4.0))
+                                .shape(WidgetShape::Squircle(4.0))
                                 .animated(self.common_animated)
                                 .snap(self.common_snap)
                                 .shift_snap(self.common_shift_snap),
@@ -239,7 +239,7 @@ impl eframe::App for EguiKnobsExampleApp {
                                 .diameter(angle_knob_size)
                                 .orientation(self.common_orientation)
                                 .winding(self.common_winding)
-                                .shape(KnobShape::Circle)
+                                .shape(WidgetShape::Circle)
                                 .wrap(self.common_wrap)
                                 .min(self.common_minimum_angle)
                                 .max(self.common_maximum_angle)
