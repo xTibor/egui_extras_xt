@@ -5,7 +5,7 @@ use emath::Vec2;
 use epaint::{Shape, Stroke};
 
 use crate::common::{
-    normalized_angle_unsigned_excl, KnobDirection, KnobMode, KnobOrientation, KnobShape,
+    normalized_angle_unsigned_excl, KnobDirection, KnobOrientation, KnobShape, WrapMode,
 };
 
 // ----------------------------------------------------------------------------
@@ -35,49 +35,49 @@ pub enum AngleKnobPreset {
     LibreOffice,
     QtWidgets,
     // Software without knob widgets:
-    // - Blender (no knobs but transform gizmo suggests Top/Clockwise/SpinAround)
+    // - Blender (no knobs but transform gizmo suggests Top/Clockwise/None)
     // - Inkscape
     // - Kdenlive
     // - MyPaint (no knobs but canvas rotation suggests Right/Clockwise/Signed)
 }
 
 impl AngleKnobPreset {
-    fn properties(&self) -> (KnobOrientation, KnobDirection, KnobMode) {
+    fn properties(&self) -> (KnobOrientation, KnobDirection, WrapMode) {
         match *self {
             AngleKnobPreset::AdobePhotoshop => (
                 KnobOrientation::Right,
                 KnobDirection::Counterclockwise,
-                KnobMode::Signed,
+                WrapMode::Signed,
             ),
             AngleKnobPreset::AdobePremierePro => (
                 KnobOrientation::Top,
                 KnobDirection::Clockwise,
-                KnobMode::SpinAround,
+                WrapMode::None,
             ),
             AngleKnobPreset::Gimp => (
                 KnobOrientation::Right,
                 KnobDirection::Counterclockwise,
-                KnobMode::Unsigned,
+                WrapMode::Unsigned,
             ),
             AngleKnobPreset::GoogleChromeDevTools => (
                 KnobOrientation::Top,
                 KnobDirection::Clockwise,
-                KnobMode::Unsigned,
+                WrapMode::Unsigned,
             ),
             AngleKnobPreset::Krita => (
                 KnobOrientation::Right,
                 KnobDirection::Counterclockwise,
-                KnobMode::Signed,
+                WrapMode::Signed,
             ),
             AngleKnobPreset::LibreOffice => (
                 KnobOrientation::Right,
                 KnobDirection::Counterclockwise,
-                KnobMode::Unsigned,
+                WrapMode::Unsigned,
             ),
             AngleKnobPreset::QtWidgets => (
                 KnobOrientation::Bottom,
                 KnobDirection::Clockwise,
-                KnobMode::Unsigned,
+                WrapMode::Unsigned,
             ),
         }
     }
@@ -90,7 +90,7 @@ pub struct AngleKnob<'a> {
     orientation: KnobOrientation,
     direction: KnobDirection,
     shape: KnobShape<'a>,
-    mode: KnobMode,
+    wrap: WrapMode,
     min: Option<f32>,
     max: Option<f32>,
     snap: Option<f32>,
@@ -116,7 +116,7 @@ impl<'a> AngleKnob<'a> {
             orientation: KnobOrientation::Top,
             direction: KnobDirection::Clockwise,
             shape: KnobShape::Circle,
-            mode: KnobMode::Unsigned,
+            wrap: WrapMode::Unsigned,
             min: None,
             max: None,
             snap: None,
@@ -127,7 +127,7 @@ impl<'a> AngleKnob<'a> {
     }
 
     pub fn preset(mut self, preset: AngleKnobPreset) -> Self {
-        (self.orientation, self.direction, self.mode) = preset.properties();
+        (self.orientation, self.direction, self.wrap) = preset.properties();
         self
     }
 
@@ -151,8 +151,8 @@ impl<'a> AngleKnob<'a> {
         self
     }
 
-    pub fn mode(mut self, mode: KnobMode) -> Self {
-        self.mode = mode;
+    pub fn wrap(mut self, wrap: WrapMode) -> Self {
+        self.wrap = wrap;
         self
     }
 
@@ -214,11 +214,11 @@ impl<'a> Widget for AngleKnob<'a> {
                 new_value = (new_value / snap_angle).round() * snap_angle;
             }
 
-            if self.mode == KnobMode::Unsigned {
+            if self.wrap == WrapMode::Unsigned {
                 new_value = normalized_angle_unsigned_excl(new_value);
             }
 
-            if self.mode == KnobMode::SpinAround {
+            if self.wrap == WrapMode::None {
                 let prev_turns = (prev_value / TAU).round();
                 new_value += prev_turns * TAU;
 

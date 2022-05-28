@@ -7,14 +7,14 @@ use itertools::Itertools;
 
 use egui_knobs::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, KnobDirection,
-    KnobMode, KnobOrientation, KnobShape,
+    KnobOrientation, KnobShape, WrapMode,
 };
 
 struct EguiKnobsExampleApp {
     // Common properties
     common_orientation: KnobOrientation,
     common_direction: KnobDirection,
-    common_mode: KnobMode,
+    common_wrap: WrapMode,
     common_animated: bool,
     common_snap: Option<f32>,
     common_shift_snap: Option<f32>,
@@ -41,7 +41,7 @@ impl Default for EguiKnobsExampleApp {
             // Common properties
             common_orientation: KnobOrientation::Top,
             common_direction: KnobDirection::Clockwise,
-            common_mode: KnobMode::Signed,
+            common_wrap: WrapMode::Signed,
             common_animated: true,
             common_snap: None,
             common_shift_snap: None,
@@ -127,11 +127,11 @@ impl eframe::App for EguiKnobsExampleApp {
             });
 
             ui.horizontal(|ui| {
-                ui.selectable_value(&mut self.common_mode, KnobMode::Signed, "± Signed");
+                ui.selectable_value(&mut self.common_wrap, WrapMode::None, "🔃 None");
 
-                ui.selectable_value(&mut self.common_mode, KnobMode::Unsigned, "+ Unsigned");
+                ui.selectable_value(&mut self.common_wrap, WrapMode::Signed, "± Signed");
 
-                ui.selectable_value(&mut self.common_mode, KnobMode::SpinAround, "🔃 SpinAround");
+                ui.selectable_value(&mut self.common_wrap, WrapMode::Unsigned, "+ Unsigned");
             });
 
             ui.horizontal(|ui| {
@@ -252,7 +252,7 @@ impl eframe::App for EguiKnobsExampleApp {
                                 .orientation(self.common_orientation)
                                 .direction(self.common_direction)
                                 .shape(KnobShape::Circle)
-                                .mode(self.common_mode)
+                                .wrap(self.common_wrap)
                                 .min(self.common_minimum_angle)
                                 .max(self.common_maximum_angle)
                                 .snap(self.common_snap)
@@ -276,7 +276,7 @@ impl eframe::App for EguiKnobsExampleApp {
 
                 ui.add(
                     CompassWidget::new(&mut self.compass_widget_value)
-                        .mode(self.common_mode)
+                        .wrap(self.common_wrap)
                         .direction(self.common_direction)
                         .width(512.0)
                         .height(48.0)

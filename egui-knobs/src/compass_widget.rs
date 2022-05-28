@@ -8,7 +8,7 @@ use epaint::{Color32, FontFamily, FontId, Shape, Stroke};
 use itertools::Itertools;
 
 use crate::common::{
-    normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, KnobDirection, KnobMode,
+    normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, KnobDirection, WrapMode,
 };
 
 // ----------------------------------------------------------------------------
@@ -197,7 +197,7 @@ impl<'a> CompassMarker<'a> {
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct CompassWidget<'a> {
     get_set_value: GetSetValue<'a>,
-    mode: KnobMode,
+    wrap: WrapMode,
     direction: KnobDirection,
     width: f32,
     height: f32,
@@ -225,7 +225,7 @@ impl<'a> CompassWidget<'a> {
     pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<f32>) -> f32) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
-            mode: KnobMode::Unsigned,
+            wrap: WrapMode::Unsigned,
             direction: KnobDirection::Clockwise,
             width: 256.0,
             height: 48.0,
@@ -241,8 +241,8 @@ impl<'a> CompassWidget<'a> {
         }
     }
 
-    pub fn mode(mut self, mode: KnobMode) -> Self {
-        self.mode = mode;
+    pub fn wrap(mut self, wrap: WrapMode) -> Self {
+        self.wrap = wrap;
         self
     }
 
@@ -314,12 +314,12 @@ impl<'a> Widget for CompassWidget<'a> {
             ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
 
         let constrain_value = |mut value| {
-            if self.mode == KnobMode::Signed {
+            if self.wrap == WrapMode::Signed {
                 // Animations require inclusive normalization bounds (-PI..=PI)
                 value = normalized_angle(value);
             }
 
-            if self.mode == KnobMode::Unsigned {
+            if self.wrap == WrapMode::Unsigned {
                 // Animations require inclusive normalization bounds (0..=TAU)
                 value = normalized_angle_unsigned_incl(value);
             }

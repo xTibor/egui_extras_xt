@@ -49,10 +49,10 @@ impl KnobDirection {
 // ----------------------------------------------------------------------------
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub enum KnobMode {
+pub enum WrapMode {
+    None,
     Signed,
     Unsigned,
-    SpinAround,
 }
 
 // ----------------------------------------------------------------------------
