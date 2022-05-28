@@ -294,15 +294,15 @@ impl eframe::App for EguiKnobsExampleApp {
                                 .label("Test")
                                 .color(Color32::from_rgb(0x00, 0xA0, 0x00)),
                             // Grand Theft Auto style markers
-                            CompassKnobMarker::new(100.0f32.to_radians())
+                            CompassKnobMarker::new(70.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::Square)
                                 .label("Sweet")
                                 .color(Color32::from_rgb(0x00, 0x00, 0xFF)),
-                            CompassKnobMarker::new(120.0f32.to_radians())
+                            CompassKnobMarker::new(85.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::DownArrow)
                                 .label("Reece's")
                                 .color(Color32::from_rgb(0xFF, 0xFF, 0x00)),
-                            CompassKnobMarker::new(140.0f32.to_radians())
+                            CompassKnobMarker::new(100.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::UpArrow)
                                 .label("Big Smoke")
                                 .color(Color32::from_rgb(0xFF, 0x00, 0x00)),
@@ -334,6 +334,19 @@ impl eframe::App for EguiKnobsExampleApp {
                                 .shape(CompassKnobMarkerShape::Star(5, 0.5)),
                             CompassKnobMarker::new(320.0f32.to_radians())
                                 .shape(CompassKnobMarkerShape::Emoji('🗿')),
+                            // Transparent colors
+                            CompassKnobMarker::new(30.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Square)
+                                .label("Near")
+                                .color(Color32::from_rgb(0x40, 0x80, 0x80).linear_multiply(1.0)),
+                            CompassKnobMarker::new(40.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Square)
+                                .label("Far")
+                                .color(Color32::from_rgb(0x40, 0x80, 0x80).linear_multiply(0.5)),
+                            CompassKnobMarker::new(50.0f32.to_radians())
+                                .shape(CompassKnobMarkerShape::Square)
+                                .label("Very far")
+                                .color(Color32::from_rgb(0x40, 0x80, 0x80).linear_multiply(0.25)),
                         ]),
                 );
 
