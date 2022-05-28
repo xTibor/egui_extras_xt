@@ -4,7 +4,7 @@ use std::ops::RangeInclusive;
 use egui::{self, Response, Ui, Widget};
 use emath::{remap_clamp, Vec2};
 
-use crate::common::{KnobDirection, KnobOrientation, KnobShape};
+use crate::common::{KnobShape, Orientation, Winding};
 
 // ----------------------------------------------------------------------------
 
@@ -26,8 +26,8 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 pub struct AudioKnob<'a> {
     get_set_value: GetSetValue<'a>,
     diameter: f32,
-    direction: KnobDirection,
-    orientation: KnobOrientation,
+    winding: Winding,
+    orientation: Orientation,
     range: RangeInclusive<f32>,
     spread: f32,
     thickness: f32,
@@ -54,8 +54,8 @@ impl<'a> AudioKnob<'a> {
         Self {
             get_set_value: Box::new(get_set_value),
             diameter: 32.0,
-            orientation: KnobOrientation::Top,
-            direction: KnobDirection::Clockwise,
+            orientation: Orientation::Top,
+            winding: Winding::Clockwise,
             range,
             spread: 1.0,
             thickness: 0.66,
@@ -71,12 +71,12 @@ impl<'a> AudioKnob<'a> {
         self
     }
 
-    pub fn direction(mut self, direction: KnobDirection) -> Self {
-        self.direction = direction;
+    pub fn winding(mut self, winding: Winding) -> Self {
+        self.winding = winding;
         self
     }
 
-    pub fn orientation(mut self, orientation: KnobOrientation) -> Self {
+    pub fn orientation(mut self, orientation: Orientation) -> Self {
         self.orientation = orientation;
         self
     }
@@ -125,7 +125,7 @@ impl<'a> Widget for AudioKnob<'a> {
 
             let mut new_value = get(&mut self.get_set_value);
 
-            let delta = drag_delta.x + drag_delta.y * self.direction.to_float();
+            let delta = drag_delta.x + drag_delta.y * self.winding.to_float();
             new_value += delta * (self.range.end() - self.range.start()) / self.diameter;
 
             set(&mut self.get_set_value, constrain_value(new_value));
@@ -168,8 +168,8 @@ impl<'a> Widget for AudioKnob<'a> {
             let spread_angle = (TAU / 2.0) * self.spread.clamp(0.0, 1.0);
 
             let (min_angle, max_angle) = (
-                center_angle - spread_angle * self.direction.to_float(),
-                center_angle + spread_angle * self.direction.to_float(),
+                center_angle - spread_angle * self.winding.to_float(),
+                center_angle + spread_angle * self.winding.to_float(),
             );
 
             let outer_radius = self.diameter / 2.0;

@@ -6,14 +6,14 @@ use eframe::epaint::Color32;
 use itertools::Itertools;
 
 use egui_knobs::{
-    AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, KnobDirection,
-    KnobOrientation, KnobShape, WrapMode,
+    AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, KnobShape, Orientation,
+    Winding, WrapMode,
 };
 
 struct EguiKnobsExampleApp {
     // Common properties
-    common_orientation: KnobOrientation,
-    common_direction: KnobDirection,
+    common_orientation: Orientation,
+    common_winding: Winding,
     common_wrap: WrapMode,
     common_animated: bool,
     common_snap: Option<f32>,
@@ -39,8 +39,8 @@ impl Default for EguiKnobsExampleApp {
     fn default() -> Self {
         Self {
             // Common properties
-            common_orientation: KnobOrientation::Top,
-            common_direction: KnobDirection::Clockwise,
+            common_orientation: Orientation::Top,
+            common_winding: Winding::Clockwise,
             common_wrap: WrapMode::Signed,
             common_animated: true,
             common_snap: None,
@@ -78,50 +78,38 @@ impl eframe::App for EguiKnobsExampleApp {
             ui.add_space(8.0);
 
             ui.horizontal(|ui| {
-                ui.selectable_value(&mut self.common_orientation, KnobOrientation::Top, "⬆ Top");
+                ui.selectable_value(&mut self.common_orientation, Orientation::Top, "⬆ Top");
+                ui.selectable_value(&mut self.common_orientation, Orientation::Right, "➡ Right");
                 ui.selectable_value(
                     &mut self.common_orientation,
-                    KnobOrientation::Right,
-                    "➡ Right",
-                );
-                ui.selectable_value(
-                    &mut self.common_orientation,
-                    KnobOrientation::Bottom,
+                    Orientation::Bottom,
                     "⬇ Bottom",
                 );
-                ui.selectable_value(
-                    &mut self.common_orientation,
-                    KnobOrientation::Left,
-                    "⬅ Left",
-                );
+                ui.selectable_value(&mut self.common_orientation, Orientation::Left, "⬅ Left");
 
                 {
                     let mut is_custom_orientation =
-                        matches!(self.common_orientation, KnobOrientation::Custom(..));
+                        matches!(self.common_orientation, Orientation::Custom(..));
 
                     ui.selectable_value(&mut is_custom_orientation, true, "✏ Custom(..)");
 
                     if is_custom_orientation
-                        && !matches!(self.common_orientation, KnobOrientation::Custom(..))
+                        && !matches!(self.common_orientation, Orientation::Custom(..))
                     {
-                        self.common_orientation = KnobOrientation::Custom(0.0);
+                        self.common_orientation = Orientation::Custom(0.0);
                     }
 
-                    if let KnobOrientation::Custom(value) = &mut self.common_orientation {
+                    if let Orientation::Custom(value) = &mut self.common_orientation {
                         ui.drag_angle(value);
                     }
                 }
             });
 
             ui.horizontal(|ui| {
+                ui.selectable_value(&mut self.common_winding, Winding::Clockwise, "⟳ Clockwise");
                 ui.selectable_value(
-                    &mut self.common_direction,
-                    KnobDirection::Clockwise,
-                    "⟳ Clockwise",
-                );
-                ui.selectable_value(
-                    &mut self.common_direction,
-                    KnobDirection::Counterclockwise,
+                    &mut self.common_winding,
+                    Winding::Counterclockwise,
                     "⟲ Counterclockwise",
                 );
             });
@@ -224,7 +212,7 @@ impl eframe::App for EguiKnobsExampleApp {
                             AudioKnob::new(&mut self.audio_knob_value, audio_knob_range)
                                 .diameter(audio_knob_size)
                                 .orientation(self.common_orientation)
-                                .direction(self.common_direction)
+                                .winding(self.common_winding)
                                 .spread(self.audio_knob_spread)
                                 .thickness(self.audio_knob_thickness)
                                 .shape(KnobShape::Squircle(4.0))
@@ -250,7 +238,7 @@ impl eframe::App for EguiKnobsExampleApp {
                             AngleKnob::new(&mut self.angle_knob_value)
                                 .diameter(angle_knob_size)
                                 .orientation(self.common_orientation)
-                                .direction(self.common_direction)
+                                .winding(self.common_winding)
                                 .shape(KnobShape::Circle)
                                 .wrap(self.common_wrap)
                                 .min(self.common_minimum_angle)
@@ -277,7 +265,7 @@ impl eframe::App for EguiKnobsExampleApp {
                 ui.add(
                     CompassWidget::new(&mut self.compass_widget_value)
                         .wrap(self.common_wrap)
-                        .direction(self.common_direction)
+                        .winding(self.common_winding)
                         .width(512.0)
                         .height(48.0)
                         .spread(self.compass_widget_spread)

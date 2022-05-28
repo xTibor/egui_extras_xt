@@ -4,9 +4,7 @@ use egui::{self, Response, Ui, Widget};
 use emath::Vec2;
 use epaint::{Shape, Stroke};
 
-use crate::common::{
-    normalized_angle_unsigned_excl, KnobDirection, KnobOrientation, KnobShape, WrapMode,
-};
+use crate::common::{normalized_angle_unsigned_excl, KnobShape, Orientation, Winding, WrapMode};
 
 // ----------------------------------------------------------------------------
 
@@ -42,43 +40,37 @@ pub enum AngleKnobPreset {
 }
 
 impl AngleKnobPreset {
-    fn properties(&self) -> (KnobOrientation, KnobDirection, WrapMode) {
+    fn properties(&self) -> (Orientation, Winding, WrapMode) {
         match *self {
             AngleKnobPreset::AdobePhotoshop => (
-                KnobOrientation::Right,
-                KnobDirection::Counterclockwise,
+                Orientation::Right,
+                Winding::Counterclockwise,
                 WrapMode::Signed,
             ),
-            AngleKnobPreset::AdobePremierePro => (
-                KnobOrientation::Top,
-                KnobDirection::Clockwise,
-                WrapMode::None,
-            ),
+            AngleKnobPreset::AdobePremierePro => {
+                (Orientation::Top, Winding::Clockwise, WrapMode::None)
+            }
             AngleKnobPreset::Gimp => (
-                KnobOrientation::Right,
-                KnobDirection::Counterclockwise,
+                Orientation::Right,
+                Winding::Counterclockwise,
                 WrapMode::Unsigned,
             ),
-            AngleKnobPreset::GoogleChromeDevTools => (
-                KnobOrientation::Top,
-                KnobDirection::Clockwise,
-                WrapMode::Unsigned,
-            ),
+            AngleKnobPreset::GoogleChromeDevTools => {
+                (Orientation::Top, Winding::Clockwise, WrapMode::Unsigned)
+            }
             AngleKnobPreset::Krita => (
-                KnobOrientation::Right,
-                KnobDirection::Counterclockwise,
+                Orientation::Right,
+                Winding::Counterclockwise,
                 WrapMode::Signed,
             ),
             AngleKnobPreset::LibreOffice => (
-                KnobOrientation::Right,
-                KnobDirection::Counterclockwise,
+                Orientation::Right,
+                Winding::Counterclockwise,
                 WrapMode::Unsigned,
             ),
-            AngleKnobPreset::QtWidgets => (
-                KnobOrientation::Bottom,
-                KnobDirection::Clockwise,
-                WrapMode::Unsigned,
-            ),
+            AngleKnobPreset::QtWidgets => {
+                (Orientation::Bottom, Winding::Clockwise, WrapMode::Unsigned)
+            }
         }
     }
 }
@@ -87,8 +79,8 @@ impl AngleKnobPreset {
 pub struct AngleKnob<'a> {
     get_set_value: GetSetValue<'a>,
     diameter: f32,
-    orientation: KnobOrientation,
-    direction: KnobDirection,
+    orientation: Orientation,
+    winding: Winding,
     shape: KnobShape<'a>,
     wrap: WrapMode,
     min: Option<f32>,
@@ -113,8 +105,8 @@ impl<'a> AngleKnob<'a> {
         Self {
             get_set_value: Box::new(get_set_value),
             diameter: 32.0,
-            orientation: KnobOrientation::Top,
-            direction: KnobDirection::Clockwise,
+            orientation: Orientation::Top,
+            winding: Winding::Clockwise,
             shape: KnobShape::Circle,
             wrap: WrapMode::Unsigned,
             min: None,
@@ -127,7 +119,7 @@ impl<'a> AngleKnob<'a> {
     }
 
     pub fn preset(mut self, preset: AngleKnobPreset) -> Self {
-        (self.orientation, self.direction, self.wrap) = preset.properties();
+        (self.orientation, self.winding, self.wrap) = preset.properties();
         self
     }
 
@@ -136,12 +128,12 @@ impl<'a> AngleKnob<'a> {
         self
     }
 
-    pub fn direction(mut self, direction: KnobDirection) -> Self {
-        self.direction = direction;
+    pub fn winding(mut self, winding: Winding) -> Self {
+        self.winding = winding;
         self
     }
 
-    pub fn orientation(mut self, orientation: KnobOrientation) -> Self {
+    pub fn orientation(mut self, orientation: Orientation) -> Self {
         self.orientation = orientation;
         self
     }
@@ -200,7 +192,7 @@ impl<'a> Widget for AngleKnob<'a> {
             let mut new_value = (rotation_matrix.inverse()
                 * (response.interact_pointer_pos().unwrap() - rect.center()))
             .angle()
-                * self.direction.to_float();
+                * self.winding.to_float();
 
             if let Some(snap_angle) = if ui.input().modifiers.shift_only() {
                 self.shift_snap
@@ -249,8 +241,8 @@ impl<'a> Widget for AngleKnob<'a> {
 
             let angle_to_shape_outline = |angle: f32| {
                 rotation_matrix
-                    * Vec2::angled(angle * self.direction.to_float())
-                    * (self.shape.eval(angle * self.direction.to_float()) * radius)
+                    * Vec2::angled(angle * self.winding.to_float())
+                    * (self.shape.eval(angle * self.winding.to_float()) * radius)
             };
 
             self.shape.paint_shape(

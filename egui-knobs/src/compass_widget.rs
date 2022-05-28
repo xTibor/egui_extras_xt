@@ -8,7 +8,7 @@ use epaint::{Color32, FontFamily, FontId, Shape, Stroke};
 use itertools::Itertools;
 
 use crate::common::{
-    normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, KnobDirection, WrapMode,
+    normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, Winding, WrapMode,
 };
 
 // ----------------------------------------------------------------------------
@@ -198,7 +198,7 @@ impl<'a> CompassMarker<'a> {
 pub struct CompassWidget<'a> {
     get_set_value: GetSetValue<'a>,
     wrap: WrapMode,
-    direction: KnobDirection,
+    winding: Winding,
     width: f32,
     height: f32,
     spread: f32,
@@ -226,7 +226,7 @@ impl<'a> CompassWidget<'a> {
         Self {
             get_set_value: Box::new(get_set_value),
             wrap: WrapMode::Unsigned,
-            direction: KnobDirection::Clockwise,
+            winding: Winding::Clockwise,
             width: 256.0,
             height: 48.0,
             spread: TAU / 2.0,
@@ -246,8 +246,8 @@ impl<'a> CompassWidget<'a> {
         self
     }
 
-    pub fn direction(mut self, direction: KnobDirection) -> Self {
-        self.direction = direction;
+    pub fn winding(mut self, winding: Winding) -> Self {
+        self.winding = winding;
         self
     }
 
@@ -337,8 +337,7 @@ impl<'a> Widget for CompassWidget<'a> {
 
         if response.dragged() {
             let new_value = get(&mut self.get_set_value)
-                - response.drag_delta().x / rect.width()
-                    * (self.spread * self.direction.to_float());
+                - response.drag_delta().x / rect.width() * (self.spread * self.winding.to_float());
             set(&mut self.get_set_value, constrain_value(new_value));
             response.mark_changed();
         }
@@ -377,7 +376,7 @@ impl<'a> Widget for CompassWidget<'a> {
 
             let map_angle_to_screen = |angle: f32| {
                 rect.center().x
-                    - (value - angle) * (rect.width() / (self.spread * self.direction.to_float()))
+                    - (value - angle) * (rect.width() / (self.spread * self.winding.to_float()))
             };
 
             ui.painter().rect(

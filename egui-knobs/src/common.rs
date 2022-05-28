@@ -9,7 +9,7 @@ use itertools::Itertools;
 // ----------------------------------------------------------------------------
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub enum KnobOrientation {
+pub enum Orientation {
     Right,
     Bottom,
     Left,
@@ -17,7 +17,7 @@ pub enum KnobOrientation {
     Custom(f32),
 }
 
-impl KnobOrientation {
+impl Orientation {
     pub(crate) fn rot2(&self) -> Rot2 {
         match *self {
             Self::Right => Rot2::from_angle(TAU * 0.00),
@@ -32,12 +32,12 @@ impl KnobOrientation {
 // ----------------------------------------------------------------------------
 
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub enum KnobDirection {
+pub enum Winding {
     Clockwise,
     Counterclockwise,
 }
 
-impl KnobDirection {
+impl Winding {
     pub(crate) fn to_float(&self) -> f32 {
         match *self {
             Self::Clockwise => 1.0,
