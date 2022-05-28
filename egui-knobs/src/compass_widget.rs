@@ -32,7 +32,7 @@ pub type CompassLabels<'a> = [&'a str; 4];
 // ----------------------------------------------------------------------------
 
 #[derive(Clone, Copy)]
-pub enum CompassKnobMarkerShape {
+pub enum CompassMarkerShape {
     Square,
     Circle,
     RightArrow,
@@ -44,16 +44,16 @@ pub enum CompassKnobMarkerShape {
     Emoji(char),
 }
 
-impl CompassKnobMarkerShape {
+impl CompassMarkerShape {
     fn paint(&self, ui: &mut Ui, rect: Rect, fill: Color32, stroke: Stroke) {
         match *self {
-            CompassKnobMarkerShape::Square => {
+            CompassMarkerShape::Square => {
                 ui.painter().rect(rect, 0.0, fill, stroke);
             }
-            CompassKnobMarkerShape::Circle => {
+            CompassMarkerShape::Circle => {
                 ui.painter().rect(rect, rect.width() / 2.0, fill, stroke);
             }
-            CompassKnobMarkerShape::RightArrow => {
+            CompassMarkerShape::RightArrow => {
                 let rect = Rect::from_center_size(
                     rect.center(),
                     rect.size() * vec2(3.0f32.sqrt() / 2.0, 1.0),
@@ -65,7 +65,7 @@ impl CompassKnobMarkerShape {
                     stroke,
                 ));
             }
-            CompassKnobMarkerShape::UpArrow => {
+            CompassMarkerShape::UpArrow => {
                 let rect = Rect::from_center_size(
                     rect.center(),
                     rect.size() * vec2(1.0, 3.0f32.sqrt() / 2.0),
@@ -77,7 +77,7 @@ impl CompassKnobMarkerShape {
                     stroke,
                 ));
             }
-            CompassKnobMarkerShape::LeftArrow => {
+            CompassMarkerShape::LeftArrow => {
                 let rect = Rect::from_center_size(
                     rect.center(),
                     rect.size() * vec2(3.0f32.sqrt() / 2.0, 1.0),
@@ -89,7 +89,7 @@ impl CompassKnobMarkerShape {
                     stroke,
                 ));
             }
-            CompassKnobMarkerShape::DownArrow => {
+            CompassMarkerShape::DownArrow => {
                 let rect = Rect::from_center_size(
                     rect.center(),
                     rect.size() * vec2(1.0, 3.0f32.sqrt() / 2.0),
@@ -101,7 +101,7 @@ impl CompassKnobMarkerShape {
                     stroke,
                 ));
             }
-            CompassKnobMarkerShape::Diamond => {
+            CompassMarkerShape::Diamond => {
                 ui.painter().add(Shape::convex_polygon(
                     vec![
                         rect.center_top(),
@@ -113,7 +113,7 @@ impl CompassKnobMarkerShape {
                     stroke,
                 ));
             }
-            CompassKnobMarkerShape::Star(rays, ratio) => {
+            CompassMarkerShape::Star(rays, ratio) => {
                 assert!(rays >= 2, "star-shaped markers must have at least 2 rays");
                 assert!(
                     (0.0..=1.0).contains(&ratio),
@@ -146,7 +146,7 @@ impl CompassKnobMarkerShape {
                     stroke,
                 ));
             }
-            CompassKnobMarkerShape::Emoji(emoji) => {
+            CompassMarkerShape::Emoji(emoji) => {
                 ui.painter().text(
                     rect.center(),
                     Align2::CENTER_CENTER,
@@ -159,24 +159,24 @@ impl CompassKnobMarkerShape {
     }
 }
 
-pub struct CompassKnobMarker<'a> {
+pub struct CompassMarker<'a> {
     angle: f32,
-    shape: CompassKnobMarkerShape,
+    shape: CompassMarkerShape,
     label: Option<&'a str>,
     color: Color32,
 }
 
-impl<'a> CompassKnobMarker<'a> {
+impl<'a> CompassMarker<'a> {
     pub fn new(angle: f32) -> Self {
         Self {
             angle: normalized_angle_unsigned_excl(angle),
-            shape: CompassKnobMarkerShape::Square,
+            shape: CompassMarkerShape::Square,
             label: None,
             color: Color32::GRAY,
         }
     }
 
-    pub fn shape(mut self, shape: CompassKnobMarkerShape) -> Self {
+    pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
         self.shape = shape;
         self
     }
@@ -195,7 +195,7 @@ impl<'a> CompassKnobMarker<'a> {
 // ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct CompassKnob<'a> {
+pub struct CompassWidget<'a> {
     get_set_value: GetSetValue<'a>,
     mode: KnobMode,
     direction: KnobDirection,
@@ -209,10 +209,10 @@ pub struct CompassKnob<'a> {
     max: Option<f32>,
     animated: bool,
     show_cursor: bool,
-    markers: &'a [CompassKnobMarker<'a>],
+    markers: &'a [CompassMarker<'a>],
 }
 
-impl<'a> CompassKnob<'a> {
+impl<'a> CompassWidget<'a> {
     pub fn new(value: &'a mut f32) -> Self {
         Self::from_get_set(move |v: Option<f32>| {
             if let Some(v) = v {
@@ -301,13 +301,13 @@ impl<'a> CompassKnob<'a> {
         self
     }
 
-    pub fn markers(mut self, markers: &'a [CompassKnobMarker]) -> Self {
+    pub fn markers(mut self, markers: &'a [CompassMarker]) -> Self {
         self.markers = markers;
         self
     }
 }
 
-impl<'a> Widget for CompassKnob<'a> {
+impl<'a> Widget for CompassWidget<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = egui::vec2(self.width, self.height);
         let (rect, mut response) =
@@ -394,7 +394,7 @@ impl<'a> Widget for CompassKnob<'a> {
                                     angle: f32,
                                     label: Option<&str>,
                                     text_color: Color32,
-                                    shape: CompassKnobMarkerShape,
+                                    shape: CompassMarkerShape,
                                     fill: Color32,
                                     stroke: Stroke| {
                     // Early exit when the marker is outside of the bounds of the widget,
@@ -462,7 +462,7 @@ impl<'a> Widget for CompassKnob<'a> {
                         value,
                         Some(&format!("{:.0}°", value.to_degrees())),
                         visuals.text_color(),
-                        CompassKnobMarkerShape::DownArrow,
+                        CompassMarkerShape::DownArrow,
                         visuals.bg_fill,
                         visuals.fg_stroke,
                     );
