@@ -218,7 +218,7 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
                 ));
                 ui.add(egui::Slider::new(
                     &mut self.seven_segment_style.digit_shearing,
-                    0.0..=1.0,
+                    -1.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
                     &mut self.seven_segment_digit_height,

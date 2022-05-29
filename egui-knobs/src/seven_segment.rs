@@ -159,7 +159,7 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
             (digit_width * self.digit_count as f32)
                 + (digit_spacing * (self.digit_count - 1) as f32)
                 + (2.0 * margin_horizontal)
-                + (2.0 * digit_shearing),
+                + (2.0 * digit_shearing.abs()),
             digit_height + (2.0 * margin_vertical),
         );
 
@@ -259,7 +259,7 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
             let digit_center = rect.left_center()
                 + vec2(
                     margin_horizontal
-                        + digit_shearing
+                        + digit_shearing.abs()
                         + ((digit_width + digit_spacing) * digit_index as f32)
                         + (digit_width / 2.0),
                     0.0,
