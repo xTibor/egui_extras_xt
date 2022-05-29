@@ -227,9 +227,13 @@ impl eframe::App for EguiKnobsExampleApp {
 
                 seven_segment(
                     ui,
+                    "12345",
+                    5,
                     self.seven_segment_thickness,
                     self.seven_segment_spacing,
                     self.seven_segment_slant,
+                    128.0,
+                    0.5,
                 );
 
                 ui.add_space(8.0);
