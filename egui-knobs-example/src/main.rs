@@ -42,9 +42,10 @@ struct EguiKnobsExampleApp {
     seven_segment_segment_thickness: f32,
     seven_segment_segment_spacing: f32,
     seven_segment_digit_height: f32,
-    seven_segment_digit_slant: f32,
+    seven_segment_digit_shearing: f32,
     seven_segment_digit_ratio: f32,
     seven_segment_digit_spacing: f32,
+    seven_segment_digit_median: f32,
     seven_segment_margin_horizontal: f32,
     seven_segment_margin_vertical: f32,
 }
@@ -80,9 +81,10 @@ impl Default for EguiKnobsExampleApp {
             seven_segment_segment_thickness: 0.15,
             seven_segment_segment_spacing: 0.02,
             seven_segment_digit_height: 128.0,
-            seven_segment_digit_slant: 0.10,
+            seven_segment_digit_shearing: 0.10,
             seven_segment_digit_ratio: 0.85,
             seven_segment_digit_spacing: 0.1,
+            seven_segment_digit_median: -0.1,
             seven_segment_margin_horizontal: 0.2,
             seven_segment_margin_vertical: 0.1,
         }
@@ -232,7 +234,7 @@ impl eframe::App for EguiKnobsExampleApp {
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_digit_slant,
+                    &mut self.seven_segment_digit_shearing,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
@@ -248,6 +250,10 @@ impl eframe::App for EguiKnobsExampleApp {
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
+                    &mut self.seven_segment_digit_median,
+                    -1.0..=1.0,
+                ));
+                ui.add(egui::Slider::new(
                     &mut self.seven_segment_margin_horizontal,
                     0.0..=1.0,
                 ));
@@ -256,7 +262,9 @@ impl eframe::App for EguiKnobsExampleApp {
                     0.0..=1.0,
                 ));
 
-                ui.add(egui::TextEdit::singleline(&mut self.seven_segment_display_string));
+                ui.add(egui::TextEdit::singleline(
+                    &mut self.seven_segment_display_string,
+                ));
 
                 ui.add_space(8.0);
 
@@ -266,10 +274,11 @@ impl eframe::App for EguiKnobsExampleApp {
                     5,
                     self.seven_segment_segment_thickness,
                     self.seven_segment_segment_spacing,
-                    self.seven_segment_digit_slant,
+                    self.seven_segment_digit_shearing,
                     self.seven_segment_digit_height,
                     self.seven_segment_digit_ratio,
                     self.seven_segment_digit_spacing,
+                    self.seven_segment_digit_median,
                     self.seven_segment_margin_horizontal,
                     self.seven_segment_margin_vertical,
                 );
