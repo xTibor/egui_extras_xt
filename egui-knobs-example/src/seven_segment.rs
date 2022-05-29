@@ -2,6 +2,12 @@ use eframe::egui::{Response, Sense, Ui};
 use eframe::emath::{pos2, vec2, Pos2};
 use eframe::epaint::{Color32, Shape, Stroke};
 
+pub enum SevenSegmentPreset {
+    DeLoreanRed,
+    DeLoreanGreen,
+    DeLoreanAmber,
+}
+
 pub fn seven_segment(ui: &mut Ui, thickness: f32, spacing: f32, slant: f32) -> Response {
     let desired_size = vec2(128.0, 256.0);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::hover());
