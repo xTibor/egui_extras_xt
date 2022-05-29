@@ -78,12 +78,12 @@ impl Default for EguiKnobsExampleApp {
 
             // SevenSegment
             seven_segment_display_string: String::from("12345"),
-            seven_segment_segment_thickness: 0.15,
+            seven_segment_segment_thickness: 0.1,
             seven_segment_segment_spacing: 0.02,
             seven_segment_digit_height: 128.0,
             seven_segment_digit_shearing: 0.10,
-            seven_segment_digit_ratio: 0.85,
-            seven_segment_digit_spacing: 0.1,
+            seven_segment_digit_ratio: 0.5,
+            seven_segment_digit_spacing: 0.2,
             seven_segment_digit_median: -0.1,
             seven_segment_margin_horizontal: 0.2,
             seven_segment_margin_vertical: 0.1,
