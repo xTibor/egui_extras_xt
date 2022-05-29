@@ -69,7 +69,7 @@ impl SevenSegmentPreset {
             SevenSegmentPreset::Default => SevenSegmentStyle {
                 segment_spacing: 0.02,
                 segment_thickness: 0.1,
-                digit_median: 0.0,
+                digit_median: -0.05,
                 digit_ratio: 0.5,
                 digit_shearing: 0.1,
                 digit_spacing: 0.2,
