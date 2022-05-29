@@ -34,7 +34,7 @@ struct EguiKnobsExampleApp<'a> {
     compass_widget_spread: f32,
     compass_widget_show_cursor: bool,
 
-    // SevenSegment
+    // SevenSegmentWidget
     seven_segment_display_string: String,
     seven_segment_digit_height: f32,
     seven_segment_style: SevenSegmentStyle<'a>,
@@ -66,8 +66,8 @@ impl Default for EguiKnobsExampleApp<'_> {
             compass_widget_spread: TAU / 2.0,
             compass_widget_show_cursor: true,
 
-            // SevenSegment
-            seven_segment_display_string: String::from("12345"),
+            // SevenSegmentWidget
+            seven_segment_display_string: String::from("12345 HELLO"),
             seven_segment_digit_height: 128.0,
             seven_segment_style: SevenSegmentPreset::Default.style(),
         }
@@ -205,7 +205,7 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.heading("SevenSegment");
+                ui.heading("SevenSegmentWidget");
                 ui.add_space(8.0);
 
                 ui.add(egui::Slider::new(
@@ -254,7 +254,7 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
                 ui.add(
                     SevenSegmentWidget::new()
                         .display_string(&self.seven_segment_display_string)
-                        .digit_count(5)
+                        .digit_count(11)
                         .digit_height(self.seven_segment_digit_height)
                         .style(self.seven_segment_style),
                 );
