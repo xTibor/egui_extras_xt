@@ -38,9 +38,14 @@ struct EguiKnobsExampleApp {
     compass_widget_show_cursor: bool,
 
     // SevenSegment
-    seven_segment_thickness: f32,
-    seven_segment_spacing: f32,
-    seven_segment_slant: f32,
+    seven_segment_segment_thickness: f32,
+    seven_segment_segment_spacing: f32,
+    seven_segment_digit_height: f32,
+    seven_segment_digit_slant: f32,
+    seven_segment_digit_ratio: f32,
+    seven_segment_digit_spacing: f32,
+    seven_segment_margin_horizontal: f32,
+    seven_segment_margin_vertical: f32,
 }
 
 impl Default for EguiKnobsExampleApp {
@@ -70,9 +75,14 @@ impl Default for EguiKnobsExampleApp {
             compass_widget_show_cursor: true,
 
             // SevenSegment
-            seven_segment_thickness: 32.0,
-            seven_segment_spacing: 4.0,
-            seven_segment_slant: 16.0,
+            seven_segment_segment_thickness: 0.15,
+            seven_segment_segment_spacing: 0.02,
+            seven_segment_digit_height: 128.0,
+            seven_segment_digit_slant: 0.10,
+            seven_segment_digit_ratio: 0.85,
+            seven_segment_digit_spacing: 0.1,
+            seven_segment_margin_horizontal: 0.2,
+            seven_segment_margin_vertical: 0.1,
         }
     }
 }
@@ -212,28 +222,52 @@ impl eframe::App for EguiKnobsExampleApp {
                 ui.add_space(8.0);
 
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_thickness,
-                    0.0..=128.0,
+                    &mut self.seven_segment_segment_thickness,
+                    0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_spacing,
-                    0.0..=128.0,
+                    &mut self.seven_segment_segment_spacing,
+                    0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_slant,
-                    0.0..=128.0,
+                    &mut self.seven_segment_digit_slant,
+                    0.0..=1.0,
                 ));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_digit_height,
+                    16.0..=256.0,
+                ));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_digit_ratio,
+                    0.25..=1.0,
+                ));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_digit_spacing,
+                    0.0..=1.0,
+                ));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_margin_horizontal,
+                    0.0..=1.0,
+                ));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_margin_vertical,
+                    0.0..=1.0,
+                ));
+
                 ui.add_space(8.0);
 
                 seven_segment(
                     ui,
                     "12345",
                     5,
-                    self.seven_segment_thickness,
-                    self.seven_segment_spacing,
-                    self.seven_segment_slant,
-                    128.0,
-                    0.5,
+                    self.seven_segment_segment_thickness,
+                    self.seven_segment_segment_spacing,
+                    self.seven_segment_digit_slant,
+                    self.seven_segment_digit_height,
+                    self.seven_segment_digit_ratio,
+                    self.seven_segment_digit_spacing,
+                    self.seven_segment_margin_horizontal,
+                    self.seven_segment_margin_vertical,
                 );
 
                 ui.add_space(8.0);

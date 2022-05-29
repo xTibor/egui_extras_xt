@@ -36,20 +36,40 @@ pub fn seven_segment(
     digit_slant: f32,
     digit_height: f32,
     digit_ratio: f32,
+    digit_spacing: f32,
+    margin_horizontal: f32,
+    margin_vertical: f32,
 ) -> Response {
     let digit_width = digit_height * digit_ratio;
 
+    // Turn relative metrics to absolute metrics
+    let segment_thickness = segment_thickness * digit_height;
+    let segment_spacing = segment_spacing * digit_height;
+    let digit_slant = digit_slant * digit_width;
+    let digit_spacing = digit_spacing * digit_width;
+    let margin_horizontal = margin_horizontal * digit_width;
+    let margin_vertical = margin_vertical * digit_height;
+
     let desired_size = vec2(
-        digit_width * digit_count as f32 + 2.0 * digit_slant,
-        digit_height,
+        (digit_width * digit_count as f32)
+            + (digit_spacing * (digit_count - 1) as f32)
+            + (2.0 * margin_horizontal)
+            + (2.0 * digit_slant),
+        digit_height + (2.0 * margin_vertical),
     );
 
     let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
-    ui.painter()
-        .rect(rect, 0.0, Color32::BLACK, Stroke::new(2.0, Color32::BLUE));
+    //ui.set_clip_rect(rect);
 
-    let paint_digit = |digit_bits, digit_center: Pos2| {
+    ui.painter().rect(
+        rect,
+        0.0,
+        Color32::from_rgb(0x0, 0x20, 0x00),
+        Stroke::none(),
+    );
+
+    let paint_digit = |digit_bits: u8, digit_center: Pos2| {
         let p = |dx, dy| {
             digit_center + vec2(dx, dy) - vec2((dy / (digit_height / 2.0)) * digit_slant, 0.0)
         };
@@ -118,15 +138,20 @@ pub fn seven_segment(
         for (segment_index, segment_points) in segment_points.iter().enumerate() {
             let segment_on = ((digit_bits >> segment_index) & 0x01) != 0x00;
 
-            ui.painter().add(Shape::convex_polygon(
-                segment_points.to_vec(),
-                if segment_on {
-                    Color32::GREEN
-                } else {
-                    Color32::DARK_GREEN
-                },
-                Stroke::new(2.0, Color32::DARK_GREEN),
-            ));
+            let (fill, stroke) = if segment_on {
+                (
+                    Color32::from_rgb(0x00, 0xF0, 0x00),
+                    Stroke::new(2.0, Color32::from_rgb(0x00, 0xFF, 0x00)),
+                )
+            } else {
+                (
+                    Color32::from_rgb(0x00, 0x30, 0x00),
+                    Stroke::new(2.0, Color32::from_rgb(0x00, 0x28, 0x00)),
+                )
+            };
+
+            ui.painter()
+                .add(Shape::convex_polygon(segment_points.to_vec(), fill, stroke));
         }
     };
 
@@ -139,7 +164,10 @@ pub fn seven_segment(
 
         let digit_center = rect.left_center()
             + vec2(
-                digit_slant + (digit_width * digit_index as f32) + (digit_width / 2.0),
+                margin_horizontal
+                    + digit_slant
+                    + ((digit_width + digit_spacing) * digit_index as f32)
+                    + (digit_width / 2.0),
                 0.0,
             );
 
