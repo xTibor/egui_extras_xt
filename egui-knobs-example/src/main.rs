@@ -38,6 +38,7 @@ struct EguiKnobsExampleApp {
     compass_widget_show_cursor: bool,
 
     // SevenSegment
+    seven_segment_display_string: String,
     seven_segment_segment_thickness: f32,
     seven_segment_segment_spacing: f32,
     seven_segment_digit_height: f32,
@@ -75,6 +76,7 @@ impl Default for EguiKnobsExampleApp {
             compass_widget_show_cursor: true,
 
             // SevenSegment
+            seven_segment_display_string: String::from("12345"),
             seven_segment_segment_thickness: 0.15,
             seven_segment_segment_spacing: 0.02,
             seven_segment_digit_height: 128.0,
@@ -254,11 +256,13 @@ impl eframe::App for EguiKnobsExampleApp {
                     0.0..=1.0,
                 ));
 
+                ui.add(egui::TextEdit::singleline(&mut self.seven_segment_display_string));
+
                 ui.add_space(8.0);
 
                 seven_segment(
                     ui,
-                    "12345",
+                    &self.seven_segment_display_string,
                     5,
                     self.seven_segment_segment_thickness,
                     self.seven_segment_segment_spacing,
