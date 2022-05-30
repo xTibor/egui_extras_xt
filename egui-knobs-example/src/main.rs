@@ -208,6 +208,10 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
                 ui.heading("SevenSegmentWidget");
                 ui.add_space(8.0);
 
+                if ui.button("Reset").clicked() {
+                    self.seven_segment_style = SevenSegmentPreset::Default.style();
+                }
+
                 ui.add(egui::Slider::new(
                     &mut self.seven_segment_style.segment_thickness,
                     0.0..=1.0,
@@ -244,6 +248,30 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
                     &mut self.seven_segment_style.margin_vertical,
                     0.0..=1.0,
                 ));
+
+                ui.color_edit_button_srgba(&mut self.seven_segment_style.background_color);
+
+                ui.horizontal(|ui| {
+                    ui.add(
+                        DragValue::new(&mut self.seven_segment_style.segment_on_stroke.width)
+                            .speed(0.1),
+                    );
+                    ui.color_edit_button_srgba(
+                        &mut self.seven_segment_style.segment_on_stroke.color,
+                    );
+                    ui.color_edit_button_srgba(&mut self.seven_segment_style.segment_on_color);
+                });
+
+                ui.horizontal(|ui| {
+                    ui.add(
+                        DragValue::new(&mut self.seven_segment_style.segment_off_stroke.width)
+                            .speed(0.1),
+                    );
+                    ui.color_edit_button_srgba(
+                        &mut self.seven_segment_style.segment_off_stroke.color,
+                    );
+                    ui.color_edit_button_srgba(&mut self.seven_segment_style.segment_off_color);
+                });
 
                 ui.add(egui::TextEdit::singleline(
                     &mut self.seven_segment_display_string,
