@@ -80,6 +80,10 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
             ui.horizontal(|ui| {
                 global_dark_light_mode_switch(ui);
                 ui.heading("Knobs");
+
+                if ui.button("Reset").clicked() {
+                    *self = Self::default();
+                }
             });
 
             ui.separator();
@@ -207,10 +211,6 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.heading("SevenSegmentWidget");
                 ui.add_space(8.0);
-
-                if ui.button("Reset").clicked() {
-                    self.seven_segment_style = SevenSegmentPreset::Default.style();
-                }
 
                 ui.add(egui::Slider::new(
                     &mut self.seven_segment_style.segment_thickness,
