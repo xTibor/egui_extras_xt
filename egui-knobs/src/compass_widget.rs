@@ -31,6 +31,7 @@ pub type CompassLabels<'a> = [&'a str; 4];
 
 // ----------------------------------------------------------------------------
 
+#[non_exhaustive]
 #[derive(Clone, Copy)]
 pub enum CompassMarkerShape {
     Square,

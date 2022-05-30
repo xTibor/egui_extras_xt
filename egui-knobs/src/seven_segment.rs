@@ -50,6 +50,7 @@ impl Default for SevenSegmentMetrics<'_> {
 
 // ----------------------------------------------------------------------------
 
+#[non_exhaustive]
 pub enum SevenSegmentMetricsPreset {
     Default,
     KnightRider,
@@ -105,6 +106,7 @@ impl Default for SevenSegmentStyle {
 
 // ----------------------------------------------------------------------------
 
+#[non_exhaustive]
 pub enum SevenSegmentStylePreset {
     Default,
     Calculator,
