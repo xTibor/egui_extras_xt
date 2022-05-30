@@ -44,17 +44,44 @@ pub struct SevenSegmentMetrics<'a> {
 
 impl Default for SevenSegmentMetrics<'_> {
     fn default() -> Self {
-        Self {
-            segment_spacing: 0.02,
-            segment_thickness: 0.1,
-            digit_median: -0.05,
-            digit_ratio: 0.5,
-            digit_shearing: 0.1,
-            digit_spacing: 0.35,
-            digit_font: &DEFAULT_FONT,
-            margin_horizontal: 0.3,
-            margin_vertical: 0.1,
-            colon_separation: 0.25,
+        SevenSegmentMetricsPreset::Default.metrics()
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+pub enum SevenSegmentMetricsPreset {
+    Default,
+    KnightRider,
+}
+
+impl SevenSegmentMetricsPreset {
+    pub fn metrics<'a>(&self) -> SevenSegmentMetrics<'a> {
+        match *self {
+            SevenSegmentMetricsPreset::Default => SevenSegmentMetrics {
+                segment_spacing: 0.02,
+                segment_thickness: 0.1,
+                digit_median: -0.05,
+                digit_ratio: 0.5,
+                digit_shearing: 0.1,
+                digit_spacing: 0.35,
+                digit_font: &DEFAULT_FONT,
+                margin_horizontal: 0.3,
+                margin_vertical: 0.1,
+                colon_separation: 0.25,
+            },
+            SevenSegmentMetricsPreset::KnightRider => SevenSegmentMetrics {
+                segment_spacing: 0.02,
+                segment_thickness: 0.12,
+                digit_median: -0.05,
+                digit_ratio: 1.0,
+                digit_shearing: 0.1,
+                digit_spacing: 0.20,
+                digit_font: &DEFAULT_FONT,
+                margin_horizontal: 0.3,
+                margin_vertical: 0.1,
+                colon_separation: 0.25,
+            },
         }
     }
 }
@@ -70,12 +97,19 @@ pub struct SevenSegmentStyle {
     pub segment_off_stroke: Stroke,
 }
 
+impl Default for SevenSegmentStyle {
+    fn default() -> Self {
+        SevenSegmentStylePreset::Default.style()
+    }
+}
+
 // ----------------------------------------------------------------------------
 
 pub enum SevenSegmentStylePreset {
     Default,
     Calculator,
     NintendoGameBoy,
+    KnightRider,
     DeLoreanRed,
     DeLoreanGreen,
     DeLoreanAmber,
@@ -102,6 +136,13 @@ impl SevenSegmentStylePreset {
                 background_color: Color32::from_rgb(0x9B, 0xBC, 0x0F),
                 segment_on_color: Color32::from_rgb(0x0F, 0x38, 0x0F),
                 segment_off_color: Color32::from_rgb(0x8B, 0xAC, 0x0F),
+                segment_on_stroke: Stroke::none(),
+                segment_off_stroke: Stroke::none(),
+            },
+            SevenSegmentStylePreset::KnightRider => SevenSegmentStyle {
+                background_color: Color32::from_rgb(0x10, 0x00, 0x00),
+                segment_on_color: Color32::from_rgb(0xC8, 0x00, 0x00),
+                segment_off_color: Color32::from_rgb(0x20, 0x00, 0x00),
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
@@ -155,18 +196,23 @@ impl<'a> SevenSegmentWidget<'a> {
         self
     }
 
-    pub fn style_preset(mut self, preset: SevenSegmentStylePreset) -> Self {
-        self.style = preset.style();
-        self
-    }
-
     pub fn style(mut self, style: SevenSegmentStyle) -> Self {
         self.style = style;
         self
     }
 
+    pub fn style_preset(mut self, preset: SevenSegmentStylePreset) -> Self {
+        self.style = preset.style();
+        self
+    }
+
     pub fn metrics(mut self, metrics: SevenSegmentMetrics<'a>) -> Self {
         self.metrics = metrics;
+        self
+    }
+
+    pub fn metrics_preset(mut self, preset: SevenSegmentMetricsPreset) -> Self {
+        self.metrics = preset.metrics();
         self
     }
 }
