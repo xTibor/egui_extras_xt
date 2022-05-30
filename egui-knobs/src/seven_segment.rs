@@ -26,65 +26,77 @@ pub const DEFAULT_FONT: SevenSegmentFont = [
 // ----------------------------------------------------------------------------
 
 #[derive(Copy, Clone)]
-pub struct SevenSegmentStyle<'a> {
-    // Segment metrics
+pub struct SevenSegmentMetrics<'a> {
     pub segment_spacing: f32,
     pub segment_thickness: f32,
 
-    // Digit metrics
     pub digit_median: f32,
     pub digit_ratio: f32,
     pub digit_shearing: f32,
     pub digit_spacing: f32,
-
-    // Widget metrics
-    pub margin_horizontal: f32,
-    pub margin_vertical: f32,
-
-    // Segment appearance
-    pub segment_on_color: Color32,
-    pub segment_on_stroke: Stroke,
-    pub segment_off_color: Color32,
-    pub segment_off_stroke: Stroke,
-
-    // Digit appearance
     pub digit_font: &'a SevenSegmentFont,
 
-    // Widget appearance
-    pub background_color: Color32,
+    pub margin_horizontal: f32,
+    pub margin_vertical: f32,
+}
+
+impl Default for SevenSegmentMetrics<'_> {
+    fn default() -> Self {
+        Self {
+            segment_spacing: 0.02,
+            segment_thickness: 0.1,
+            digit_median: -0.05,
+            digit_ratio: 0.5,
+            digit_shearing: 0.1,
+            digit_spacing: 0.2,
+            digit_font: &DEFAULT_FONT,
+            margin_horizontal: 0.2,
+            margin_vertical: 0.1,
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
 
-pub enum SevenSegmentPreset {
+#[derive(Copy, Clone)]
+pub struct SevenSegmentStyle {
+    pub background_color: Color32,
+    pub segment_on_color: Color32,
+    pub segment_off_color: Color32,
+    pub segment_on_stroke: Stroke,
+    pub segment_off_stroke: Stroke,
+}
+
+// ----------------------------------------------------------------------------
+
+pub enum SevenSegmentStylePreset {
     Default,
+    Calculator,
     DeLoreanRed,
     DeLoreanGreen,
     DeLoreanAmber,
 }
 
-impl SevenSegmentPreset {
-    pub fn style<'a>(&self) -> SevenSegmentStyle<'a> {
+impl SevenSegmentStylePreset {
+    pub fn style(&self) -> SevenSegmentStyle {
         match *self {
-            SevenSegmentPreset::Default => SevenSegmentStyle {
-                segment_spacing: 0.02,
-                segment_thickness: 0.1,
-                digit_median: -0.05,
-                digit_ratio: 0.5,
-                digit_shearing: 0.1,
-                digit_spacing: 0.2,
-                margin_horizontal: 0.2,
-                margin_vertical: 0.1,
-                segment_on_color: Color32::from_rgb(0x00, 0xF0, 0x00),
-                segment_on_stroke: Stroke::none(),
-                segment_off_color: Color32::from_rgb(0x00, 0x30, 0x00),
-                segment_off_stroke: Stroke::none(),
-                digit_font: &DEFAULT_FONT,
+            SevenSegmentStylePreset::Default => SevenSegmentStyle {
                 background_color: Color32::from_rgb(0x0, 0x20, 0x00),
+                segment_on_color: Color32::from_rgb(0x00, 0xF0, 0x00),
+                segment_off_color: Color32::from_rgb(0x00, 0x30, 0x00),
+                segment_on_stroke: Stroke::none(),
+                segment_off_stroke: Stroke::none(),
             },
-            SevenSegmentPreset::DeLoreanRed => todo!(),
-            SevenSegmentPreset::DeLoreanGreen => todo!(),
-            SevenSegmentPreset::DeLoreanAmber => todo!(),
+            SevenSegmentStylePreset::Calculator => SevenSegmentStyle {
+                background_color: Color32::from_rgb(0xC5, 0xCB, 0xB6),
+                segment_on_color: Color32::from_rgb(0x00, 0x00, 0x00),
+                segment_off_color: Color32::from_rgb(0xB9, 0xBE, 0xAB),
+                segment_on_stroke: Stroke::none(),
+                segment_off_stroke: Stroke::none(),
+            },
+            SevenSegmentStylePreset::DeLoreanRed => todo!(),
+            SevenSegmentStylePreset::DeLoreanGreen => todo!(),
+            SevenSegmentStylePreset::DeLoreanAmber => todo!(),
         }
     }
 }
@@ -96,7 +108,8 @@ pub struct SevenSegmentWidget<'a> {
     display_string: String,
     digit_count: usize,
     digit_height: f32,
-    style: SevenSegmentStyle<'a>,
+    metrics: SevenSegmentMetrics<'a>,
+    style: SevenSegmentStyle,
 }
 
 impl<'a> SevenSegmentWidget<'a> {
@@ -105,7 +118,8 @@ impl<'a> SevenSegmentWidget<'a> {
             display_string: String::new(),
             digit_count: 0,
             digit_height: 48.0,
-            style: SevenSegmentPreset::Default.style(),
+            metrics: SevenSegmentMetrics::default(),
+            style: SevenSegmentStylePreset::Default.style(),
         }
     }
 
@@ -130,13 +144,18 @@ impl<'a> SevenSegmentWidget<'a> {
         self
     }
 
-    pub fn preset(mut self, preset: SevenSegmentPreset) -> Self {
+    pub fn style_preset(mut self, preset: SevenSegmentStylePreset) -> Self {
         self.style = preset.style();
         self
     }
 
-    pub fn style(mut self, style: SevenSegmentStyle<'a>) -> Self {
+    pub fn style(mut self, style: SevenSegmentStyle) -> Self {
         self.style = style;
+        self
+    }
+
+    pub fn metrics(mut self, metrics: SevenSegmentMetrics<'a>) -> Self {
+        self.metrics = metrics;
         self
     }
 }
@@ -144,16 +163,16 @@ impl<'a> SevenSegmentWidget<'a> {
 impl<'a> Widget for SevenSegmentWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
         let digit_height = self.digit_height;
-        let digit_width = digit_height * self.style.digit_ratio;
+        let digit_width = digit_height * self.metrics.digit_ratio;
 
         // Turn relative metrics to absolute metrics
-        let segment_thickness = self.style.segment_thickness * digit_height;
-        let segment_spacing = self.style.segment_spacing * digit_height;
-        let digit_shearing = self.style.digit_shearing * digit_width;
-        let digit_spacing = self.style.digit_spacing * digit_width;
-        let margin_horizontal = self.style.margin_horizontal * digit_width;
-        let margin_vertical = self.style.margin_vertical * digit_height;
-        let digit_median = self.style.digit_median * (digit_height / 2.0);
+        let segment_thickness = self.metrics.segment_thickness * digit_height;
+        let segment_spacing = self.metrics.segment_spacing * digit_height;
+        let digit_shearing = self.metrics.digit_shearing * digit_width;
+        let digit_spacing = self.metrics.digit_spacing * digit_width;
+        let margin_horizontal = self.metrics.margin_horizontal * digit_width;
+        let margin_vertical = self.metrics.margin_vertical * digit_height;
+        let digit_median = self.metrics.digit_median * (digit_height / 2.0);
 
         let desired_size = vec2(
             (digit_width * self.digit_count as f32)
@@ -251,7 +270,7 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
 
         for (digit_index, digit_char) in self.display_string.chars().enumerate() {
             let digit_bits = if digit_char.is_ascii() {
-                self.style.digit_font[digit_char as usize]
+                self.metrics.digit_font[digit_char as usize]
             } else {
                 0x00
             };

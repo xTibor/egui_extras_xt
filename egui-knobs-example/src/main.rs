@@ -7,7 +7,8 @@ use itertools::Itertools;
 
 use egui_knobs::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, Orientation,
-    SevenSegmentPreset, SevenSegmentStyle, SevenSegmentWidget, WidgetShape, Winding, WrapMode,
+    SevenSegmentMetrics, SevenSegmentStyle, SevenSegmentStylePreset, SevenSegmentWidget,
+    WidgetShape, Winding, WrapMode,
 };
 
 struct EguiKnobsExampleApp<'a> {
@@ -37,7 +38,8 @@ struct EguiKnobsExampleApp<'a> {
     // SevenSegmentWidget
     seven_segment_display_string: String,
     seven_segment_digit_height: f32,
-    seven_segment_style: SevenSegmentStyle<'a>,
+    seven_segment_style: SevenSegmentStyle,
+    seven_segment_metrics: SevenSegmentMetrics<'a>,
 }
 
 impl Default for EguiKnobsExampleApp<'_> {
@@ -69,7 +71,8 @@ impl Default for EguiKnobsExampleApp<'_> {
             // SevenSegmentWidget
             seven_segment_display_string: String::from("12345 HELLO"),
             seven_segment_digit_height: 128.0,
-            seven_segment_style: SevenSegmentPreset::Default.style(),
+            seven_segment_style: SevenSegmentStylePreset::Calculator.style(),
+            seven_segment_metrics: SevenSegmentMetrics::default(),
         }
     }
 }
@@ -213,15 +216,15 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
                 ui.add_space(8.0);
 
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_style.segment_thickness,
+                    &mut self.seven_segment_metrics.segment_thickness,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_style.segment_spacing,
+                    &mut self.seven_segment_metrics.segment_spacing,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_style.digit_shearing,
+                    &mut self.seven_segment_metrics.digit_shearing,
                     -1.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
@@ -229,23 +232,23 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
                     16.0..=256.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_style.digit_ratio,
+                    &mut self.seven_segment_metrics.digit_ratio,
                     0.25..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_style.digit_spacing,
+                    &mut self.seven_segment_metrics.digit_spacing,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_style.digit_median,
+                    &mut self.seven_segment_metrics.digit_median,
                     -1.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_style.margin_horizontal,
+                    &mut self.seven_segment_metrics.margin_horizontal,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_style.margin_vertical,
+                    &mut self.seven_segment_metrics.margin_vertical,
                     0.0..=1.0,
                 ));
 
@@ -284,7 +287,8 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
                         .display_string(&self.seven_segment_display_string)
                         .digit_count(11)
                         .digit_height(self.seven_segment_digit_height)
-                        .style(self.seven_segment_style),
+                        .style(self.seven_segment_style)
+                        .metrics(self.seven_segment_metrics),
                 );
 
                 ui.add_space(8.0);

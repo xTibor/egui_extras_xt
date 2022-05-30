@@ -9,5 +9,6 @@ pub use audio_knob::AudioKnob;
 pub use common::{Orientation, WidgetShape, WidgetShapeFn, Winding, WrapMode};
 pub use compass_widget::{CompassMarker, CompassMarkerShape, CompassWidget};
 pub use seven_segment::{
-    SevenSegmentFont, SevenSegmentPreset, SevenSegmentStyle, SevenSegmentWidget,
+    SevenSegmentFont, SevenSegmentMetrics, SevenSegmentStyle, SevenSegmentStylePreset,
+    SevenSegmentWidget,
 };
