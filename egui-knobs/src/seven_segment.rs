@@ -38,6 +38,8 @@ pub struct SevenSegmentMetrics<'a> {
 
     pub margin_horizontal: f32,
     pub margin_vertical: f32,
+
+    pub colon_separation: f32,
 }
 
 impl Default for SevenSegmentMetrics<'_> {
@@ -48,10 +50,11 @@ impl Default for SevenSegmentMetrics<'_> {
             digit_median: -0.05,
             digit_ratio: 0.5,
             digit_shearing: 0.1,
-            digit_spacing: 0.2,
+            digit_spacing: 0.35,
             digit_font: &DEFAULT_FONT,
-            margin_horizontal: 0.2,
+            margin_horizontal: 0.3,
             margin_vertical: 0.1,
+            colon_separation: 0.25,
         }
     }
 }
@@ -181,6 +184,7 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
         let margin_horizontal = self.metrics.margin_horizontal * digit_width;
         let margin_vertical = self.metrics.margin_vertical * digit_height;
         let digit_median = self.metrics.digit_median * (digit_height / 2.0);
+        let colon_separation = self.metrics.colon_separation * (digit_height / 2.0);
 
         let desired_size = vec2(
             (digit_width * self.digit_count as f32)
@@ -262,6 +266,20 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
                 ],
             ];
 
+            #[rustfmt::skip]
+            let apostrophe_points: Vec<Pos2> = vec![
+                p(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
+                p(-(digit_width / 2.0) - (digit_spacing / 2.0) + (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
+                p(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0) + (segment_thickness * 2.0)),
+            ];
+
+            #[rustfmt::skip]
+            let (colon_top_pos, colon_bottom_pos, dot_pos) = (
+                p(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median - colon_separation),
+                p(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median + colon_separation),
+                p( (digit_width / 2.0) + (digit_spacing / 2.0), (digit_height / 2.0) - (segment_thickness / 2.0))
+            );
+
             for (segment_index, segment_points) in segment_points.iter().enumerate() {
                 let segment_on = ((digit_bits >> segment_index) & 0x01) != 0x00;
 
@@ -274,6 +292,33 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
                 ui.painter()
                     .add(Shape::convex_polygon(segment_points.to_vec(), fill, stroke));
             }
+
+            ui.painter().circle(
+                colon_top_pos,
+                segment_thickness / 2.0,
+                self.style.segment_off_color,
+                self.style.segment_off_stroke,
+            );
+
+            ui.painter().circle(
+                colon_bottom_pos,
+                segment_thickness / 2.0,
+                self.style.segment_off_color,
+                self.style.segment_off_stroke,
+            );
+
+            ui.painter().circle(
+                dot_pos,
+                segment_thickness / 2.0,
+                self.style.segment_off_color,
+                self.style.segment_off_stroke,
+            );
+
+            ui.painter().add(Shape::convex_polygon(
+                apostrophe_points.to_vec(),
+                self.style.segment_off_color,
+                self.style.segment_off_stroke,
+            ));
         };
 
         for (digit_index, digit_char) in self.display_string.chars().enumerate() {

@@ -251,6 +251,10 @@ impl eframe::App for EguiKnobsExampleApp<'_> {
                     &mut self.seven_segment_metrics.margin_vertical,
                     0.0..=1.0,
                 ));
+                ui.add(egui::Slider::new(
+                    &mut self.seven_segment_metrics.colon_separation,
+                    0.0..=1.0,
+                ));
 
                 ui.color_edit_button_srgba(&mut self.seven_segment_style.background_color);
 
