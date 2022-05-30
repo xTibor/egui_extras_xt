@@ -71,7 +71,7 @@ impl Default for EguiKnobsExampleApp<'_> {
             // SevenSegmentWidget
             seven_segment_display_string: String::from("12345 HELLO"),
             seven_segment_digit_height: 128.0,
-            seven_segment_style: SevenSegmentStylePreset::Calculator.style(),
+            seven_segment_style: SevenSegmentStylePreset::NintendoGameBoy.style(),
             seven_segment_metrics: SevenSegmentMetrics::default(),
         }
     }

@@ -72,6 +72,7 @@ pub struct SevenSegmentStyle {
 pub enum SevenSegmentStylePreset {
     Default,
     Calculator,
+    NintendoGameBoy,
     DeLoreanRed,
     DeLoreanGreen,
     DeLoreanAmber,
@@ -91,6 +92,13 @@ impl SevenSegmentStylePreset {
                 background_color: Color32::from_rgb(0xC5, 0xCB, 0xB6),
                 segment_on_color: Color32::from_rgb(0x00, 0x00, 0x00),
                 segment_off_color: Color32::from_rgb(0xB9, 0xBE, 0xAB),
+                segment_on_stroke: Stroke::none(),
+                segment_off_stroke: Stroke::none(),
+            },
+            SevenSegmentStylePreset::NintendoGameBoy => SevenSegmentStyle {
+                background_color: Color32::from_rgb(0x9B, 0xBC, 0x0F),
+                segment_on_color: Color32::from_rgb(0x0F, 0x38, 0x0F),
+                segment_off_color: Color32::from_rgb(0x8B, 0xAC, 0x0F),
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
