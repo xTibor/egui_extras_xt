@@ -327,8 +327,12 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
-        ui.painter()
-            .rect(rect, 0.0, self.style.background_color, Stroke::none());
+        ui.painter().rect(
+            rect,
+            ui.style().visuals.noninteractive().rounding,
+            self.style.background_color,
+            Stroke::none(),
+        );
 
         let paint_digit = |digit: &SevenSegmentDigit, digit_center: Pos2| {
             let p = |dx, dy| {
