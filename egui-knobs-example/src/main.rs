@@ -11,7 +11,7 @@ use egui_knobs::{
     WidgetShape, Winding, WrapMode,
 };
 
-struct EguiKnobsExampleApp<'a> {
+struct EguiKnobsExampleApp {
     // Common properties
     common_orientation: Orientation,
     common_winding: Winding,
@@ -39,10 +39,10 @@ struct EguiKnobsExampleApp<'a> {
     seven_segment_display_string: String,
     seven_segment_digit_height: f32,
     seven_segment_style: SevenSegmentStyle,
-    seven_segment_metrics: SevenSegmentMetrics<'a>,
+    seven_segment_metrics: SevenSegmentMetrics,
 }
 
-impl Default for EguiKnobsExampleApp<'_> {
+impl Default for EguiKnobsExampleApp {
     fn default() -> Self {
         Self {
             // Common properties
@@ -77,7 +77,7 @@ impl Default for EguiKnobsExampleApp<'_> {
     }
 }
 
-impl eframe::App for EguiKnobsExampleApp<'_> {
+impl eframe::App for EguiKnobsExampleApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {

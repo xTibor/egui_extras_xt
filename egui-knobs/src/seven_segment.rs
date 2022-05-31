@@ -26,7 +26,7 @@ pub const DEFAULT_FONT: SevenSegmentFont = [
 // ----------------------------------------------------------------------------
 
 #[derive(Copy, Clone)]
-pub struct SevenSegmentMetrics<'a> {
+pub struct SevenSegmentMetrics {
     pub segment_spacing: f32,
     pub segment_thickness: f32,
 
@@ -34,7 +34,6 @@ pub struct SevenSegmentMetrics<'a> {
     pub digit_ratio: f32,
     pub digit_shearing: f32,
     pub digit_spacing: f32,
-    pub digit_font: &'a SevenSegmentFont,
 
     pub margin_horizontal: f32,
     pub margin_vertical: f32,
@@ -42,7 +41,7 @@ pub struct SevenSegmentMetrics<'a> {
     pub colon_separation: f32,
 }
 
-impl Default for SevenSegmentMetrics<'_> {
+impl Default for SevenSegmentMetrics {
     fn default() -> Self {
         SevenSegmentMetricsPreset::Default.metrics()
     }
@@ -57,7 +56,7 @@ pub enum SevenSegmentMetricsPreset {
 }
 
 impl SevenSegmentMetricsPreset {
-    pub fn metrics<'a>(&self) -> SevenSegmentMetrics<'a> {
+    pub fn metrics(&self) -> SevenSegmentMetrics {
         match *self {
             SevenSegmentMetricsPreset::Default => SevenSegmentMetrics {
                 segment_spacing: 0.02,
@@ -66,7 +65,6 @@ impl SevenSegmentMetricsPreset {
                 digit_ratio: 0.5,
                 digit_shearing: 0.1,
                 digit_spacing: 0.35,
-                digit_font: &DEFAULT_FONT,
                 margin_horizontal: 0.3,
                 margin_vertical: 0.1,
                 colon_separation: 0.25,
@@ -78,7 +76,6 @@ impl SevenSegmentMetricsPreset {
                 digit_ratio: 1.0,
                 digit_shearing: 0.1,
                 digit_spacing: 0.20,
-                digit_font: &DEFAULT_FONT,
                 margin_horizontal: 0.3,
                 margin_vertical: 0.1,
                 colon_separation: 0.25,
@@ -123,7 +120,7 @@ impl SevenSegmentStylePreset {
     pub fn style(&self) -> SevenSegmentStyle {
         match *self {
             SevenSegmentStylePreset::Default => SevenSegmentStyle {
-                background_color: Color32::from_rgb(0x0, 0x20, 0x00),
+                background_color: Color32::from_rgb(0x00, 0x20, 0x00),
                 segment_on_color: Color32::from_rgb(0x00, 0xF0, 0x00),
                 segment_off_color: Color32::from_rgb(0x00, 0x30, 0x00),
                 segment_on_stroke: Stroke::none(),
@@ -178,8 +175,9 @@ pub struct SevenSegmentWidget<'a> {
     display_string: String,
     digit_count: usize,
     digit_height: f32,
-    metrics: SevenSegmentMetrics<'a>,
+    metrics: SevenSegmentMetrics,
     style: SevenSegmentStyle,
+    font: &'a SevenSegmentFont,
 }
 
 impl<'a> SevenSegmentWidget<'a> {
@@ -190,6 +188,7 @@ impl<'a> SevenSegmentWidget<'a> {
             digit_height: 48.0,
             metrics: SevenSegmentMetrics::default(),
             style: SevenSegmentStylePreset::Default.style(),
+            font: &DEFAULT_FONT,
         }
     }
 
@@ -224,13 +223,18 @@ impl<'a> SevenSegmentWidget<'a> {
         self
     }
 
-    pub fn metrics(mut self, metrics: SevenSegmentMetrics<'a>) -> Self {
+    pub fn metrics(mut self, metrics: SevenSegmentMetrics) -> Self {
         self.metrics = metrics;
         self
     }
 
     pub fn metrics_preset(mut self, preset: SevenSegmentMetricsPreset) -> Self {
         self.metrics = preset.metrics();
+        self
+    }
+
+    pub fn font(mut self, font: &'a SevenSegmentFont) -> Self {
+        self.font = font;
         self
     }
 }
@@ -387,7 +391,7 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
 
         for (digit_index, digit_char) in self.display_string.chars().enumerate() {
             let digit_bits = if digit_char.is_ascii() {
-                self.metrics.digit_font[digit_char as usize]
+                self.font[digit_char as usize]
             } else {
                 0x00
             };
