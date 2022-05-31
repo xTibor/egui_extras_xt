@@ -40,6 +40,9 @@ struct EguiKnobsExampleApp {
     seven_segment_digit_height: f32,
     seven_segment_style: SevenSegmentStyle,
     seven_segment_metrics: SevenSegmentMetrics,
+    seven_segment_show_dots: bool,
+    seven_segment_show_colons: bool,
+    seven_segment_show_apostrophes: bool,
 }
 
 impl Default for EguiKnobsExampleApp {
@@ -69,10 +72,13 @@ impl Default for EguiKnobsExampleApp {
             compass_widget_show_cursor: true,
 
             // SevenSegmentWidget
-            seven_segment_display_string: String::from("12345 HELLO"),
+            seven_segment_display_string: String::from("12.34:5' HELLO"),
             seven_segment_digit_height: 128.0,
             seven_segment_style: SevenSegmentStylePreset::NintendoGameBoy.style(),
             seven_segment_metrics: SevenSegmentMetrics::default(),
+            seven_segment_show_dots: true,
+            seven_segment_show_colons: true,
+            seven_segment_show_apostrophes: true,
         }
     }
 }
@@ -280,6 +286,12 @@ impl eframe::App for EguiKnobsExampleApp {
                     ui.color_edit_button_srgba(&mut self.seven_segment_style.segment_off_color);
                 });
 
+                ui.horizontal(|ui| {
+                    ui.toggle_value(&mut self.seven_segment_show_dots, "Dots");
+                    ui.toggle_value(&mut self.seven_segment_show_colons, "Colons");
+                    ui.toggle_value(&mut self.seven_segment_show_apostrophes, "Apostrophes");
+                });
+
                 ui.add(egui::TextEdit::singleline(
                     &mut self.seven_segment_display_string,
                 ));
@@ -291,6 +303,9 @@ impl eframe::App for EguiKnobsExampleApp {
                         .style(self.seven_segment_style)
                         .metrics(self.seven_segment_metrics)
                         .digit_height(self.seven_segment_digit_height)
+                        .show_dots(self.seven_segment_show_dots)
+                        .show_colons(self.seven_segment_show_colons)
+                        .show_apostrophes(self.seven_segment_show_apostrophes)
                         .push_string(&self.seven_segment_display_string),
                 );
 

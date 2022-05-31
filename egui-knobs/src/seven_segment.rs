@@ -206,6 +206,9 @@ pub struct SevenSegmentWidget<'a> {
     metrics: SevenSegmentMetrics,
     style: SevenSegmentStyle,
     font: &'a SevenSegmentFont,
+    show_dots: bool,
+    show_colons: bool,
+    show_apostrophes: bool,
 }
 
 impl<'a> SevenSegmentWidget<'a> {
@@ -216,6 +219,9 @@ impl<'a> SevenSegmentWidget<'a> {
             metrics: SevenSegmentMetrics::default(),
             style: SevenSegmentStylePreset::Default.style(),
             font: &DEFAULT_FONT,
+            show_dots: true,
+            show_colons: true,
+            show_apostrophes: true,
         }
     }
 
@@ -268,6 +274,21 @@ impl<'a> SevenSegmentWidget<'a> {
 
     pub fn font(mut self, font: &'a SevenSegmentFont) -> Self {
         self.font = font;
+        self
+    }
+
+    pub fn show_dots(mut self, show_dots: bool) -> Self {
+        self.show_dots = show_dots;
+        self
+    }
+
+    pub fn show_colons(mut self, show_colons: bool) -> Self {
+        self.show_colons = show_colons;
+        self
+    }
+
+    pub fn show_apostrophes(mut self, show_apostrophes: bool) -> Self {
+        self.show_apostrophes = show_apostrophes;
         self
     }
 }
@@ -391,32 +412,38 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
                 ));
             }
 
-            ui.painter().circle(
-                colon_top_pos,
-                segment_thickness / 2.0,
-                self.style.segment_color(digit.colon),
-                self.style.segment_stroke(digit.colon),
-            );
+            if self.show_dots {
+                ui.painter().circle(
+                    dot_pos,
+                    segment_thickness / 2.0,
+                    self.style.segment_color(digit.dot),
+                    self.style.segment_stroke(digit.dot),
+                );
+            }
 
-            ui.painter().circle(
-                colon_bottom_pos,
-                segment_thickness / 2.0,
-                self.style.segment_color(digit.colon),
-                self.style.segment_stroke(digit.colon),
-            );
+            if self.show_colons {
+                ui.painter().circle(
+                    colon_top_pos,
+                    segment_thickness / 2.0,
+                    self.style.segment_color(digit.colon),
+                    self.style.segment_stroke(digit.colon),
+                );
 
-            ui.painter().circle(
-                dot_pos,
-                segment_thickness / 2.0,
-                self.style.segment_color(digit.dot),
-                self.style.segment_stroke(digit.dot),
-            );
+                ui.painter().circle(
+                    colon_bottom_pos,
+                    segment_thickness / 2.0,
+                    self.style.segment_color(digit.colon),
+                    self.style.segment_stroke(digit.colon),
+                );
+            }
 
-            ui.painter().add(Shape::convex_polygon(
-                apostrophe_points.to_vec(),
-                self.style.segment_color(digit.apostrophe),
-                self.style.segment_stroke(digit.apostrophe),
-            ));
+            if self.show_apostrophes {
+                ui.painter().add(Shape::convex_polygon(
+                    apostrophe_points.to_vec(),
+                    self.style.segment_color(digit.apostrophe),
+                    self.style.segment_stroke(digit.apostrophe),
+                ));
+            }
         };
 
         for (digit_index, digit) in self.digits.iter().enumerate() {
