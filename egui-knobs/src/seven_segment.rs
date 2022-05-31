@@ -1,5 +1,7 @@
 use egui::{vec2, Color32, Pos2, Response, Sense, Shape, Stroke, Ui, Widget};
 
+use itertools::Itertools;
+
 // ----------------------------------------------------------------------------
 
 pub type SevenSegmentFont = [u8; 128];
@@ -95,6 +97,24 @@ pub struct SevenSegmentStyle {
     pub segment_off_stroke: Stroke,
 }
 
+impl SevenSegmentStyle {
+    fn segment_color(&self, active: bool) -> Color32 {
+        if active {
+            self.segment_on_color
+        } else {
+            self.segment_off_color
+        }
+    }
+
+    fn segment_stroke(&self, active: bool) -> Stroke {
+        if active {
+            self.segment_on_stroke
+        } else {
+            self.segment_off_stroke
+        }
+    }
+}
+
 impl Default for SevenSegmentStyle {
     fn default() -> Self {
         SevenSegmentStylePreset::Default.style()
@@ -170,10 +190,18 @@ impl SevenSegmentStylePreset {
 
 // ----------------------------------------------------------------------------
 
+struct SevenSegmentDigit {
+    segments: u8,
+    dot: bool,
+    colon: bool,
+    apostrophe: bool,
+}
+
+// ----------------------------------------------------------------------------
+
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct SevenSegmentWidget<'a> {
-    display_string: String,
-    digit_count: usize,
+    digits: Vec<SevenSegmentDigit>,
     digit_height: f32,
     metrics: SevenSegmentMetrics,
     style: SevenSegmentStyle,
@@ -183,8 +211,7 @@ pub struct SevenSegmentWidget<'a> {
 impl<'a> SevenSegmentWidget<'a> {
     pub fn new() -> Self {
         Self {
-            display_string: String::new(),
-            digit_count: 0,
+            digits: Vec::new(),
             digit_height: 48.0,
             metrics: SevenSegmentMetrics::default(),
             style: SevenSegmentStylePreset::Default.style(),
@@ -192,19 +219,25 @@ impl<'a> SevenSegmentWidget<'a> {
         }
     }
 
-    pub fn from_string(display_string: &str) -> Self {
-        Self::new()
-            .display_string(display_string)
-            .digit_count(display_string.len())
-    }
-
-    pub fn display_string(mut self, display_string: &str) -> Self {
-        self.display_string = display_string.to_string();
-        self
-    }
-
-    pub fn digit_count(mut self, digit_count: usize) -> Self {
-        self.digit_count = digit_count;
+    pub fn push_string(mut self, value: &str) -> Self {
+        self.digits.extend(
+            [None]
+                .into_iter()
+                .chain(value.chars().map(|e| Some(e)))
+                .chain([None])
+                .tuple_windows()
+                .map(|(prev, curr, next)| (prev, curr.unwrap(), next))
+                .flat_map(|(prev, curr, next)| match curr {
+                    '.' | ':' | '\'' => None,
+                    c if c.is_ascii() => Some(SevenSegmentDigit {
+                        segments: self.font[c as usize],
+                        dot: next == Some('.'),
+                        colon: prev == Some(':'),
+                        apostrophe: prev == Some('\''),
+                    }),
+                    _ => None,
+                }),
+        );
         self
     }
 
@@ -255,8 +288,8 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
         let colon_separation = self.metrics.colon_separation * (digit_height / 2.0);
 
         let desired_size = vec2(
-            (digit_width * self.digit_count as f32)
-                + (digit_spacing * (self.digit_count - 1) as f32)
+            (digit_width * self.digits.len() as f32)
+                + (digit_spacing * (self.digits.len().saturating_sub(1)) as f32)
                 + (2.0 * margin_horizontal)
                 + (2.0 * digit_shearing.abs()),
             digit_height + (2.0 * margin_vertical),
@@ -267,7 +300,7 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
         ui.painter()
             .rect(rect, 0.0, self.style.background_color, Stroke::none());
 
-        let paint_digit = |digit_bits: u8, digit_center: Pos2| {
+        let paint_digit = |digit: &SevenSegmentDigit, digit_center: Pos2| {
             let p = |dx, dy| {
                 digit_center + vec2(dx, dy)
                     - vec2((dy / (digit_height / 2.0)) * digit_shearing, 0.0)
@@ -349,53 +382,44 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
             );
 
             for (segment_index, segment_points) in segment_points.iter().enumerate() {
-                let segment_on = ((digit_bits >> segment_index) & 0x01) != 0x00;
+                let segment_on = ((digit.segments >> segment_index) & 0x01) != 0x00;
 
-                let (fill, stroke) = if segment_on {
-                    (self.style.segment_on_color, self.style.segment_on_stroke)
-                } else {
-                    (self.style.segment_off_color, self.style.segment_off_stroke)
-                };
-
-                ui.painter()
-                    .add(Shape::convex_polygon(segment_points.to_vec(), fill, stroke));
+                ui.painter().add(Shape::convex_polygon(
+                    segment_points.to_vec(),
+                    self.style.segment_color(segment_on),
+                    self.style.segment_stroke(segment_on),
+                ));
             }
 
             ui.painter().circle(
                 colon_top_pos,
                 segment_thickness / 2.0,
-                self.style.segment_off_color,
-                self.style.segment_off_stroke,
+                self.style.segment_color(digit.colon),
+                self.style.segment_stroke(digit.colon),
             );
 
             ui.painter().circle(
                 colon_bottom_pos,
                 segment_thickness / 2.0,
-                self.style.segment_off_color,
-                self.style.segment_off_stroke,
+                self.style.segment_color(digit.colon),
+                self.style.segment_stroke(digit.colon),
             );
 
             ui.painter().circle(
                 dot_pos,
                 segment_thickness / 2.0,
-                self.style.segment_off_color,
-                self.style.segment_off_stroke,
+                self.style.segment_color(digit.dot),
+                self.style.segment_stroke(digit.dot),
             );
 
             ui.painter().add(Shape::convex_polygon(
                 apostrophe_points.to_vec(),
-                self.style.segment_off_color,
-                self.style.segment_off_stroke,
+                self.style.segment_color(digit.apostrophe),
+                self.style.segment_stroke(digit.apostrophe),
             ));
         };
 
-        for (digit_index, digit_char) in self.display_string.chars().enumerate() {
-            let digit_bits = if digit_char.is_ascii() {
-                self.font[digit_char as usize]
-            } else {
-                0x00
-            };
-
+        for (digit_index, digit) in self.digits.iter().enumerate() {
             let digit_center = rect.left_center()
                 + vec2(
                     margin_horizontal
@@ -405,7 +429,7 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
                     0.0,
                 );
 
-            paint_digit(digit_bits, digit_center);
+            paint_digit(digit, digit_center);
         }
 
         response

@@ -288,11 +288,10 @@ impl eframe::App for EguiKnobsExampleApp {
 
                 ui.add(
                     SevenSegmentWidget::new()
-                        .display_string(&self.seven_segment_display_string)
-                        .digit_count(11)
-                        .digit_height(self.seven_segment_digit_height)
                         .style(self.seven_segment_style)
-                        .metrics(self.seven_segment_metrics),
+                        .metrics(self.seven_segment_metrics)
+                        .digit_height(self.seven_segment_digit_height)
+                        .push_string(&self.seven_segment_display_string),
                 );
 
                 ui.add_space(8.0);
