@@ -113,6 +113,16 @@ impl SevenSegmentStyle {
             self.segment_off_stroke
         }
     }
+
+    pub fn system_style(ui: &Ui) -> Self {
+        SevenSegmentStyle {
+            background_color: Color32::TRANSPARENT,
+            segment_on_color: ui.style().visuals.text_color(),
+            segment_off_color: ui.style().visuals.faint_bg_color,
+            segment_on_stroke: Stroke::none(),
+            segment_off_stroke: Stroke::none(),
+        }
+    }
 }
 
 impl Default for SevenSegmentStyle {
