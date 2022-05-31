@@ -232,10 +232,9 @@ impl<'a> SevenSegmentWidget<'a> {
                 .chain(value.chars().map(|e| Some(e)))
                 .chain([None])
                 .tuple_windows()
-                .map(|(prev, curr, next)| (prev, curr.unwrap(), next))
                 .flat_map(|(prev, curr, next)| match curr {
-                    '.' | ':' | '\'' => None,
-                    c if c.is_ascii() => Some(SevenSegmentDigit {
+                    Some('.') | Some(':') | Some('\'') => None,
+                    Some(c) if c.is_ascii() => Some(SevenSegmentDigit {
                         segments: self.font[c as usize],
                         dot: next == Some('.'),
                         colon: prev == Some(':'),
