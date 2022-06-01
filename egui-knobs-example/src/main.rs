@@ -7,8 +7,8 @@ use itertools::Itertools;
 
 use egui_knobs::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, Orientation,
-    SegmentedDisplayMetrics, SegmentedDisplayStyle, SegmentedDisplayStylePreset,
-    SegmentedDisplayWidget, WidgetShape, Winding, WrapMode,
+    SegmentedDisplayKind, SegmentedDisplayMetrics, SegmentedDisplayStyle,
+    SegmentedDisplayStylePreset, SegmentedDisplayWidget, WidgetShape, Winding, WrapMode,
 };
 
 struct EguiKnobsExampleApp {
@@ -299,7 +299,7 @@ impl eframe::App for EguiKnobsExampleApp {
                 ui.add_space(8.0);
 
                 ui.add(
-                    SegmentedDisplayWidget::new()
+                    SegmentedDisplayWidget::new(SegmentedDisplayKind::SevenSegment)
                         .style(self.segmented_display_style)
                         .metrics(self.segmented_display_metrics)
                         .digit_height(self.segmented_display_digit_height)
