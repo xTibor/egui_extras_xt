@@ -7,8 +7,8 @@ use itertools::Itertools;
 
 use egui_knobs::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, Orientation,
-    SevenSegmentMetrics, SevenSegmentStyle, SevenSegmentStylePreset, SevenSegmentWidget,
-    WidgetShape, Winding, WrapMode,
+    SegmentedDisplayMetrics, SegmentedDisplayStyle, SegmentedDisplayStylePreset,
+    SegmentedDisplayWidget, WidgetShape, Winding, WrapMode,
 };
 
 struct EguiKnobsExampleApp {
@@ -35,14 +35,14 @@ struct EguiKnobsExampleApp {
     compass_widget_spread: f32,
     compass_widget_show_cursor: bool,
 
-    // SevenSegmentWidget
-    seven_segment_display_string: String,
-    seven_segment_digit_height: f32,
-    seven_segment_style: SevenSegmentStyle,
-    seven_segment_metrics: SevenSegmentMetrics,
-    seven_segment_show_dots: bool,
-    seven_segment_show_colons: bool,
-    seven_segment_show_apostrophes: bool,
+    // SegmentedDisplayWidget
+    segmented_display_display_string: String,
+    segmented_display_digit_height: f32,
+    segmented_display_style: SegmentedDisplayStyle,
+    segmented_display_metrics: SegmentedDisplayMetrics,
+    segmented_display_show_dots: bool,
+    segmented_display_show_colons: bool,
+    segmented_display_show_apostrophes: bool,
 }
 
 impl Default for EguiKnobsExampleApp {
@@ -71,14 +71,14 @@ impl Default for EguiKnobsExampleApp {
             compass_widget_spread: TAU / 2.0,
             compass_widget_show_cursor: true,
 
-            // SevenSegmentWidget
-            seven_segment_display_string: String::from("12.34:5' HELLO"),
-            seven_segment_digit_height: 128.0,
-            seven_segment_style: SevenSegmentStylePreset::NintendoGameBoy.style(),
-            seven_segment_metrics: SevenSegmentMetrics::default(),
-            seven_segment_show_dots: true,
-            seven_segment_show_colons: true,
-            seven_segment_show_apostrophes: true,
+            // SegmentedDisplayWidget
+            segmented_display_display_string: String::from("12.34:5' HELLO"),
+            segmented_display_digit_height: 128.0,
+            segmented_display_style: SegmentedDisplayStylePreset::NintendoGameBoy.style(),
+            segmented_display_metrics: SegmentedDisplayMetrics::default(),
+            segmented_display_show_dots: true,
+            segmented_display_show_colons: true,
+            segmented_display_show_apostrophes: true,
         }
     }
 }
@@ -218,95 +218,95 @@ impl eframe::App for EguiKnobsExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.heading("SevenSegmentWidget");
+                ui.heading("SegmentedDisplayWidget");
                 ui.add_space(8.0);
 
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.segment_thickness,
+                    &mut self.segmented_display_metrics.segment_thickness,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.segment_spacing,
+                    &mut self.segmented_display_metrics.segment_spacing,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.digit_shearing,
+                    &mut self.segmented_display_metrics.digit_shearing,
                     -1.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_digit_height,
+                    &mut self.segmented_display_digit_height,
                     16.0..=256.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.digit_ratio,
+                    &mut self.segmented_display_metrics.digit_ratio,
                     0.25..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.digit_spacing,
+                    &mut self.segmented_display_metrics.digit_spacing,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.digit_median,
+                    &mut self.segmented_display_metrics.digit_median,
                     -1.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.margin_horizontal,
+                    &mut self.segmented_display_metrics.margin_horizontal,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.margin_vertical,
+                    &mut self.segmented_display_metrics.margin_vertical,
                     0.0..=1.0,
                 ));
                 ui.add(egui::Slider::new(
-                    &mut self.seven_segment_metrics.colon_separation,
+                    &mut self.segmented_display_metrics.colon_separation,
                     0.0..=1.0,
                 ));
 
-                ui.color_edit_button_srgba(&mut self.seven_segment_style.background_color);
+                ui.color_edit_button_srgba(&mut self.segmented_display_style.background_color);
 
                 ui.horizontal(|ui| {
                     ui.add(
-                        DragValue::new(&mut self.seven_segment_style.segment_on_stroke.width)
+                        DragValue::new(&mut self.segmented_display_style.segment_on_stroke.width)
                             .speed(0.1),
                     );
                     ui.color_edit_button_srgba(
-                        &mut self.seven_segment_style.segment_on_stroke.color,
+                        &mut self.segmented_display_style.segment_on_stroke.color,
                     );
-                    ui.color_edit_button_srgba(&mut self.seven_segment_style.segment_on_color);
+                    ui.color_edit_button_srgba(&mut self.segmented_display_style.segment_on_color);
                 });
 
                 ui.horizontal(|ui| {
                     ui.add(
-                        DragValue::new(&mut self.seven_segment_style.segment_off_stroke.width)
+                        DragValue::new(&mut self.segmented_display_style.segment_off_stroke.width)
                             .speed(0.1),
                     );
                     ui.color_edit_button_srgba(
-                        &mut self.seven_segment_style.segment_off_stroke.color,
+                        &mut self.segmented_display_style.segment_off_stroke.color,
                     );
-                    ui.color_edit_button_srgba(&mut self.seven_segment_style.segment_off_color);
+                    ui.color_edit_button_srgba(&mut self.segmented_display_style.segment_off_color);
                 });
 
                 ui.horizontal(|ui| {
-                    ui.toggle_value(&mut self.seven_segment_show_dots, "Dots");
-                    ui.toggle_value(&mut self.seven_segment_show_colons, "Colons");
-                    ui.toggle_value(&mut self.seven_segment_show_apostrophes, "Apostrophes");
+                    ui.toggle_value(&mut self.segmented_display_show_dots, "Dots");
+                    ui.toggle_value(&mut self.segmented_display_show_colons, "Colons");
+                    ui.toggle_value(&mut self.segmented_display_show_apostrophes, "Apostrophes");
                 });
 
                 ui.add(egui::TextEdit::singleline(
-                    &mut self.seven_segment_display_string,
+                    &mut self.segmented_display_display_string,
                 ));
 
                 ui.add_space(8.0);
 
                 ui.add(
-                    SevenSegmentWidget::new()
-                        .style(self.seven_segment_style)
-                        .metrics(self.seven_segment_metrics)
-                        .digit_height(self.seven_segment_digit_height)
-                        .show_dots(self.seven_segment_show_dots)
-                        .show_colons(self.seven_segment_show_colons)
-                        .show_apostrophes(self.seven_segment_show_apostrophes)
-                        .push_string(&self.seven_segment_display_string),
+                    SegmentedDisplayWidget::new()
+                        .style(self.segmented_display_style)
+                        .metrics(self.segmented_display_metrics)
+                        .digit_height(self.segmented_display_digit_height)
+                        .show_dots(self.segmented_display_show_dots)
+                        .show_colons(self.segmented_display_show_colons)
+                        .show_apostrophes(self.segmented_display_show_apostrophes)
+                        .push_string(&self.segmented_display_display_string),
                 );
 
                 ui.add_space(8.0);

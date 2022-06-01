@@ -4,9 +4,9 @@ use itertools::Itertools;
 
 // ----------------------------------------------------------------------------
 
-pub type SevenSegmentFont = [u8; 128];
+pub type SegmentedDisplayFont = [u8; 128];
 
-pub const DEFAULT_FONT: SevenSegmentFont = [
+pub const DEFAULT_FONT: SegmentedDisplayFont = [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 00-07: × × × × × × × ×
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 08-0F: × × × × × × × ×
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 10-17: × × × × × × × ×
@@ -28,7 +28,7 @@ pub const DEFAULT_FONT: SevenSegmentFont = [
 // ----------------------------------------------------------------------------
 
 #[derive(Copy, Clone)]
-pub struct SevenSegmentMetrics {
+pub struct SegmentedDisplayMetrics {
     pub segment_spacing: f32,
     pub segment_thickness: f32,
 
@@ -43,24 +43,24 @@ pub struct SevenSegmentMetrics {
     pub colon_separation: f32,
 }
 
-impl Default for SevenSegmentMetrics {
+impl Default for SegmentedDisplayMetrics {
     fn default() -> Self {
-        SevenSegmentMetricsPreset::Default.metrics()
+        SegmentedDisplayMetricsPreset::Default.metrics()
     }
 }
 
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-pub enum SevenSegmentMetricsPreset {
+pub enum SegmentedDisplayMetricsPreset {
     Default,
     KnightRider,
 }
 
-impl SevenSegmentMetricsPreset {
-    pub fn metrics(&self) -> SevenSegmentMetrics {
+impl SegmentedDisplayMetricsPreset {
+    pub fn metrics(&self) -> SegmentedDisplayMetrics {
         match *self {
-            SevenSegmentMetricsPreset::Default => SevenSegmentMetrics {
+            SegmentedDisplayMetricsPreset::Default => SegmentedDisplayMetrics {
                 segment_spacing: 0.02,
                 segment_thickness: 0.1,
                 digit_median: -0.05,
@@ -71,7 +71,7 @@ impl SevenSegmentMetricsPreset {
                 margin_vertical: 0.1,
                 colon_separation: 0.25,
             },
-            SevenSegmentMetricsPreset::KnightRider => SevenSegmentMetrics {
+            SegmentedDisplayMetricsPreset::KnightRider => SegmentedDisplayMetrics {
                 segment_spacing: 0.02,
                 segment_thickness: 0.12,
                 digit_median: -0.05,
@@ -89,7 +89,7 @@ impl SevenSegmentMetricsPreset {
 // ----------------------------------------------------------------------------
 
 #[derive(Copy, Clone)]
-pub struct SevenSegmentStyle {
+pub struct SegmentedDisplayStyle {
     pub background_color: Color32,
     pub segment_on_color: Color32,
     pub segment_off_color: Color32,
@@ -97,7 +97,7 @@ pub struct SevenSegmentStyle {
     pub segment_off_stroke: Stroke,
 }
 
-impl SevenSegmentStyle {
+impl SegmentedDisplayStyle {
     fn segment_color(&self, active: bool) -> Color32 {
         if active {
             self.segment_on_color
@@ -115,7 +115,7 @@ impl SevenSegmentStyle {
     }
 
     pub fn system_style(ui: &Ui) -> Self {
-        SevenSegmentStyle {
+        SegmentedDisplayStyle {
             background_color: Color32::TRANSPARENT,
             segment_on_color: ui.style().visuals.text_color(),
             segment_off_color: ui.style().visuals.faint_bg_color,
@@ -125,16 +125,16 @@ impl SevenSegmentStyle {
     }
 }
 
-impl Default for SevenSegmentStyle {
+impl Default for SegmentedDisplayStyle {
     fn default() -> Self {
-        SevenSegmentStylePreset::Default.style()
+        SegmentedDisplayStylePreset::Default.style()
     }
 }
 
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-pub enum SevenSegmentStylePreset {
+pub enum SegmentedDisplayStylePreset {
     Default,
     Calculator,
     NintendoGameBoy,
@@ -146,61 +146,61 @@ pub enum SevenSegmentStylePreset {
     DeLoreanAmber,
 }
 
-impl SevenSegmentStylePreset {
-    pub fn style(&self) -> SevenSegmentStyle {
+impl SegmentedDisplayStylePreset {
+    pub fn style(&self) -> SegmentedDisplayStyle {
         match *self {
-            SevenSegmentStylePreset::Default => SevenSegmentStyle {
+            SegmentedDisplayStylePreset::Default => SegmentedDisplayStyle {
                 background_color: Color32::from_rgb(0x00, 0x20, 0x00),
                 segment_on_color: Color32::from_rgb(0x00, 0xF0, 0x00),
                 segment_off_color: Color32::from_rgb(0x00, 0x30, 0x00),
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
-            SevenSegmentStylePreset::Calculator => SevenSegmentStyle {
+            SegmentedDisplayStylePreset::Calculator => SegmentedDisplayStyle {
                 background_color: Color32::from_rgb(0xC5, 0xCB, 0xB6),
                 segment_on_color: Color32::from_rgb(0x00, 0x00, 0x00),
                 segment_off_color: Color32::from_rgb(0xB9, 0xBE, 0xAB),
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
-            SevenSegmentStylePreset::NintendoGameBoy => SevenSegmentStyle {
+            SegmentedDisplayStylePreset::NintendoGameBoy => SegmentedDisplayStyle {
                 background_color: Color32::from_rgb(0x9B, 0xBC, 0x0F),
                 segment_on_color: Color32::from_rgb(0x0F, 0x38, 0x0F),
                 segment_off_color: Color32::from_rgb(0x8B, 0xAC, 0x0F),
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
-            SevenSegmentStylePreset::KnightRider => SevenSegmentStyle {
+            SegmentedDisplayStylePreset::KnightRider => SegmentedDisplayStyle {
                 background_color: Color32::from_rgb(0x10, 0x00, 0x00),
                 segment_on_color: Color32::from_rgb(0xC8, 0x00, 0x00),
                 segment_off_color: Color32::from_rgb(0x20, 0x00, 0x00),
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
-            SevenSegmentStylePreset::BlueNegative => SevenSegmentStyle {
+            SegmentedDisplayStylePreset::BlueNegative => SegmentedDisplayStyle {
                 background_color: Color32::from_rgb(0x00, 0x00, 0xFF),
                 segment_on_color: Color32::from_rgb(0xE0, 0xFF, 0xFF),
                 segment_off_color: Color32::from_rgb(0x28, 0x28, 0xFF),
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
-            SevenSegmentStylePreset::Amber => SevenSegmentStyle {
+            SegmentedDisplayStylePreset::Amber => SegmentedDisplayStyle {
                 background_color: Color32::from_rgb(0x1D, 0x12, 0x07),
                 segment_on_color: Color32::from_rgb(0xFF, 0x9A, 0x21),
                 segment_off_color: Color32::from_rgb(0x33, 0x20, 0x00),
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
-            SevenSegmentStylePreset::DeLoreanRed => todo!(),
-            SevenSegmentStylePreset::DeLoreanGreen => todo!(),
-            SevenSegmentStylePreset::DeLoreanAmber => todo!(),
+            SegmentedDisplayStylePreset::DeLoreanRed => todo!(),
+            SegmentedDisplayStylePreset::DeLoreanGreen => todo!(),
+            SegmentedDisplayStylePreset::DeLoreanAmber => todo!(),
         }
     }
 }
 
 // ----------------------------------------------------------------------------
 
-struct SevenSegmentDigit {
+struct SegmentedDisplayDigit {
     segments: u8,
     dot: bool,
     colon: bool,
@@ -210,24 +210,24 @@ struct SevenSegmentDigit {
 // ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct SevenSegmentWidget<'a> {
-    digits: Vec<SevenSegmentDigit>,
+pub struct SegmentedDisplayWidget<'a> {
+    digits: Vec<SegmentedDisplayDigit>,
     digit_height: f32,
-    metrics: SevenSegmentMetrics,
-    style: SevenSegmentStyle,
-    font: &'a SevenSegmentFont,
+    metrics: SegmentedDisplayMetrics,
+    style: SegmentedDisplayStyle,
+    font: &'a SegmentedDisplayFont,
     show_dots: bool,
     show_colons: bool,
     show_apostrophes: bool,
 }
 
-impl<'a> SevenSegmentWidget<'a> {
+impl<'a> SegmentedDisplayWidget<'a> {
     pub fn new() -> Self {
         Self {
             digits: Vec::new(),
             digit_height: 48.0,
-            metrics: SevenSegmentMetrics::default(),
-            style: SevenSegmentStylePreset::Default.style(),
+            metrics: SegmentedDisplayMetrics::default(),
+            style: SegmentedDisplayStylePreset::Default.style(),
             font: &DEFAULT_FONT,
             show_dots: true,
             show_colons: true,
@@ -244,7 +244,7 @@ impl<'a> SevenSegmentWidget<'a> {
                 .tuple_windows()
                 .flat_map(|(prev, curr, next)| match curr {
                     Some('.') | Some(':') | Some('\'') => None,
-                    Some(c) if c.is_ascii() => Some(SevenSegmentDigit {
+                    Some(c) if c.is_ascii() => Some(SegmentedDisplayDigit {
                         segments: self.font[c as usize],
                         dot: next == Some('.'),
                         colon: prev == Some(':'),
@@ -261,27 +261,27 @@ impl<'a> SevenSegmentWidget<'a> {
         self
     }
 
-    pub fn style(mut self, style: SevenSegmentStyle) -> Self {
+    pub fn style(mut self, style: SegmentedDisplayStyle) -> Self {
         self.style = style;
         self
     }
 
-    pub fn style_preset(mut self, preset: SevenSegmentStylePreset) -> Self {
+    pub fn style_preset(mut self, preset: SegmentedDisplayStylePreset) -> Self {
         self.style = preset.style();
         self
     }
 
-    pub fn metrics(mut self, metrics: SevenSegmentMetrics) -> Self {
+    pub fn metrics(mut self, metrics: SegmentedDisplayMetrics) -> Self {
         self.metrics = metrics;
         self
     }
 
-    pub fn metrics_preset(mut self, preset: SevenSegmentMetricsPreset) -> Self {
+    pub fn metrics_preset(mut self, preset: SegmentedDisplayMetricsPreset) -> Self {
         self.metrics = preset.metrics();
         self
     }
 
-    pub fn font(mut self, font: &'a SevenSegmentFont) -> Self {
+    pub fn font(mut self, font: &'a SegmentedDisplayFont) -> Self {
         self.font = font;
         self
     }
@@ -302,7 +302,7 @@ impl<'a> SevenSegmentWidget<'a> {
     }
 }
 
-impl<'a> Widget for SevenSegmentWidget<'a> {
+impl<'a> Widget for SegmentedDisplayWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
         let digit_height = self.digit_height;
         let digit_width = digit_height * self.metrics.digit_ratio;
@@ -335,7 +335,7 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
                 Stroke::none(),
             );
 
-            let paint_digit = |digit: &SevenSegmentDigit, digit_center: Pos2| {
+            let paint_digit = |digit: &SegmentedDisplayDigit, digit_center: Pos2| {
                 let p = |dx, dy| {
                     digit_center + vec2(dx, dy)
                         - vec2((dy / (digit_height / 2.0)) * digit_shearing, 0.0)
