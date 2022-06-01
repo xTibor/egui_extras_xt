@@ -36,6 +36,7 @@ struct EguiKnobsExampleApp {
     compass_widget_show_cursor: bool,
 
     // SegmentedDisplayWidget
+    segmented_display_display_kind: SegmentedDisplayKind,
     segmented_display_display_string: String,
     segmented_display_digit_height: f32,
     segmented_display_style: SegmentedDisplayStyle,
@@ -72,6 +73,7 @@ impl Default for EguiKnobsExampleApp {
             compass_widget_show_cursor: true,
 
             // SegmentedDisplayWidget
+            segmented_display_display_kind: SegmentedDisplayKind::SevenSegment,
             segmented_display_display_string: String::from("12.34:5' HELLO"),
             segmented_display_digit_height: 128.0,
             segmented_display_style: SegmentedDisplayStylePreset::NintendoGameBoy.style(),
@@ -292,6 +294,20 @@ impl eframe::App for EguiKnobsExampleApp {
                     ui.toggle_value(&mut self.segmented_display_show_apostrophes, "Apostrophes");
                 });
 
+                ui.horizontal(|ui| {
+                    ui.selectable_value(
+                        &mut self.segmented_display_display_kind,
+                        SegmentedDisplayKind::SevenSegment,
+                        "7-segment",
+                    );
+
+                    ui.selectable_value(
+                        &mut self.segmented_display_display_kind,
+                        SegmentedDisplayKind::SixteenSegment,
+                        "16-segment",
+                    );
+                });
+
                 ui.add(egui::TextEdit::singleline(
                     &mut self.segmented_display_display_string,
                 ));
@@ -299,7 +315,7 @@ impl eframe::App for EguiKnobsExampleApp {
                 ui.add_space(8.0);
 
                 ui.add(
-                    SegmentedDisplayWidget::new(SegmentedDisplayKind::SevenSegment)
+                    SegmentedDisplayWidget::new(self.segmented_display_display_kind)
                         .style(self.segmented_display_style)
                         .metrics(self.segmented_display_metrics)
                         .digit_height(self.segmented_display_digit_height)
