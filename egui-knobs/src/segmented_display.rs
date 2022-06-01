@@ -633,6 +633,8 @@ impl<'a> Widget for SegmentedDisplayWidget<'a> {
                 for (segment_index, segment_points) in segment_points.iter().enumerate() {
                     let segment_on = ((digit.segments >> segment_index) & 0x01) != 0x00;
 
+                    // TODO: concave_polygon
+                    // https://github.com/emilk/egui/issues/513
                     ui.painter().add(Shape::convex_polygon(
                         segment_points.to_vec(),
                         self.style.segment_color(segment_on),
