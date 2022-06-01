@@ -42,7 +42,7 @@ impl SegmentedDisplayMetricsPreset {
                 segment_spacing: 0.02,
                 segment_thickness: 0.1,
                 digit_median: -0.05,
-                digit_ratio: 0.5,
+                digit_ratio: 0.7,
                 digit_shearing: 0.1,
                 digit_spacing: 0.35,
                 margin_horizontal: 0.3,

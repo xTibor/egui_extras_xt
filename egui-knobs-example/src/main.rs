@@ -73,7 +73,7 @@ impl Default for EguiKnobsExampleApp {
             compass_widget_show_cursor: true,
 
             // SegmentedDisplayWidget
-            segmented_display_display_kind: SegmentedDisplayKind::SevenSegment,
+            segmented_display_display_kind: SegmentedDisplayKind::SixteenSegment,
             segmented_display_display_string: String::from("12.34:5' HELLO"),
             segmented_display_digit_height: 128.0,
             segmented_display_style: SegmentedDisplayStylePreset::NintendoGameBoy.style(),
