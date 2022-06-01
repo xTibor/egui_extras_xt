@@ -327,149 +327,151 @@ impl<'a> Widget for SevenSegmentWidget<'a> {
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
-        ui.painter().rect(
-            rect,
-            ui.style().visuals.noninteractive().rounding,
-            self.style.background_color,
-            Stroke::none(),
-        );
-
-        let paint_digit = |digit: &SevenSegmentDigit, digit_center: Pos2| {
-            let p = |dx, dy| {
-                digit_center + vec2(dx, dy)
-                    - vec2((dy / (digit_height / 2.0)) * digit_shearing, 0.0)
-            };
-
-            #[rustfmt::skip]
-            #[allow(unused_parens)]
-            let segment_points: [Vec<Pos2>; 7] = [
-                vec![
-                    p(-(digit_width / 2.0) + (segment_thickness / 4.0) + segment_spacing, -(digit_height / 2.0) + (segment_thickness / 4.0)                                 ),
-                    p(-(digit_width / 2.0) + (segment_thickness / 2.0) + segment_spacing, -(digit_height / 2.0)                                                             ),
-                    p( (digit_width / 2.0) - (segment_thickness / 2.0) - segment_spacing, -(digit_height / 2.0)                                                             ),
-                    p( (digit_width / 2.0) - (segment_thickness / 4.0) - segment_spacing, -(digit_height / 2.0) + (segment_thickness / 4.0)                                 ),
-                    p( (digit_width / 2.0) - (segment_thickness / 1.0) - segment_spacing, -(digit_height / 2.0) + (segment_thickness / 1.0)                                 ),
-                    p(-(digit_width / 2.0) + (segment_thickness / 1.0) + segment_spacing, -(digit_height / 2.0) + (segment_thickness / 1.0)                                 ),
-                ],
-                vec![
-                    p( (digit_width / 2.0) - (segment_thickness / 1.0)                  , -(digit_height / 2.0) + (segment_thickness / 1.0) + segment_spacing               ),
-                    p( (digit_width / 2.0) - (segment_thickness / 4.0)                  , -(digit_height / 2.0) + (segment_thickness / 4.0) + segment_spacing               ),
-                    p( (digit_width / 2.0)                                              , -(digit_height / 2.0) + (segment_thickness / 2.0) + segment_spacing               ),
-                    p( (digit_width / 2.0)                                              ,                       - (segment_thickness / 2.0) - segment_spacing + digit_median),
-                    p( (digit_width / 2.0) - (segment_thickness / 2.0)                  ,                                                   - segment_spacing + digit_median),
-                    p( (digit_width / 2.0) - (segment_thickness / 1.0)                  ,                       - (segment_thickness / 2.0) - segment_spacing + digit_median),
-                ],
-                vec![
-                    p( (digit_width / 2.0) - (segment_thickness / 1.0)                  ,  (digit_height / 2.0) - (segment_thickness / 1.0) - segment_spacing               ),
-                    p( (digit_width / 2.0) - (segment_thickness / 4.0)                  ,  (digit_height / 2.0) - (segment_thickness / 4.0) - segment_spacing               ),
-                    p( (digit_width / 2.0)                                              ,  (digit_height / 2.0) - (segment_thickness / 2.0) - segment_spacing               ),
-                    p( (digit_width / 2.0)                                              ,                         (segment_thickness / 2.0) + segment_spacing + digit_median),
-                    p( (digit_width / 2.0) - (segment_thickness / 2.0)                  ,                                                     segment_spacing + digit_median),
-                    p( (digit_width / 2.0) - (segment_thickness / 1.0)                  ,                         (segment_thickness / 2.0) + segment_spacing + digit_median),
-                ],
-                vec![
-                    p(-(digit_width / 2.0) + (segment_thickness / 4.0) + segment_spacing,  (digit_height / 2.0) - (segment_thickness / 4.0)                                 ),
-                    p(-(digit_width / 2.0) + (segment_thickness / 2.0) + segment_spacing,  (digit_height / 2.0)                                                             ),
-                    p( (digit_width / 2.0) - (segment_thickness / 2.0) - segment_spacing,  (digit_height / 2.0)                                                             ),
-                    p( (digit_width / 2.0) - (segment_thickness / 4.0) - segment_spacing,  (digit_height / 2.0) - (segment_thickness / 4.0)                                 ),
-                    p( (digit_width / 2.0) - (segment_thickness / 1.0) - segment_spacing,  (digit_height / 2.0) - (segment_thickness / 1.0)                                 ),
-                    p(-(digit_width / 2.0) + (segment_thickness / 1.0) + segment_spacing,  (digit_height / 2.0) - (segment_thickness / 1.0)                                 ),
-                ],
-                vec![
-                    p(-(digit_width / 2.0) + (segment_thickness / 1.0)                  ,  (digit_height / 2.0) - (segment_thickness / 1.0) - segment_spacing               ),
-                    p(-(digit_width / 2.0) + (segment_thickness / 4.0)                  ,  (digit_height / 2.0) - (segment_thickness / 4.0) - segment_spacing               ),
-                    p(-(digit_width / 2.0)                                              ,  (digit_height / 2.0) - (segment_thickness / 2.0) - segment_spacing               ),
-                    p(-(digit_width / 2.0)                                              ,                         (segment_thickness / 2.0) + segment_spacing + digit_median),
-                    p(-(digit_width / 2.0) + (segment_thickness / 2.0)                  ,                                                     segment_spacing + digit_median),
-                    p(-(digit_width / 2.0) + (segment_thickness / 1.0)                  ,                         (segment_thickness / 2.0) + segment_spacing + digit_median),
-                ],
-                vec![
-                    p(-(digit_width / 2.0) + (segment_thickness / 1.0)                  , -(digit_height / 2.0) + (segment_thickness / 1.0) + segment_spacing               ),
-                    p(-(digit_width / 2.0) + (segment_thickness / 4.0)                  , -(digit_height / 2.0) + (segment_thickness / 4.0) + segment_spacing               ),
-                    p(-(digit_width / 2.0)                                              , -(digit_height / 2.0) + (segment_thickness / 2.0) + segment_spacing               ),
-                    p(-(digit_width / 2.0)                                              ,                       - (segment_thickness / 2.0) - segment_spacing + digit_median),
-                    p(-(digit_width / 2.0) + (segment_thickness / 2.0)                  ,                                                   - segment_spacing + digit_median),
-                    p(-(digit_width / 2.0) + (segment_thickness / 1.0)                  ,                       - (segment_thickness / 2.0) - segment_spacing + digit_median),
-                ],
-                vec![
-                    p(-(digit_width / 2.0) + (segment_thickness / 2.0) + segment_spacing,                                                                       digit_median),
-                    p(-(digit_width / 2.0) + (segment_thickness / 1.0) + segment_spacing,                       - (segment_thickness / 2.0)                   + digit_median),
-                    p( (digit_width / 2.0) - (segment_thickness / 1.0) - segment_spacing,                       - (segment_thickness / 2.0)                   + digit_median),
-                    p( (digit_width / 2.0) - (segment_thickness / 2.0) - segment_spacing,                                                                       digit_median),
-                    p( (digit_width / 2.0) - (segment_thickness / 1.0) - segment_spacing,                         (segment_thickness / 2.0)                   + digit_median),
-                    p(-(digit_width / 2.0) + (segment_thickness / 1.0) + segment_spacing,                         (segment_thickness / 2.0)                   + digit_median),
-                ],
-            ];
-
-            #[rustfmt::skip]
-            let apostrophe_points: Vec<Pos2> = vec![
-                p(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
-                p(-(digit_width / 2.0) - (digit_spacing / 2.0) + (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
-                p(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0) + (segment_thickness * 2.0)),
-            ];
-
-            #[rustfmt::skip]
-            let (colon_top_pos, colon_bottom_pos, dot_pos) = (
-                p(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median - colon_separation),
-                p(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median + colon_separation),
-                p( (digit_width / 2.0) + (digit_spacing / 2.0), (digit_height / 2.0) - (segment_thickness / 2.0))
+        if ui.is_rect_visible(rect) {
+            ui.painter().rect(
+                rect,
+                ui.style().visuals.noninteractive().rounding,
+                self.style.background_color,
+                Stroke::none(),
             );
 
-            for (segment_index, segment_points) in segment_points.iter().enumerate() {
-                let segment_on = ((digit.segments >> segment_index) & 0x01) != 0x00;
+            let paint_digit = |digit: &SevenSegmentDigit, digit_center: Pos2| {
+                let p = |dx, dy| {
+                    digit_center + vec2(dx, dy)
+                        - vec2((dy / (digit_height / 2.0)) * digit_shearing, 0.0)
+                };
 
-                ui.painter().add(Shape::convex_polygon(
-                    segment_points.to_vec(),
-                    self.style.segment_color(segment_on),
-                    self.style.segment_stroke(segment_on),
-                ));
-            }
+                #[rustfmt::skip]
+                #[allow(unused_parens)]
+                let segment_points: [Vec<Pos2>; 7] = [
+                    vec![
+                        p(-(digit_width / 2.0) + (segment_thickness / 4.0) + segment_spacing, -(digit_height / 2.0) + (segment_thickness / 4.0)                                 ),
+                        p(-(digit_width / 2.0) + (segment_thickness / 2.0) + segment_spacing, -(digit_height / 2.0)                                                             ),
+                        p( (digit_width / 2.0) - (segment_thickness / 2.0) - segment_spacing, -(digit_height / 2.0)                                                             ),
+                        p( (digit_width / 2.0) - (segment_thickness / 4.0) - segment_spacing, -(digit_height / 2.0) + (segment_thickness / 4.0)                                 ),
+                        p( (digit_width / 2.0) - (segment_thickness / 1.0) - segment_spacing, -(digit_height / 2.0) + (segment_thickness / 1.0)                                 ),
+                        p(-(digit_width / 2.0) + (segment_thickness / 1.0) + segment_spacing, -(digit_height / 2.0) + (segment_thickness / 1.0)                                 ),
+                    ],
+                    vec![
+                        p( (digit_width / 2.0) - (segment_thickness / 1.0)                  , -(digit_height / 2.0) + (segment_thickness / 1.0) + segment_spacing               ),
+                        p( (digit_width / 2.0) - (segment_thickness / 4.0)                  , -(digit_height / 2.0) + (segment_thickness / 4.0) + segment_spacing               ),
+                        p( (digit_width / 2.0)                                              , -(digit_height / 2.0) + (segment_thickness / 2.0) + segment_spacing               ),
+                        p( (digit_width / 2.0)                                              ,                       - (segment_thickness / 2.0) - segment_spacing + digit_median),
+                        p( (digit_width / 2.0) - (segment_thickness / 2.0)                  ,                                                   - segment_spacing + digit_median),
+                        p( (digit_width / 2.0) - (segment_thickness / 1.0)                  ,                       - (segment_thickness / 2.0) - segment_spacing + digit_median),
+                    ],
+                    vec![
+                        p( (digit_width / 2.0) - (segment_thickness / 1.0)                  ,  (digit_height / 2.0) - (segment_thickness / 1.0) - segment_spacing               ),
+                        p( (digit_width / 2.0) - (segment_thickness / 4.0)                  ,  (digit_height / 2.0) - (segment_thickness / 4.0) - segment_spacing               ),
+                        p( (digit_width / 2.0)                                              ,  (digit_height / 2.0) - (segment_thickness / 2.0) - segment_spacing               ),
+                        p( (digit_width / 2.0)                                              ,                         (segment_thickness / 2.0) + segment_spacing + digit_median),
+                        p( (digit_width / 2.0) - (segment_thickness / 2.0)                  ,                                                     segment_spacing + digit_median),
+                        p( (digit_width / 2.0) - (segment_thickness / 1.0)                  ,                         (segment_thickness / 2.0) + segment_spacing + digit_median),
+                    ],
+                    vec![
+                        p(-(digit_width / 2.0) + (segment_thickness / 4.0) + segment_spacing,  (digit_height / 2.0) - (segment_thickness / 4.0)                                 ),
+                        p(-(digit_width / 2.0) + (segment_thickness / 2.0) + segment_spacing,  (digit_height / 2.0)                                                             ),
+                        p( (digit_width / 2.0) - (segment_thickness / 2.0) - segment_spacing,  (digit_height / 2.0)                                                             ),
+                        p( (digit_width / 2.0) - (segment_thickness / 4.0) - segment_spacing,  (digit_height / 2.0) - (segment_thickness / 4.0)                                 ),
+                        p( (digit_width / 2.0) - (segment_thickness / 1.0) - segment_spacing,  (digit_height / 2.0) - (segment_thickness / 1.0)                                 ),
+                        p(-(digit_width / 2.0) + (segment_thickness / 1.0) + segment_spacing,  (digit_height / 2.0) - (segment_thickness / 1.0)                                 ),
+                    ],
+                    vec![
+                        p(-(digit_width / 2.0) + (segment_thickness / 1.0)                  ,  (digit_height / 2.0) - (segment_thickness / 1.0) - segment_spacing               ),
+                        p(-(digit_width / 2.0) + (segment_thickness / 4.0)                  ,  (digit_height / 2.0) - (segment_thickness / 4.0) - segment_spacing               ),
+                        p(-(digit_width / 2.0)                                              ,  (digit_height / 2.0) - (segment_thickness / 2.0) - segment_spacing               ),
+                        p(-(digit_width / 2.0)                                              ,                         (segment_thickness / 2.0) + segment_spacing + digit_median),
+                        p(-(digit_width / 2.0) + (segment_thickness / 2.0)                  ,                                                     segment_spacing + digit_median),
+                        p(-(digit_width / 2.0) + (segment_thickness / 1.0)                  ,                         (segment_thickness / 2.0) + segment_spacing + digit_median),
+                    ],
+                    vec![
+                        p(-(digit_width / 2.0) + (segment_thickness / 1.0)                  , -(digit_height / 2.0) + (segment_thickness / 1.0) + segment_spacing               ),
+                        p(-(digit_width / 2.0) + (segment_thickness / 4.0)                  , -(digit_height / 2.0) + (segment_thickness / 4.0) + segment_spacing               ),
+                        p(-(digit_width / 2.0)                                              , -(digit_height / 2.0) + (segment_thickness / 2.0) + segment_spacing               ),
+                        p(-(digit_width / 2.0)                                              ,                       - (segment_thickness / 2.0) - segment_spacing + digit_median),
+                        p(-(digit_width / 2.0) + (segment_thickness / 2.0)                  ,                                                   - segment_spacing + digit_median),
+                        p(-(digit_width / 2.0) + (segment_thickness / 1.0)                  ,                       - (segment_thickness / 2.0) - segment_spacing + digit_median),
+                    ],
+                    vec![
+                        p(-(digit_width / 2.0) + (segment_thickness / 2.0) + segment_spacing,                                                                       digit_median),
+                        p(-(digit_width / 2.0) + (segment_thickness / 1.0) + segment_spacing,                       - (segment_thickness / 2.0)                   + digit_median),
+                        p( (digit_width / 2.0) - (segment_thickness / 1.0) - segment_spacing,                       - (segment_thickness / 2.0)                   + digit_median),
+                        p( (digit_width / 2.0) - (segment_thickness / 2.0) - segment_spacing,                                                                       digit_median),
+                        p( (digit_width / 2.0) - (segment_thickness / 1.0) - segment_spacing,                         (segment_thickness / 2.0)                   + digit_median),
+                        p(-(digit_width / 2.0) + (segment_thickness / 1.0) + segment_spacing,                         (segment_thickness / 2.0)                   + digit_median),
+                    ],
+                ];
 
-            if self.show_dots {
-                ui.painter().circle(
-                    dot_pos,
-                    segment_thickness / 2.0,
-                    self.style.segment_color(digit.dot),
-                    self.style.segment_stroke(digit.dot),
+                #[rustfmt::skip]
+                let apostrophe_points: Vec<Pos2> = vec![
+                    p(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
+                    p(-(digit_width / 2.0) - (digit_spacing / 2.0) + (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
+                    p(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0) + (segment_thickness * 2.0)),
+                ];
+
+                #[rustfmt::skip]
+                let (colon_top_pos, colon_bottom_pos, dot_pos) = (
+                    p(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median - colon_separation),
+                    p(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median + colon_separation),
+                    p( (digit_width / 2.0) + (digit_spacing / 2.0), (digit_height / 2.0) - (segment_thickness / 2.0))
                 );
+
+                for (segment_index, segment_points) in segment_points.iter().enumerate() {
+                    let segment_on = ((digit.segments >> segment_index) & 0x01) != 0x00;
+
+                    ui.painter().add(Shape::convex_polygon(
+                        segment_points.to_vec(),
+                        self.style.segment_color(segment_on),
+                        self.style.segment_stroke(segment_on),
+                    ));
+                }
+
+                if self.show_dots {
+                    ui.painter().circle(
+                        dot_pos,
+                        segment_thickness / 2.0,
+                        self.style.segment_color(digit.dot),
+                        self.style.segment_stroke(digit.dot),
+                    );
+                }
+
+                if self.show_colons {
+                    ui.painter().circle(
+                        colon_top_pos,
+                        segment_thickness / 2.0,
+                        self.style.segment_color(digit.colon),
+                        self.style.segment_stroke(digit.colon),
+                    );
+
+                    ui.painter().circle(
+                        colon_bottom_pos,
+                        segment_thickness / 2.0,
+                        self.style.segment_color(digit.colon),
+                        self.style.segment_stroke(digit.colon),
+                    );
+                }
+
+                if self.show_apostrophes {
+                    ui.painter().add(Shape::convex_polygon(
+                        apostrophe_points.to_vec(),
+                        self.style.segment_color(digit.apostrophe),
+                        self.style.segment_stroke(digit.apostrophe),
+                    ));
+                }
+            };
+
+            for (digit_index, digit) in self.digits.iter().enumerate() {
+                let digit_center = rect.left_center()
+                    + vec2(
+                        margin_horizontal
+                            + digit_shearing.abs()
+                            + ((digit_width + digit_spacing) * digit_index as f32)
+                            + (digit_width / 2.0),
+                        0.0,
+                    );
+
+                paint_digit(digit, digit_center);
             }
-
-            if self.show_colons {
-                ui.painter().circle(
-                    colon_top_pos,
-                    segment_thickness / 2.0,
-                    self.style.segment_color(digit.colon),
-                    self.style.segment_stroke(digit.colon),
-                );
-
-                ui.painter().circle(
-                    colon_bottom_pos,
-                    segment_thickness / 2.0,
-                    self.style.segment_color(digit.colon),
-                    self.style.segment_stroke(digit.colon),
-                );
-            }
-
-            if self.show_apostrophes {
-                ui.painter().add(Shape::convex_polygon(
-                    apostrophe_points.to_vec(),
-                    self.style.segment_color(digit.apostrophe),
-                    self.style.segment_stroke(digit.apostrophe),
-                ));
-            }
-        };
-
-        for (digit_index, digit) in self.digits.iter().enumerate() {
-            let digit_center = rect.left_center()
-                + vec2(
-                    margin_horizontal
-                        + digit_shearing.abs()
-                        + ((digit_width + digit_spacing) * digit_index as f32)
-                        + (digit_width / 2.0),
-                    0.0,
-                );
-
-            paint_digit(digit, digit_center);
         }
 
         response
