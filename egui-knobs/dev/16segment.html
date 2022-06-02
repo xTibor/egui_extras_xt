@@ -1,0 +1,90 @@
+<html>
+<head>
+<script>
+function $(s) {
+    return document.getElementById(s);
+}
+
+function update() {
+    function segment(index) {
+        return $("segment" + index).checked;
+    }
+
+    let hexValue = 0;
+    for (let i = 0; i < 16; ++i) {
+        hexValue += segment(i) ? (1 << i) : 0;
+    }
+
+    let asciiArt = " 0 1 \n789A2\n F B \n6EDC3\n 5 4 "
+        .replace("0", segment( 0) ? "─" : " ")
+        .replace("1", segment( 1) ? "─" : " ")
+        .replace("2", segment( 2) ? "│" : " ")
+        .replace("3", segment( 3) ? "│" : " ")
+        .replace("4", segment( 4) ? "─" : " ")
+        .replace("5", segment( 5) ? "─" : " ")
+        .replace("6", segment( 6) ? "│" : " ")
+        .replace("7", segment( 7) ? "│" : " ")
+        .replace("8", segment( 8) ? "╲" : " ")
+        .replace("9", segment( 9) ? "│" : " ")
+        .replace("A", segment(10) ? "╱" : " ")
+        .replace("B", segment(11) ? "─" : " ")
+        .replace("C", segment(12) ? "╲" : " ")
+        .replace("D", segment(13) ? "│" : " ")
+        .replace("E", segment(14) ? "╱" : " ")
+        .replace("F", segment(15) ? "─" : " ");
+
+        $("hex").innerText = "0x" + hexValue.toString(16).padStart(4, "0").toUpperCase() + "\n\n\n" + asciiArt;
+}
+
+window.addEventListener("load", (e) => {
+    Array.prototype.forEach.call(
+        document.getElementsByTagName("input"),
+        (input) => {
+            input.addEventListener("click", update)
+        }
+    );
+    update();
+});
+</script>
+</head>
+<body>
+    <table>
+        <tr>
+            <td></td>
+            <td><input id="segment0" type="checkbox" /></td>
+            <td></td>
+            <td><input id="segment1" type="checkbox" /></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><input id="segment7" type="checkbox" /></td>
+            <td><input id="segment8" type="checkbox" /></td>
+            <td><input id="segment9" type="checkbox" /></td>
+            <td><input id="segment10" type="checkbox" /></td>
+            <td><input id="segment2" type="checkbox" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input id="segment15" type="checkbox" /></td>
+            <td></td>
+            <td><input id="segment11" type="checkbox" /></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><input id="segment6" type="checkbox" /></td>
+            <td><input id="segment14" type="checkbox" /></td>
+            <td><input id="segment13" type="checkbox" /></td>
+            <td><input id="segment12" type="checkbox" /></td>
+            <td><input id="segment3" type="checkbox" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input id="segment5" type="checkbox" /></td>
+            <td></td>
+            <td><input id="segment4" type="checkbox" /></td>
+            <td></td>
+        </tr>
+    </table>
+    <pre id="hex"></pre>
+</body>
+</html>
