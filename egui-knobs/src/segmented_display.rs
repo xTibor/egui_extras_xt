@@ -446,11 +446,12 @@ impl SegmentedDisplayKind {
 
 // ----------------------------------------------------------------------------
 
-struct SegmentedDisplayDigit {
-    segments: u16,
-    dot: bool,
-    colon: bool,
-    apostrophe: bool,
+#[derive(Copy, Clone, Default)]
+pub struct SegmentedDisplayDigit {
+    pub segments: u16,
+    pub dot: bool,
+    pub colon: bool,
+    pub apostrophe: bool,
 }
 
 // ----------------------------------------------------------------------------
@@ -503,6 +504,11 @@ impl<'a> SegmentedDisplayWidget<'a> {
                     _ => None,
                 }),
         );
+        self
+    }
+
+    pub fn push_digit(mut self, digit: SegmentedDisplayDigit) -> Self {
+        self.digits.push(digit);
         self
     }
 
