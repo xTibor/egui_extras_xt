@@ -491,12 +491,14 @@ impl<'a> SegmentedDisplayWidget<'a> {
                 .chain([None])
                 .tuple_windows()
                 .flat_map(|(prev, curr, next)| match curr {
-                    Some('.') | Some(':') | Some('\'') => None,
+                    Some('.') if self.show_dots => None,
+                    Some(':') if self.show_colons => None,
+                    Some('\'') if self.show_apostrophes => None,
                     Some(c) if c.is_ascii() => Some(SegmentedDisplayDigit {
                         segments: self.font[c as usize],
-                        dot: next == Some('.'),
-                        colon: prev == Some(':'),
-                        apostrophe: prev == Some('\''),
+                        dot: (next == Some('.')) && self.show_dots,
+                        colon: (prev == Some(':')) && self.show_colons,
+                        apostrophe: (prev == Some('\'')) && self.show_apostrophes,
                     }),
                     _ => None,
                 }),
