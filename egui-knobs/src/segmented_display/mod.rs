@@ -14,7 +14,16 @@ use egui::Pos2;
 
 // ----------------------------------------------------------------------------
 
-pub type DisplayFont = [u16; 128];
+pub type DisplayFontGlyph = u16;
+pub type DisplayFont = [DisplayFontGlyph; 128];
+
+#[derive(Copy, Clone, Default)]
+pub struct DisplayDigit {
+    pub segments: DisplayFontGlyph,
+    pub dot: bool,
+    pub colon: bool,
+    pub apostrophe: bool,
+}
 
 pub type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
 
@@ -30,12 +39,4 @@ pub trait DisplayKind {
         segment_spacing: f32,
         digit_median: f32,
     ) -> Vec<Vec<Pos2>>;
-}
-
-#[derive(Copy, Clone, Default)]
-pub struct DisplayDigit {
-    pub segments: u16,
-    pub dot: bool,
-    pub colon: bool,
-    pub apostrophe: bool,
 }
