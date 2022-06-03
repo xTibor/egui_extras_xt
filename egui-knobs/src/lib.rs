@@ -11,6 +11,5 @@ pub use compass_widget::{CompassMarker, CompassMarkerShape, CompassWidget};
 pub use segmented_display::{
     SegmentedDisplayDigit, SegmentedDisplayFont, SegmentedDisplayKind, SegmentedDisplayMetrics,
     SegmentedDisplayMetricsPreset, SegmentedDisplayStyle, SegmentedDisplayStylePreset,
-    SegmentedDisplayWidget, FONT_SEVENSEGMENT_DEFAULT, FONT_SIXTEENSEGMENT_DEFAULT,
-    FONT_SIXTEENSEGMENT_SYMBOLS,
+    SegmentedDisplayWidget, SevenSegment, SixteenSegment,
 };

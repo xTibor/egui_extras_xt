@@ -8,7 +8,8 @@ use itertools::Itertools;
 use egui_knobs::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, Orientation,
     SegmentedDisplayKind, SegmentedDisplayMetrics, SegmentedDisplayStyle,
-    SegmentedDisplayStylePreset, SegmentedDisplayWidget, WidgetShape, Winding, WrapMode,
+    SegmentedDisplayStylePreset, SegmentedDisplayWidget, SevenSegment, SixteenSegment, WidgetShape,
+    Winding, WrapMode,
 };
 
 struct EguiKnobsExampleApp {
@@ -36,7 +37,7 @@ struct EguiKnobsExampleApp {
     compass_widget_show_cursor: bool,
 
     // SegmentedDisplayWidget
-    segmented_display_display_kind: SegmentedDisplayKind,
+    segmented_display_display_kind: Box<dyn SegmentedDisplayKind>,
     segmented_display_display_string: String,
     segmented_display_digit_height: f32,
     segmented_display_style: SegmentedDisplayStyle,
@@ -73,7 +74,7 @@ impl Default for EguiKnobsExampleApp {
             compass_widget_show_cursor: true,
 
             // SegmentedDisplayWidget
-            segmented_display_display_kind: SegmentedDisplayKind::SixteenSegment,
+            segmented_display_display_kind: Box::new(SixteenSegment),
             segmented_display_display_string: String::from("12.34:5' HELLO"),
             segmented_display_digit_height: 128.0,
             segmented_display_style: SegmentedDisplayStylePreset::NintendoGameBoy.style(),
@@ -295,17 +296,13 @@ impl eframe::App for EguiKnobsExampleApp {
                 });
 
                 ui.horizontal(|ui| {
-                    ui.selectable_value(
-                        &mut self.segmented_display_display_kind,
-                        SegmentedDisplayKind::SevenSegment,
-                        "7-segment",
-                    );
+                    if ui.button("7-segment").clicked() {
+                        self.segmented_display_display_kind = Box::new(SevenSegment);
+                    }
 
-                    ui.selectable_value(
-                        &mut self.segmented_display_display_kind,
-                        SegmentedDisplayKind::SixteenSegment,
-                        "16-segment",
-                    );
+                    if ui.button("16-segment").clicked() {
+                        self.segmented_display_display_kind = Box::new(SixteenSegment);
+                    }
                 });
 
                 ui.add(egui::TextEdit::singleline(
@@ -315,7 +312,7 @@ impl eframe::App for EguiKnobsExampleApp {
                 ui.add_space(8.0);
 
                 ui.add(
-                    SegmentedDisplayWidget::new(self.segmented_display_display_kind)
+                    SegmentedDisplayWidget::new(Box::new(SevenSegment))
                         .style(self.segmented_display_style)
                         .metrics(self.segmented_display_metrics)
                         .digit_height(self.segmented_display_digit_height)
