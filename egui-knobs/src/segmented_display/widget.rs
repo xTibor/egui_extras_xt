@@ -2,8 +2,8 @@ use egui::{vec2, Pos2, Response, Sense, Shape, Stroke, Ui, Widget};
 use itertools::Itertools;
 
 use crate::segmented_display::{
-    SegmentedDisplayDigit, SegmentedDisplayFont, SegmentedDisplayKind, SegmentedDisplayMetrics,
-    SegmentedDisplayMetricsPreset, SegmentedDisplayStyle, SegmentedDisplayStylePreset,
+    DisplayMetrics, DisplayMetricsPreset, DisplayStyle, DisplayStylePreset, SegmentedDisplayDigit,
+    SegmentedDisplayFont, SegmentedDisplayKind,
 };
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
@@ -11,8 +11,8 @@ pub struct SegmentedDisplayWidget<'a> {
     display_kind: Box<dyn SegmentedDisplayKind>,
     digits: Vec<SegmentedDisplayDigit>,
     digit_height: f32,
-    metrics: SegmentedDisplayMetrics,
-    style: SegmentedDisplayStyle,
+    metrics: DisplayMetrics,
+    style: DisplayStyle,
     font: &'a SegmentedDisplayFont,
     show_dots: bool,
     show_colons: bool,
@@ -27,8 +27,8 @@ impl<'a> SegmentedDisplayWidget<'a> {
             display_kind,
             digits: Vec::new(),
             digit_height: 48.0,
-            metrics: SegmentedDisplayMetrics::default(),
-            style: SegmentedDisplayStylePreset::Default.style(),
+            metrics: DisplayMetrics::default(),
+            style: DisplayStylePreset::Default.style(),
             font,
             show_dots: true,
             show_colons: true,
@@ -69,22 +69,22 @@ impl<'a> SegmentedDisplayWidget<'a> {
         self
     }
 
-    pub fn style(mut self, style: SegmentedDisplayStyle) -> Self {
+    pub fn style(mut self, style: DisplayStyle) -> Self {
         self.style = style;
         self
     }
 
-    pub fn style_preset(mut self, preset: SegmentedDisplayStylePreset) -> Self {
+    pub fn style_preset(mut self, preset: DisplayStylePreset) -> Self {
         self.style = preset.style();
         self
     }
 
-    pub fn metrics(mut self, metrics: SegmentedDisplayMetrics) -> Self {
+    pub fn metrics(mut self, metrics: DisplayMetrics) -> Self {
         self.metrics = metrics;
         self
     }
 
-    pub fn metrics_preset(mut self, preset: SegmentedDisplayMetricsPreset) -> Self {
+    pub fn metrics_preset(mut self, preset: DisplayMetricsPreset) -> Self {
         self.metrics = preset.metrics();
         self
     }

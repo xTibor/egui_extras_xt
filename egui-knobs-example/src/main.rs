@@ -6,8 +6,8 @@ use eframe::epaint::Color32;
 use itertools::Itertools;
 
 use egui_knobs::segmented_display::{
-    SegmentedDisplayKind, SegmentedDisplayMetrics, SegmentedDisplayStyle,
-    SegmentedDisplayStylePreset, SegmentedDisplayWidget, SevenSegment, SixteenSegment,
+    DisplayMetrics, DisplayStyle, DisplayStylePreset, SegmentedDisplayKind, SegmentedDisplayWidget,
+    SevenSegment, SixteenSegment,
 };
 use egui_knobs::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, Orientation,
@@ -42,8 +42,8 @@ struct EguiKnobsExampleApp {
     segmented_display_display_kind: Box<dyn SegmentedDisplayKind>,
     segmented_display_display_string: String,
     segmented_display_digit_height: f32,
-    segmented_display_style: SegmentedDisplayStyle,
-    segmented_display_metrics: SegmentedDisplayMetrics,
+    segmented_display_style: DisplayStyle,
+    segmented_display_metrics: DisplayMetrics,
     segmented_display_show_dots: bool,
     segmented_display_show_colons: bool,
     segmented_display_show_apostrophes: bool,
@@ -79,8 +79,8 @@ impl Default for EguiKnobsExampleApp {
             segmented_display_display_kind: Box::new(SixteenSegment),
             segmented_display_display_string: String::from("12.34:5' HELLO"),
             segmented_display_digit_height: 128.0,
-            segmented_display_style: SegmentedDisplayStylePreset::NintendoGameBoy.style(),
-            segmented_display_metrics: SegmentedDisplayMetrics::default(),
+            segmented_display_style: DisplayStylePreset::NintendoGameBoy.style(),
+            segmented_display_metrics: DisplayMetrics::default(),
             segmented_display_show_dots: true,
             segmented_display_show_colons: true,
             segmented_display_show_apostrophes: true,
