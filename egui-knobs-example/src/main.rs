@@ -5,11 +5,13 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
+use egui_knobs::segmented_display::{
+    SegmentedDisplayKind, SegmentedDisplayMetrics, SegmentedDisplayStyle,
+    SegmentedDisplayStylePreset, SegmentedDisplayWidget, SevenSegment, SixteenSegment,
+};
 use egui_knobs::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, Orientation,
-    SegmentedDisplayKind, SegmentedDisplayMetrics, SegmentedDisplayStyle,
-    SegmentedDisplayStylePreset, SegmentedDisplayWidget, SevenSegment, SixteenSegment, WidgetShape,
-    Winding, WrapMode,
+    WidgetShape, Winding, WrapMode,
 };
 
 struct EguiKnobsExampleApp {
