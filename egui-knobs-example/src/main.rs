@@ -6,7 +6,7 @@ use eframe::epaint::Color32;
 use itertools::Itertools;
 
 use egui_knobs::segmented_display::{
-    DisplayMetrics, DisplayStyle, DisplayStylePreset, SegmentedDisplayKind, SegmentedDisplayWidget,
+    DisplayKind, DisplayMetrics, DisplayStyle, DisplayStylePreset, SegmentedDisplayWidget,
     SevenSegment, SixteenSegment,
 };
 use egui_knobs::{
@@ -39,7 +39,7 @@ struct EguiKnobsExampleApp {
     compass_widget_show_cursor: bool,
 
     // SegmentedDisplayWidget
-    segmented_display_display_kind: Box<dyn SegmentedDisplayKind>,
+    segmented_display_display_kind: Box<dyn DisplayKind>,
     segmented_display_display_string: String,
     segmented_display_digit_height: f32,
     segmented_display_style: DisplayStyle,

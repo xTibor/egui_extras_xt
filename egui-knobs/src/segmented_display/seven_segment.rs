@@ -1,17 +1,15 @@
 use egui::Pos2;
 
-use crate::segmented_display::{
-    SegmentGeometryTransformFn, SegmentedDisplayFont, SegmentedDisplayKind,
-};
+use crate::segmented_display::{DisplayFont, DisplayKind, SegmentGeometryTransformFn};
 
 // ----------------------------------------------------------------------------
 
 #[derive(Copy, Clone, Default)]
 pub struct SevenSegment;
 
-impl SegmentedDisplayKind for SevenSegment {
+impl DisplayKind for SevenSegment {
     #[rustfmt::skip]
-    fn default_font<'a>(&self) -> &'a SegmentedDisplayFont {
+    fn default_font<'a>(&self) -> &'a DisplayFont {
         &[
             0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 00-07:  ×  ×  ×  ×  ×  ×  ×  ×
             0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 08-0F:  ×  ×  ×  ×  ×  ×  ×  ×

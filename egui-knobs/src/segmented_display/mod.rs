@@ -14,16 +14,12 @@ use egui::Pos2;
 
 // ----------------------------------------------------------------------------
 
-pub type SegmentedDisplayFont = [u16; 128];
-
-// ----------------------------------------------------------------------------
+pub type DisplayFont = [u16; 128];
 
 pub type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
 
-// ----------------------------------------------------------------------------
-
-pub trait SegmentedDisplayKind {
-    fn default_font<'a>(&self) -> &'a SegmentedDisplayFont;
+pub trait DisplayKind {
+    fn default_font<'a>(&self) -> &'a DisplayFont;
 
     fn geometry(
         &self,
@@ -36,10 +32,8 @@ pub trait SegmentedDisplayKind {
     ) -> Vec<Vec<Pos2>>;
 }
 
-// ----------------------------------------------------------------------------
-
 #[derive(Copy, Clone, Default)]
-pub struct SegmentedDisplayDigit {
+pub struct DisplayDigit {
     pub segments: u16,
     pub dot: bool,
     pub colon: bool,

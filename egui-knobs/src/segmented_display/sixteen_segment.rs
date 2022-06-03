@@ -1,17 +1,15 @@
 use egui::Pos2;
 
-use crate::segmented_display::{
-    SegmentGeometryTransformFn, SegmentedDisplayFont, SegmentedDisplayKind,
-};
+use crate::segmented_display::{DisplayFont, DisplayKind, SegmentGeometryTransformFn};
 
 // ----------------------------------------------------------------------------
 
 #[derive(Copy, Clone, Default)]
 pub struct SixteenSegment;
 
-impl SegmentedDisplayKind for SixteenSegment {
+impl DisplayKind for SixteenSegment {
     #[rustfmt::skip]
-    fn default_font<'a>(&self) -> &'a SegmentedDisplayFont {
+    fn default_font<'a>(&self) -> &'a DisplayFont {
         &[
             0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 00-07:  ×  ×  ×  ×  ×  ×  ×  ×
             0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 08-0F:  ×  ×  ×  ×  ×  ×  ×  ×
@@ -178,7 +176,7 @@ impl SegmentedDisplayKind for SixteenSegment {
 
 impl SixteenSegment {
     #[rustfmt::skip]
-    pub const FONT_SIXTEENSEGMENT_SYMBOLS: SegmentedDisplayFont = [
+    pub const FONT_SIXTEENSEGMENT_SYMBOLS: DisplayFont = [
         0x221E, 0x000C, 0x2816, 0x081E, 0x0A0C, 0x0A1A, 0x2A1A, 0x020E, // 00-07:  0  1  2  3  4  5  6  7
         0x2A1E, 0x0A1E, 0x22DE, 0x00CC, 0x28D6, 0x08DE, 0x0ACC, 0x0ADA, // 08-0F:  8  9 10 11 12 13 14 15
         0x2ADA, 0x02CE, 0x2ADE, 0x0ADE, 0x0000, 0x0000, 0x0000, 0x0000, // 10-17: 16 17 18 19  ×  ×  ×  ×

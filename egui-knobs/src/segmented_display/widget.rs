@@ -2,25 +2,25 @@ use egui::{vec2, Pos2, Response, Sense, Shape, Stroke, Ui, Widget};
 use itertools::Itertools;
 
 use crate::segmented_display::{
-    DisplayMetrics, DisplayMetricsPreset, DisplayStyle, DisplayStylePreset, SegmentedDisplayDigit,
-    SegmentedDisplayFont, SegmentedDisplayKind,
+    DisplayDigit, DisplayFont, DisplayKind, DisplayMetrics, DisplayMetricsPreset, DisplayStyle,
+    DisplayStylePreset,
 };
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct SegmentedDisplayWidget<'a> {
-    display_kind: Box<dyn SegmentedDisplayKind>,
-    digits: Vec<SegmentedDisplayDigit>,
+    display_kind: Box<dyn DisplayKind>,
+    digits: Vec<DisplayDigit>,
     digit_height: f32,
     metrics: DisplayMetrics,
     style: DisplayStyle,
-    font: &'a SegmentedDisplayFont,
+    font: &'a DisplayFont,
     show_dots: bool,
     show_colons: bool,
     show_apostrophes: bool,
 }
 
 impl<'a> SegmentedDisplayWidget<'a> {
-    pub fn new(display_kind: Box<dyn SegmentedDisplayKind>) -> Self {
+    pub fn new(display_kind: Box<dyn DisplayKind>) -> Self {
         let font = display_kind.default_font();
 
         Self {
@@ -47,7 +47,7 @@ impl<'a> SegmentedDisplayWidget<'a> {
                     Some('.') if self.show_dots => None,
                     Some(':') if self.show_colons => None,
                     Some('\'') if self.show_apostrophes => None,
-                    Some(c) if c.is_ascii() => Some(SegmentedDisplayDigit {
+                    Some(c) if c.is_ascii() => Some(DisplayDigit {
                         segments: self.font[c as usize],
                         dot: (next == Some('.')) && self.show_dots,
                         colon: (prev == Some(':')) && self.show_colons,
@@ -59,7 +59,7 @@ impl<'a> SegmentedDisplayWidget<'a> {
         self
     }
 
-    pub fn push_digit(mut self, digit: SegmentedDisplayDigit) -> Self {
+    pub fn push_digit(mut self, digit: DisplayDigit) -> Self {
         self.digits.push(digit);
         self
     }
@@ -89,7 +89,7 @@ impl<'a> SegmentedDisplayWidget<'a> {
         self
     }
 
-    pub fn font(mut self, font: &'a SegmentedDisplayFont) -> Self {
+    pub fn font(mut self, font: &'a DisplayFont) -> Self {
         self.font = font;
         self
     }
@@ -143,7 +143,7 @@ impl<'a> Widget for SegmentedDisplayWidget<'a> {
                 Stroke::none(),
             );
 
-            let paint_digit = |digit: &SegmentedDisplayDigit, digit_center: Pos2| {
+            let paint_digit = |digit: &DisplayDigit, digit_center: Pos2| {
                 let tr = move |dx, dy| {
                     digit_center + vec2(dx, dy)
                         - vec2((dy / (digit_height / 2.0)) * digit_shearing, 0.0)
