@@ -3,7 +3,7 @@ use itertools::Itertools;
 
 use crate::segmented_display::{
     DisplayDigit, DisplayFont, DisplayKind, DisplayMetrics, DisplayMetricsPreset, DisplayStyle,
-    DisplayStylePreset,
+    DisplayStylePreset, SevenSegment, SixteenSegment,
 };
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
@@ -34,6 +34,14 @@ impl<'a> SegmentedDisplayWidget<'a> {
             show_colons: true,
             show_apostrophes: true,
         }
+    }
+
+    pub fn seven_segment(value: &str) -> Self {
+        Self::new(Box::new(SevenSegment)).push_string(value)
+    }
+
+    pub fn sixteen_segment(value: &str) -> Self {
+        Self::new(Box::new(SixteenSegment)).push_string(value)
     }
 
     pub fn push_string(mut self, value: &str) -> Self {
