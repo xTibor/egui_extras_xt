@@ -9,9 +9,10 @@ pub struct SevenSegment;
 
 impl DisplayKind for SevenSegment {
     #[rustfmt::skip]
-    fn glyph(&self, c: char) -> DisplayFontGlyph {
+    fn glyph(&self, c: char) -> Option<DisplayFontGlyph> {
         match c {
-            '\u{000000}'..='\u{00007F}' => [
+            // Basic Latin
+            '\u{000000}'..='\u{00007F}' => Some([
                 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 00-07:  ×  ×  ×  ×  ×  ×  ×  ×
                 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 08-0F:  ×  ×  ×  ×  ×  ×  ×  ×
                 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 10-17:  ×  ×  ×  ×  ×  ×  ×  ×
@@ -28,9 +29,9 @@ impl DisplayKind for SevenSegment {
                 0x0074, 0x0010, 0x000E, 0x0076, 0x0006, 0x0055, 0x0054, 0x005C, // 68-6F:  h  i  j  k  l  m  n  o
                 0x0073, 0x0067, 0x0050, 0x006D, 0x0078, 0x001C, 0x001C, 0x007E, // 70-77:  p  q  r  s  t  u  v  w
                 0x0076, 0x006E, 0x005B, 0x0046, 0x0030, 0x0070, 0x0040, 0x0000, // 78-7F:  x  y  z  {  |  }  ~  ×
-            ][(c as usize) - 0x000000],
+            ][(c as usize) - 0x000000]),
 
-            _ => 0x0000,
+            _ => None,
         }
     }
 

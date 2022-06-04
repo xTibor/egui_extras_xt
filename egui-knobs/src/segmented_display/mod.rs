@@ -27,7 +27,7 @@ pub struct DisplayDigit {
 pub type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
 
 pub trait DisplayKind {
-    fn glyph(&self, c: char) -> DisplayFontGlyph;
+    fn glyph(&self, c: char) -> Option<DisplayFontGlyph>;
 
     fn geometry(
         &self,

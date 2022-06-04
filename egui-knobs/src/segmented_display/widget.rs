@@ -51,8 +51,8 @@ impl SegmentedDisplayWidget {
                     Some('.') if self.show_dots => None,
                     Some(':') if self.show_colons => None,
                     Some('\'') if self.show_apostrophes => None,
-                    Some(c) if c.is_ascii() => Some(DisplayDigit {
-                        glyph: self.display_kind.glyph(c),
+                    Some(c) if self.display_kind.glyph(c).is_some() => Some(DisplayDigit {
+                        glyph: self.display_kind.glyph(c).unwrap(),
                         dot: (next == Some('.')) && self.show_dots,
                         colon: (prev == Some(':')) && self.show_colons,
                         apostrophe: (prev == Some('\'')) && self.show_apostrophes,

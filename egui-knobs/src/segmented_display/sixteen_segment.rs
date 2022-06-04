@@ -9,9 +9,10 @@ pub struct SixteenSegment;
 
 impl DisplayKind for SixteenSegment {
     #[rustfmt::skip]
-    fn glyph(&self, c: char) -> DisplayFontGlyph {
+    fn glyph(&self, c: char) -> Option<DisplayFontGlyph> {
         match c {
-            '\u{000000}'..='\u{00007F}' => [
+            // Basic Latin
+            '\u{000000}'..='\u{00007F}' => Some([
                 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 00-07:  ×  ×  ×  ×  ×  ×  ×  ×
                 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 08-0F:  ×  ×  ×  ×  ×  ×  ×  ×
                 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 10-17:  ×  ×  ×  ×  ×  ×  ×  ×
@@ -28,9 +29,54 @@ impl DisplayKind for SixteenSegment {
                 0xA0C0, 0x0040, 0x2220, 0x3A00, 0x00E0, 0xA848, 0xA040, 0xA060, // 68-6F:  h  i  j  k  l  m  n  o
                 0x82C1, 0xA281, 0x8040, 0x1810, 0xAA10, 0x2060, 0x4040, 0x5048, // 70-77:  p  q  r  s  t  u  v  w
                 0xD800, 0x1018, 0xC020, 0xA212, 0x2200, 0x2A21, 0x0A85, 0x0000, // 78-7F:  x  y  z  {  |  }  ~  ×
-            ][(c as usize) - 0x000000],
+            ][c as usize]),
 
-            _ => 0x0000,
+            // Currency symbols
+            '¢' => Some(0x8060),
+            '£' => Some(0xA276),
+            '¥' => Some(0xAD00),
+            '€' => Some(0xEA12),
+            '元' => Some(0xD803),
+            '円' => Some(0x8ADF),
+
+            // Emoji
+            '✔' => Some(0x4440),
+            '🍀' => Some(0xFF55),
+            '🎂' => Some(0x8AFC),
+            '🎈' => Some(0xC887),
+            '🐱' => Some(0x05FC),
+            '👍' => Some(0xAC38),
+            '👎' => Some(0x9A07),
+            '🔫' => Some(0x988F),
+            '🤣' => Some(0x0578),
+            '🥵' => Some(0x50B4),
+            '😂' => Some(0x0578),
+            '😉' => Some(0x04B8),
+            '😊' => Some(0x0578),
+            '😏' => Some(0x04B8),
+            '😐' => Some(0x00B4),
+            '😑' => Some(0x00B4),
+            '😒' => Some(0x00B4),
+            '😕' => Some(0x5084),
+            '😞' => Some(0x5084),
+            '😢' => Some(0x5084),
+            '😥' => Some(0x5084),
+            '😩' => Some(0x50B4),
+            '😫' => Some(0x50B4),
+            '😭' => Some(0x50B4),
+            '😲' => Some(0x50B4),
+            '😳' => Some(0x8AB7),
+            '🙁' => Some(0x5084),
+
+            // Other
+            '§' => Some(0x11BB),
+            '¶' => Some(0xA28F),
+            '±' => Some(0xAA30),
+            '²' => Some(0x0C02),
+            '³' => Some(0x0C06),
+            'µ' => Some(0x82C0),
+
+            _ => None,
         }
     }
 
