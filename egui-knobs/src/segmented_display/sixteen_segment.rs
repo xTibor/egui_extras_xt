@@ -222,6 +222,12 @@ impl SixteenSegment {
     ];
 
     #[rustfmt::skip]
+    pub const GLYPHS_BLOCKS: [DisplayFontGlyph; 16] = [
+        0x0000, 0x8381, 0x0E06, 0x8F87, 0xE060, 0xE3E1, 0xEE66, 0xEFE7,
+        0x3818, 0xBB99, 0x3E1E, 0xBF9F, 0xF878, 0xFBF9, 0xFE7E, 0xFFFF,
+    ];
+
+    #[rustfmt::skip]
     pub const GLYPHS_WIFI: [DisplayFontGlyph; 2] = [
         0x62EC, 0x80CD,
     ];
