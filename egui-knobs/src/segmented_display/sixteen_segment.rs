@@ -37,7 +37,7 @@ impl DisplayKind for SixteenSegment {
             ('t',  0xAA10), ('u',  0x2060), ('v',  0x4040), ('w',  0x5048),
             ('x',  0xD800), ('y',  0x1018), ('z',  0xC020), ('{',  0xA212),
             ('|',  0x2200), ('}',  0x2A21), ('~',  0x0A85),
-
+            // Latin-1 Supplement
             ('¢',  0x8060),
             ('£',  0xA276),
             ('¥',  0xAD00),
@@ -47,10 +47,14 @@ impl DisplayKind for SixteenSegment {
             ('³',  0x0C06),
             ('µ',  0x82C0),
             ('¶',  0xA28F),
+            // Currency Symbols
             ('€',  0xEA12),
+            // Dingbats
             ('✔',  0x4440),
+            // CJK Unified Ideographs
             ('元',  0xD803),
             ('円',  0x8ADF),
+            // Miscellaneous Symbols and Pictographs
             ('🍀',  0xFF55),
             ('🎂',  0x8AFC),
             ('🎈',  0xC887),
@@ -58,6 +62,7 @@ impl DisplayKind for SixteenSegment {
             ('👍',  0xAC38),
             ('👎',  0x9A07),
             ('🔫',  0x988F),
+            // Emoticons
             ('😂',  0x0578),
             ('😉',  0x04B8),
             ('😊',  0x0578),
@@ -75,6 +80,7 @@ impl DisplayKind for SixteenSegment {
             ('😲',  0x50B4),
             ('😳',  0x8AB7),
             ('🙁',  0x5084),
+            // Supplemental Symbols and Pictographs
             ('🤣',  0x0578),
             ('🥵',  0x50B4),
         ];
