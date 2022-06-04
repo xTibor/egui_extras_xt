@@ -2,34 +2,30 @@ use egui::{vec2, Pos2, Response, Sense, Shape, Stroke, Ui, Widget};
 use itertools::Itertools;
 
 use crate::segmented_display::{
-    DisplayDigit, DisplayFont, DisplayKind, DisplayMetrics, DisplayMetricsPreset, DisplayStyle,
+    DisplayDigit, DisplayKind, DisplayMetrics, DisplayMetricsPreset, DisplayStyle,
     DisplayStylePreset, SevenSegment, SixteenSegment,
 };
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct SegmentedDisplayWidget<'a> {
+pub struct SegmentedDisplayWidget {
     display_kind: Box<dyn DisplayKind>,
     digits: Vec<DisplayDigit>,
     digit_height: f32,
     metrics: DisplayMetrics,
     style: DisplayStyle,
-    font: &'a DisplayFont,
     show_dots: bool,
     show_colons: bool,
     show_apostrophes: bool,
 }
 
-impl<'a> SegmentedDisplayWidget<'a> {
+impl SegmentedDisplayWidget {
     pub fn new(display_kind: Box<dyn DisplayKind>) -> Self {
-        let font = display_kind.default_font();
-
         Self {
             display_kind,
             digits: Vec::new(),
             digit_height: 48.0,
             metrics: DisplayMetrics::default(),
             style: DisplayStylePreset::Default.style(),
-            font,
             show_dots: true,
             show_colons: true,
             show_apostrophes: true,
@@ -56,7 +52,7 @@ impl<'a> SegmentedDisplayWidget<'a> {
                     Some(':') if self.show_colons => None,
                     Some('\'') if self.show_apostrophes => None,
                     Some(c) if c.is_ascii() => Some(DisplayDigit {
-                        glyph: self.font[c as usize],
+                        glyph: self.display_kind.glyph(c),
                         dot: (next == Some('.')) && self.show_dots,
                         colon: (prev == Some(':')) && self.show_colons,
                         apostrophe: (prev == Some('\'')) && self.show_apostrophes,
@@ -97,11 +93,6 @@ impl<'a> SegmentedDisplayWidget<'a> {
         self
     }
 
-    pub fn font(mut self, font: &'a DisplayFont) -> Self {
-        self.font = font;
-        self
-    }
-
     pub fn show_dots(mut self, show_dots: bool) -> Self {
         self.show_dots = show_dots;
         self
@@ -118,7 +109,7 @@ impl<'a> SegmentedDisplayWidget<'a> {
     }
 }
 
-impl<'a> Widget for SegmentedDisplayWidget<'a> {
+impl Widget for SegmentedDisplayWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         let digit_height = self.digit_height;
         let digit_width = digit_height * self.metrics.digit_ratio;

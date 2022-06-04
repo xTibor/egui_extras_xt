@@ -15,7 +15,6 @@ use egui::Pos2;
 // ----------------------------------------------------------------------------
 
 pub type DisplayFontGlyph = u16;
-pub type DisplayFont = [DisplayFontGlyph; 128];
 
 #[derive(Copy, Clone, Default)]
 pub struct DisplayDigit {
@@ -28,7 +27,7 @@ pub struct DisplayDigit {
 pub type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
 
 pub trait DisplayKind {
-    fn default_font<'a>(&self) -> &'a DisplayFont;
+    fn glyph(&self, c: char) -> DisplayFontGlyph;
 
     fn geometry(
         &self,
