@@ -56,7 +56,7 @@ impl<'a> SegmentedDisplayWidget<'a> {
                     Some(':') if self.show_colons => None,
                     Some('\'') if self.show_apostrophes => None,
                     Some(c) if c.is_ascii() => Some(DisplayDigit {
-                        segments: self.font[c as usize],
+                        glyph: self.font[c as usize],
                         dot: (next == Some('.')) && self.show_dots,
                         colon: (prev == Some(':')) && self.show_colons,
                         apostrophe: (prev == Some('\'')) && self.show_apostrophes,
@@ -181,7 +181,7 @@ impl<'a> Widget for SegmentedDisplayWidget<'a> {
                 );
 
                 for (segment_index, segment_points) in segment_points.iter().enumerate() {
-                    let segment_on = ((digit.segments >> segment_index) & 0x01) != 0x00;
+                    let segment_on = ((digit.glyph >> segment_index) & 0x01) != 0x00;
 
                     // TODO: concave_polygon
                     // https://github.com/emilk/egui/issues/513

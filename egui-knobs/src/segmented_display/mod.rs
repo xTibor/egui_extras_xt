@@ -19,7 +19,7 @@ pub type DisplayFont = [DisplayFontGlyph; 128];
 
 #[derive(Copy, Clone, Default)]
 pub struct DisplayDigit {
-    pub segments: DisplayFontGlyph,
+    pub glyph: DisplayFontGlyph,
     pub dot: bool,
     pub colon: bool,
     pub apostrophe: bool,
