@@ -150,7 +150,7 @@ impl DisplayKind for SixteenSegment {
             ('😫',  0x50B4), ('😭',  0x50B4), ('😲',  0x50B4), ('😳',  0x8AB7),
             ('🙁',  0x5084),
             // Supplemental Symbols and Pictographs
-            ('🤣',  0x0578), ('🥵',  0x50B4),
+            ('🤣',  0x0578), ('🥵',  0x50B4), ('🧘',  0x7230),
         ];
 
         assert!(GLYPH_DATA
