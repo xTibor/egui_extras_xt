@@ -1,5 +1,5 @@
 [package]
-name = "egui-knobs-example"
+name = "egui_extras_xt_example"
 version = "0.1.0"
 authors = ["Nagy Tibor <xnagytibor@protonmail.com>"]
 license = "MIT"
@@ -9,7 +9,7 @@ edition = "2021"
 maintenance = { status = "as-is" }
 
 [dependencies]
-egui-knobs = { path = "../egui-knobs/" }
+egui_extras_xt = { path = "../egui_extras_xt/" }
 
 eframe = "0.18.0"
 itertools = "0.10.3"

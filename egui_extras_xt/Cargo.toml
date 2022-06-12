@@ -1,5 +1,5 @@
 [package]
-name = "egui-knobs"
+name = "egui_extras_xt"
 version = "0.1.0"
 authors = ["Nagy Tibor <xnagytibor@protonmail.com>"]
 license = "MIT"

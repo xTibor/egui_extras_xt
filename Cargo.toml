@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "egui-knobs",
-    "egui-knobs-example",
+    "egui_extras_xt",
+    "egui_extras_xt_example",
 ]

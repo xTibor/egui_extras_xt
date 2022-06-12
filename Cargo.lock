@@ -381,25 +381,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "egui-knobs"
-version = "0.1.0"
-dependencies = [
- "egui",
- "emath",
- "epaint",
- "itertools",
-]
-
-[[package]]
-name = "egui-knobs-example"
-version = "0.1.0"
-dependencies = [
- "eframe",
- "egui-knobs",
- "itertools",
-]
-
-[[package]]
 name = "egui-winit"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -411,6 +392,25 @@ dependencies = [
  "tracing",
  "webbrowser",
  "winit",
+]
+
+[[package]]
+name = "egui_extras_xt"
+version = "0.1.0"
+dependencies = [
+ "egui",
+ "emath",
+ "epaint",
+ "itertools",
+]
+
+[[package]]
+name = "egui_extras_xt_example"
+version = "0.1.0"
+dependencies = [
+ "eframe",
+ "egui_extras_xt",
+ "itertools",
 ]
 
 [[package]]

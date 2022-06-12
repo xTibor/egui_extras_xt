@@ -5,16 +5,16 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
-use egui_knobs::segmented_display::{
+use egui_extras_xt::segmented_display::{
     DisplayKind, DisplayMetrics, DisplayStyle, DisplayStylePreset, SegmentedDisplayWidget,
     SevenSegment, SixteenSegment,
 };
-use egui_knobs::{
+use egui_extras_xt::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, CompassWidget, Orientation,
     WidgetShape, Winding, WrapMode,
 };
 
-struct EguiKnobsExampleApp {
+struct EguiExtrasXtExampleApp {
     // Common properties
     common_orientation: Orientation,
     common_winding: Winding,
@@ -49,7 +49,7 @@ struct EguiKnobsExampleApp {
     segmented_display_show_apostrophes: bool,
 }
 
-impl Default for EguiKnobsExampleApp {
+impl Default for EguiExtrasXtExampleApp {
     fn default() -> Self {
         Self {
             // Common properties
@@ -88,7 +88,7 @@ impl Default for EguiKnobsExampleApp {
     }
 }
 
-impl eframe::App for EguiKnobsExampleApp {
+impl eframe::App for EguiExtrasXtExampleApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
@@ -483,6 +483,6 @@ fn main() {
     eframe::run_native(
         "Knobs",
         options,
-        Box::new(|_cc| Box::new(EguiKnobsExampleApp::default())),
+        Box::new(|_cc| Box::new(EguiExtrasXtExampleApp::default())),
     );
 }
