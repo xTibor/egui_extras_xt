@@ -1,6 +1,8 @@
 use std::f32::consts::TAU;
+use std::ops::RangeInclusive;
 
-use egui::{Color32, Response, Shape, Ui, Vec2, Widget};
+use egui::{Align2, Color32, FontFamily, FontId, Response, Shape, Ui, Vec2, Widget};
+use epaint::TextShape;
 
 use crate::common::{normalized_angle_unsigned_excl, Winding, WrapMode};
 use crate::compass::{CompassLabels, CompassMarkerShape};
@@ -47,6 +49,7 @@ pub struct PolarCompass<'a> {
     label_height: f32,
     max_distance: f32,
     ring_count: usize,
+    marker_size: RangeInclusive<f32>,
     markers: &'a [PolarCompassMarker],
 }
 
@@ -60,6 +63,7 @@ impl<'a> PolarCompass<'a> {
             label_height: 48.0,
             max_distance: 10000.0,
             ring_count: 4,
+            marker_size: 8.0..=16.0,
             markers: &[],
         }
     }
@@ -99,6 +103,11 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
+    pub fn marker_size(mut self, marker_size: RangeInclusive<f32>) -> Self {
+        self.marker_size = marker_size;
+        self
+    }
+
     pub fn markers(mut self, markers: &'a [PolarCompassMarker]) -> Self {
         self.markers = markers;
         self
@@ -125,6 +134,7 @@ impl<'a> Widget for PolarCompass<'a> {
                     ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
                 );
 
+                // TODO: for log(max)
                 for i in 1..self.ring_count {
                     ui.painter().circle_stroke(
                         rect.center(),
@@ -138,7 +148,7 @@ impl<'a> Widget for PolarCompass<'a> {
                 |angle: f32| rotation_matrix * Vec2::angled(angle * self.winding.to_float());
 
             {
-                let paint_axis = |axis_angle| {
+                let paint_axis = |axis_angle, axis_label| {
                     ui.painter().add(Shape::line_segment(
                         [
                             rect.center(),
@@ -146,10 +156,22 @@ impl<'a> Widget for PolarCompass<'a> {
                         ],
                         ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
                     ));
+
+                    ui.painter().text(
+                        rect.center()
+                            + angle_to_direction(axis_angle) * (radius + self.label_height / 2.0),
+                        Align2::CENTER_CENTER,
+                        axis_label,
+                        FontId::new(self.label_height, FontFamily::Proportional),
+                        ui.style().visuals.text_color(),
+                    );
                 };
 
-                for axis in 0..self.labels.len() {
-                    paint_axis(axis as f32 * (TAU / (self.labels.len() as f32)));
+                for (axis_index, axis_label) in self.labels.iter().enumerate() {
+                    paint_axis(
+                        axis_index as f32 * (TAU / (self.labels.len() as f32)),
+                        axis_label,
+                    );
                 }
             }
         }
