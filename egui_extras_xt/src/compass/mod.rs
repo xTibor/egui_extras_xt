@@ -1,4 +1,5 @@
 pub mod linear_compass;
+pub mod polar_compass;
 
 use std::f32::consts::TAU;
 
