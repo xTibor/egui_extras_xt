@@ -1,23 +1,10 @@
 use std::f32::consts::TAU;
 
-use egui::{Color32, Response, Ui, Widget};
+use egui::{Color32, Response, Shape, Ui, Vec2, Widget};
 
 use crate::common::{normalized_angle_unsigned_excl, Winding, WrapMode};
 use crate::compass::{CompassLabels, CompassMarkerShape};
-
-// ----------------------------------------------------------------------------
-
-/// Combined into one function (rather than two) to make it easier
-/// for the borrow checker.
-type GetSetValue<'a> = Box<dyn 'a + FnMut(Option<f32>) -> f32>;
-
-fn get(get_set_value: &mut GetSetValue<'_>) -> f32 {
-    (get_set_value)(None)
-}
-
-fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
-    (get_set_value)(Some(value));
-}
+use crate::Orientation;
 
 // ----------------------------------------------------------------------------
 
@@ -53,8 +40,7 @@ impl<'a> PolarCompassMarker {
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct PolarCompass<'a> {
-    get_set_value: GetSetValue<'a>,
-    wrap: WrapMode,
+    orientation: Orientation,
     winding: Winding,
     diameter: f32,
     labels: CompassLabels<'a>,
@@ -62,23 +48,14 @@ pub struct PolarCompass<'a> {
     snap: Option<f32>,
     shift_snap: Option<f32>,
     max_distance: f32,
+    ring_count: usize,
     markers: &'a [PolarCompassMarker],
 }
 
 impl<'a> PolarCompass<'a> {
-    pub fn new(value: &'a mut f32) -> Self {
-        Self::from_get_set(move |v: Option<f32>| {
-            if let Some(v) = v {
-                *value = v;
-            }
-            *value
-        })
-    }
-
-    pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<f32>) -> f32) -> Self {
+    pub fn new() -> Self {
         Self {
-            get_set_value: Box::new(get_set_value),
-            wrap: WrapMode::Unsigned,
+            orientation: Orientation::Top,
             winding: Winding::Clockwise,
             diameter: 256.0,
             labels: ["N", "E", "S", "W"],
@@ -86,12 +63,13 @@ impl<'a> PolarCompass<'a> {
             snap: None,
             shift_snap: Some(TAU / 36.0),
             max_distance: 10000.0,
+            ring_count: 4,
             markers: &[],
         }
     }
 
-    pub fn wrap(mut self, wrap: WrapMode) -> Self {
-        self.wrap = wrap;
+    pub fn orientation(mut self, orientation: Orientation) -> Self {
+        self.orientation = orientation;
         self
     }
 
@@ -120,6 +98,11 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
+    pub fn ring_count(mut self, ring_count: usize) -> Self {
+        self.ring_count = ring_count;
+        self
+    }
+
     pub fn snap(mut self, snap: Option<f32>) -> Self {
         self.snap = snap;
         self
@@ -138,6 +121,53 @@ impl<'a> PolarCompass<'a> {
 
 impl<'a> Widget for PolarCompass<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
-        todo!()
+        let desired_size = Vec2::splat(self.diameter + self.label_height * 2.0);
+        let (rect, mut response) =
+            ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
+
+        let rotation_matrix = self.orientation.rot2();
+
+        if ui.is_rect_visible(rect) {
+            let visuals = *ui.style().interact(&response);
+            let radius = self.diameter / 2.0;
+
+            {
+                ui.painter().circle(
+                    rect.center(),
+                    radius,
+                    ui.style().visuals.extreme_bg_color, // TODO: Semantically correct color
+                    ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
+                );
+
+                for i in 1..self.ring_count {
+                    ui.painter().circle_stroke(
+                        rect.center(),
+                        radius * (i as f32 / self.ring_count as f32),
+                        ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
+                    );
+                }
+            }
+
+            let angle_to_direction =
+                |angle: f32| rotation_matrix * Vec2::angled(angle * self.winding.to_float());
+
+            {
+                let paint_axis = |axis_angle| {
+                    ui.painter().add(Shape::line_segment(
+                        [
+                            rect.center(),
+                            rect.center() + angle_to_direction(axis_angle) * radius,
+                        ],
+                        ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
+                    ));
+                };
+
+                for axis in 0..self.labels.len() {
+                    paint_axis(axis as f32 * (TAU / (self.labels.len() as f32)));
+                }
+            }
+        }
+
+        response
     }
 }

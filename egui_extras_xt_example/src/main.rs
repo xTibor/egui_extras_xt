@@ -11,7 +11,7 @@ use egui_extras_xt::segmented_display::{
 };
 use egui_extras_xt::{
     AngleKnob, AudioKnob, CompassMarkerShape, LinearCompass, LinearCompassMarker, Orientation,
-    WidgetShape, Winding, WrapMode,
+    PolarCompass, PolarCompassMarker, WidgetShape, Winding, WrapMode,
 };
 
 struct EguiExtrasXtExampleApp {
@@ -223,6 +223,39 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("PolarCompass");
+                ui.add_space(8.0);
+
+                ui.add(
+                    PolarCompass::new()
+                        .orientation(self.common_orientation)
+                        .winding(self.common_winding)
+                        .diameter(256.0)
+                        .labels(["N", "E", "S", "W"])
+                        .label_height(20.0)
+                        .snap(self.common_snap)
+                        .shift_snap(self.common_shift_snap)
+                        .max_distance(10000.0)
+                        .ring_count(4)
+                        .markers(&[
+                            PolarCompassMarker::new(0f32.to_radians(), 10.0)
+                                .color(Color32::RED)
+                                .shape(CompassMarkerShape::Circle),
+                            PolarCompassMarker::new(0f32.to_radians(), 100.0)
+                                .color(Color32::GREEN)
+                                .shape(CompassMarkerShape::Square),
+                            PolarCompassMarker::new(0f32.to_radians(), 1000.0)
+                                .color(Color32::BLUE)
+                                .shape(CompassMarkerShape::UpArrow),
+                            PolarCompassMarker::new(0f32.to_radians(), 10000.0)
+                                .color(Color32::GOLD)
+                                .shape(CompassMarkerShape::DownArrow),
+                        ]),
+                );
+
+                ui.add_space(8.0);
+                ui.separator();
+
                 ui.heading("SegmentedDisplayWidget");
                 ui.add_space(8.0);
 
