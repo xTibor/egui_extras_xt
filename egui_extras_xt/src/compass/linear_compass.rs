@@ -6,8 +6,9 @@ use epaint::color::tint_color_towards;
 use epaint::{Color32, FontFamily, FontId, Stroke};
 
 use crate::common::{
-    normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, MarkerShape, Winding, WrapMode,
+    normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, Winding, WrapMode,
 };
+use crate::compass::{CompassLabels, CompassMarkerShape};
 
 // ----------------------------------------------------------------------------
 
@@ -25,28 +26,24 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 
 // ----------------------------------------------------------------------------
 
-pub type CompassLabels<'a> = [&'a str; 4];
-
-// ----------------------------------------------------------------------------
-
-pub struct CompassMarker<'a> {
+pub struct LinearCompassMarker<'a> {
     angle: f32,
-    shape: MarkerShape,
+    shape: CompassMarkerShape,
     label: Option<&'a str>,
     color: Option<Color32>,
 }
 
-impl<'a> CompassMarker<'a> {
+impl<'a> LinearCompassMarker<'a> {
     pub fn new(angle: f32) -> Self {
         Self {
             angle: normalized_angle_unsigned_excl(angle),
-            shape: MarkerShape::Square,
+            shape: CompassMarkerShape::Square,
             label: None,
             color: None,
         }
     }
 
-    pub fn shape(mut self, shape: MarkerShape) -> Self {
+    pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
         self.shape = shape;
         self
     }
@@ -65,7 +62,7 @@ impl<'a> CompassMarker<'a> {
 // ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct CompassWidget<'a> {
+pub struct LinearCompass<'a> {
     get_set_value: GetSetValue<'a>,
     wrap: WrapMode,
     winding: Winding,
@@ -79,10 +76,10 @@ pub struct CompassWidget<'a> {
     max: Option<f32>,
     animated: bool,
     show_cursor: bool,
-    markers: &'a [CompassMarker<'a>],
+    markers: &'a [LinearCompassMarker<'a>],
 }
 
-impl<'a> CompassWidget<'a> {
+impl<'a> LinearCompass<'a> {
     pub fn new(value: &'a mut f32) -> Self {
         Self::from_get_set(move |v: Option<f32>| {
             if let Some(v) = v {
@@ -171,13 +168,13 @@ impl<'a> CompassWidget<'a> {
         self
     }
 
-    pub fn markers(mut self, markers: &'a [CompassMarker]) -> Self {
+    pub fn markers(mut self, markers: &'a [LinearCompassMarker]) -> Self {
         self.markers = markers;
         self
     }
 }
 
-impl<'a> Widget for CompassWidget<'a> {
+impl<'a> Widget for LinearCompass<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = egui::vec2(self.width, self.height);
         let (rect, mut response) =
@@ -263,7 +260,7 @@ impl<'a> Widget for CompassWidget<'a> {
                                     angle: f32,
                                     label: Option<&str>,
                                     text_color: Color32,
-                                    shape: MarkerShape,
+                                    shape: CompassMarkerShape,
                                     fill: Color32,
                                     stroke: Stroke| {
                     // Early exit when the marker is outside of the bounds of the widget,
@@ -336,7 +333,7 @@ impl<'a> Widget for CompassWidget<'a> {
                         value,
                         Some(&format!("{:.0}°", value.to_degrees())),
                         visuals.text_color(),
-                        MarkerShape::DownArrow,
+                        CompassMarkerShape::DownArrow,
                         visuals.bg_fill,
                         visuals.fg_stroke,
                     );
