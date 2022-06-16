@@ -1,7 +1,8 @@
 use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
-use egui::{Align2, Color32, FontFamily, FontId, Response, Shape, Ui, Vec2, Widget};
+use egui::color::tint_color_towards;
+use egui::{Align2, Color32, FontFamily, FontId, Rect, Response, Shape, Stroke, Ui, Vec2, Widget};
 use epaint::TextShape;
 
 use crate::common::{normalized_angle_unsigned_excl, Winding, WrapMode};
@@ -147,32 +148,47 @@ impl<'a> Widget for PolarCompass<'a> {
             let angle_to_direction =
                 |angle: f32| rotation_matrix * Vec2::angled(angle * self.winding.to_float());
 
-            {
-                let paint_axis = |axis_angle, axis_label| {
-                    ui.painter().add(Shape::line_segment(
-                        [
-                            rect.center(),
-                            rect.center() + angle_to_direction(axis_angle) * radius,
-                        ],
-                        ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
-                    ));
+            for (axis_index, axis_label) in self.labels.iter().enumerate() {
+                let axis_angle = axis_index as f32 * (TAU / (self.labels.len() as f32));
 
-                    ui.painter().text(
-                        rect.center()
-                            + angle_to_direction(axis_angle) * (radius + self.label_height / 2.0),
-                        Align2::CENTER_CENTER,
-                        axis_label,
-                        FontId::new(self.label_height, FontFamily::Proportional),
-                        ui.style().visuals.text_color(),
-                    );
+                ui.painter().add(Shape::line_segment(
+                    [
+                        rect.center(),
+                        rect.center() + angle_to_direction(axis_angle) * radius,
+                    ],
+                    ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
+                ));
+
+                ui.painter().text(
+                    rect.center()
+                        + angle_to_direction(axis_angle) * (radius + self.label_height / 2.0),
+                    Align2::CENTER_CENTER,
+                    axis_label,
+                    FontId::new(self.label_height, FontFamily::Proportional),
+                    ui.style().visuals.text_color(), // TODO: Semantically correct color
+                );
+            }
+
+            for marker in self.markers {
+                let marker_color = marker.color.unwrap_or(ui.style().visuals.text_color());
+
+                let marker_stroke = {
+                    let stroke_color =
+                        tint_color_towards(marker_color, ui.style().visuals.text_color());
+                    Stroke::new(1.0, stroke_color)
                 };
 
-                for (axis_index, axis_label) in self.labels.iter().enumerate() {
-                    paint_axis(
-                        axis_index as f32 * (TAU / (self.labels.len() as f32)),
-                        axis_label,
-                    );
-                }
+                let marker_log =
+                    (marker.distance.log10() / self.max_distance.log10()).clamp(0.0, 1.0);
+
+                let marker_rect = Rect::from_center_size(
+                    rect.center() + angle_to_direction(marker.angle) * (radius * marker_log),
+                    Vec2::splat(16.0),
+                );
+
+                marker
+                    .shape
+                    .paint(ui, marker_rect, marker_color, marker_stroke)
             }
         }
 

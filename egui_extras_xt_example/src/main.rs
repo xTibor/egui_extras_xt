@@ -237,16 +237,19 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .ring_count(4)
                         .marker_size(8.0..=16.0)
                         .markers(&[
+                            PolarCompassMarker::new(-15.0f32.to_radians(), 1.0)
+                                .color(Color32::KHAKI)
+                                .shape(CompassMarkerShape::Circle),
                             PolarCompassMarker::new(0.0f32.to_radians(), 10.0)
                                 .color(Color32::RED)
                                 .shape(CompassMarkerShape::Circle),
-                            PolarCompassMarker::new(45.0f32.to_radians(), 100.0)
+                            PolarCompassMarker::new(15.0f32.to_radians(), 100.0)
                                 .color(Color32::GREEN)
                                 .shape(CompassMarkerShape::Square),
-                            PolarCompassMarker::new(90.0f32.to_radians(), 1000.0)
+                            PolarCompassMarker::new(30.0f32.to_radians(), 1000.0)
                                 .color(Color32::BLUE)
                                 .shape(CompassMarkerShape::UpArrow),
-                            PolarCompassMarker::new(135.0f32.to_radians(), 10000.0)
+                            PolarCompassMarker::new(45.0f32.to_radians(), 10000.0)
                                 .color(Color32::GOLD)
                                 .shape(CompassMarkerShape::DownArrow),
                         ]),
