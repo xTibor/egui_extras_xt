@@ -45,8 +45,6 @@ pub struct PolarCompass<'a> {
     diameter: f32,
     labels: CompassLabels<'a>,
     label_height: f32,
-    snap: Option<f32>,
-    shift_snap: Option<f32>,
     max_distance: f32,
     ring_count: usize,
     markers: &'a [PolarCompassMarker],
@@ -60,8 +58,6 @@ impl<'a> PolarCompass<'a> {
             diameter: 256.0,
             labels: ["N", "E", "S", "W"],
             label_height: 48.0,
-            snap: None,
-            shift_snap: Some(TAU / 36.0),
             max_distance: 10000.0,
             ring_count: 4,
             markers: &[],
@@ -100,16 +96,6 @@ impl<'a> PolarCompass<'a> {
 
     pub fn ring_count(mut self, ring_count: usize) -> Self {
         self.ring_count = ring_count;
-        self
-    }
-
-    pub fn snap(mut self, snap: Option<f32>) -> Self {
-        self.snap = snap;
-        self
-    }
-
-    pub fn shift_snap(mut self, shift_snap: Option<f32>) -> Self {
-        self.shift_snap = shift_snap;
         self
     }
 

@@ -233,8 +233,6 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .diameter(256.0)
                         .labels(["N", "E", "S", "W"])
                         .label_height(20.0)
-                        .snap(self.common_snap)
-                        .shift_snap(self.common_shift_snap)
                         .max_distance(10000.0)
                         .ring_count(4)
                         .markers(&[
