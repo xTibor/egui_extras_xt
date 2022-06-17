@@ -41,7 +41,7 @@ struct EguiExtrasXtExampleApp {
     // PolarCompass
     polar_compass_overflow: PolarCompassOverflow,
     polar_compass_max_distance: f32,
-    polar_compass_scale_log_base: f32,
+    polar_compass_ring_count: usize,
     polar_compass_diameter: f32,
     polar_compass_label_height: f32,
     polar_compass_marker_near_size: f32,
@@ -87,7 +87,7 @@ impl Default for EguiExtrasXtExampleApp {
             // PolarCompass
             polar_compass_overflow: PolarCompassOverflow::Saturate,
             polar_compass_max_distance: 10000.0,
-            polar_compass_scale_log_base: 10.0,
+            polar_compass_ring_count: 4,
             polar_compass_diameter: 256.0,
             polar_compass_label_height: 24.0,
             polar_compass_marker_near_size: 16.0,
@@ -259,7 +259,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
 
                 ui.horizontal(|ui| {
                     ui.add(DragValue::new(&mut self.polar_compass_max_distance));
-                    ui.add(DragValue::new(&mut self.polar_compass_scale_log_base));
+                    ui.add(DragValue::new(&mut self.polar_compass_ring_count));
                 });
 
                 ui.horizontal(|ui| {
@@ -283,8 +283,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .labels(["N", "E", "S", "W"])
                         .label_height(self.polar_compass_label_height)
                         .max_distance(self.polar_compass_max_distance)
-                        .scale_log_base(self.polar_compass_scale_log_base)
-                        .ring_count(4)
+                        .ring_count(self.polar_compass_ring_count)
                         .marker_near_size(self.polar_compass_marker_near_size)
                         .marker_far_size(self.polar_compass_marker_far_size)
                         .markers(&[

@@ -1,5 +1,4 @@
 use std::f32::consts::TAU;
-use std::ops::RangeInclusive;
 
 use egui::color::tint_color_towards;
 use egui::{
@@ -60,7 +59,6 @@ pub struct PolarCompass<'a> {
     label_height: f32,
     max_distance: f32,
     scale_log_base: f32,
-    ring_count: usize,
     marker_near_size: f32,
     marker_far_size: f32,
     markers: &'a [PolarCompassMarker],
@@ -77,7 +75,6 @@ impl<'a> PolarCompass<'a> {
             label_height: 48.0,
             max_distance: 10000.0,
             scale_log_base: 10.0,
-            ring_count: 4,
             marker_near_size: 16.0,
             marker_far_size: 8.0,
             markers: &[],
@@ -125,7 +122,7 @@ impl<'a> PolarCompass<'a> {
     }
 
     pub fn ring_count(mut self, ring_count: usize) -> Self {
-        self.ring_count = ring_count;
+        self.scale_log_base = (self.max_distance.ln() / ring_count as f32).exp();
         self
     }
 
@@ -165,11 +162,13 @@ impl<'a> Widget for PolarCompass<'a> {
                     ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
                 );
 
-                // TODO: for log(max)
-                for i in 1..self.ring_count {
+                let max_log = self.max_distance.log(self.scale_log_base);
+                assert!(max_log < 256.0); // Prevent accidental OoM deaths during development
+
+                for i in 1..max_log.ceil() as usize {
                     ui.painter().circle_stroke(
                         rect.center(),
-                        radius * (i as f32 / self.ring_count as f32),
+                        radius * (i as f32 / max_log),
                         ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
                     );
                 }
