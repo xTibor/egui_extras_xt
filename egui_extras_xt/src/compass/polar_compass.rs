@@ -11,6 +11,20 @@ use crate::Orientation;
 
 // ----------------------------------------------------------------------------
 
+/// Combined into one function (rather than two) to make it easier
+/// for the borrow checker.
+type GetSetValue<'a> = Box<dyn 'a + FnMut(Option<f32>) -> f32>;
+
+fn get(get_set_value: &mut GetSetValue<'_>) -> f32 {
+    (get_set_value)(None)
+}
+
+fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
+    (get_set_value)(Some(value));
+}
+
+// ----------------------------------------------------------------------------
+
 #[derive(Copy, Clone, PartialEq)]
 pub enum PolarCompassOverflow {
     Clip,
@@ -51,6 +65,7 @@ impl<'a> PolarCompassMarker {
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct PolarCompass<'a> {
+    get_set_value: GetSetValue<'a>,
     orientation: Orientation,
     winding: Winding,
     overflow: PolarCompassOverflow,
@@ -65,8 +80,18 @@ pub struct PolarCompass<'a> {
 }
 
 impl<'a> PolarCompass<'a> {
-    pub fn new() -> Self {
+    pub fn new(value: &'a mut f32) -> Self {
+        Self::from_get_set(move |v: Option<f32>| {
+            if let Some(v) = v {
+                *value = v;
+            }
+            *value
+        })
+    }
+
+    pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<f32>) -> f32) -> Self {
         Self {
+            get_set_value: Box::new(get_set_value),
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
             overflow: PolarCompassOverflow::Saturate,
@@ -161,6 +186,8 @@ impl<'a> Widget for PolarCompass<'a> {
             let visuals = *ui.style().interact(&response);
             let radius = self.diameter / 2.0;
 
+            let value = get(&mut self.get_set_value);
+
             {
                 ui.painter().circle(
                     rect.center(),
@@ -183,8 +210,22 @@ impl<'a> Widget for PolarCompass<'a> {
                 }
             }
 
-            let angle_to_direction =
-                |angle: f32| rotation_matrix * Vec2::angled(angle * self.winding.to_float());
+            let angle_to_direction = |angle: f32| {
+                rotation_matrix * Vec2::angled((angle - value) * self.winding.to_float())
+            };
+
+
+            {
+                ui.painter().add(Shape::dashed_line(
+                    &[
+                        rect.center(),
+                        rect.center() + rotation_matrix * Vec2::RIGHT * radius,
+                    ],
+                    ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
+                    2.0,
+                    4.0,
+                ));
+            }
 
             for (axis_index, axis_label) in self.labels.iter().enumerate() {
                 let axis_angle = axis_index as f32 * (TAU / (self.labels.len() as f32));

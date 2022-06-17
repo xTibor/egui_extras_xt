@@ -39,6 +39,7 @@ struct EguiExtrasXtExampleApp {
     linear_compass_show_cursor: bool,
 
     // PolarCompass
+    polar_compass_value: f32,
     polar_compass_overflow: PolarCompassOverflow,
     polar_compass_max_distance: f32,
     polar_compass_scale_log_base: f32,
@@ -85,6 +86,7 @@ impl Default for EguiExtrasXtExampleApp {
             linear_compass_show_cursor: true,
 
             // PolarCompass
+            polar_compass_value: 0.0,
             polar_compass_overflow: PolarCompassOverflow::Saturate,
             polar_compass_max_distance: 10000.0,
             polar_compass_scale_log_base: 10.0,
@@ -257,6 +259,8 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     );
                 });
 
+                ui.drag_angle(&mut self.polar_compass_value);
+
                 ui.horizontal(|ui| {
                     ui.add(DragValue::new(&mut self.polar_compass_max_distance));
                     ui.add(DragValue::new(&mut self.polar_compass_scale_log_base));
@@ -275,7 +279,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.add_space(8.0);
 
                 ui.add(
-                    PolarCompass::new()
+                    PolarCompass::new(&mut self.polar_compass_value)
                         .orientation(self.common_orientation)
                         .winding(self.common_winding)
                         .overflow(self.polar_compass_overflow)
