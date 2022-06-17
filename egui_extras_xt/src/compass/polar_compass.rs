@@ -96,13 +96,15 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
-    pub fn diameter(mut self, diameter: impl Into<f32>) -> Self {
+    pub fn diameter(mut self, diameter: f32) -> Self {
+        assert!(diameter > 0.0);
         self.diameter = diameter.into();
         self
     }
 
-    pub fn scale_log_base(mut self, scale_log_base: impl Into<f32>) -> Self {
-        self.scale_log_base = scale_log_base.into();
+    pub fn scale_log_base(mut self, scale_log_base: f32) -> Self {
+        assert!(scale_log_base > 1.0);
+        self.scale_log_base = scale_log_base;
         self
     }
 
@@ -111,28 +113,33 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
-    pub fn label_height(mut self, label_height: impl Into<f32>) -> Self {
-        self.label_height = label_height.into();
+    pub fn label_height(mut self, label_height: f32) -> Self {
+        assert!(label_height > 0.0);
+        self.label_height = label_height;
         self
     }
 
-    pub fn max_distance(mut self, max_distance: impl Into<f32>) -> Self {
-        self.max_distance = max_distance.into();
+    pub fn max_distance(mut self, max_distance: f32) -> Self {
+        assert!(max_distance >= 0.0);
+        self.max_distance = max_distance;
         self
     }
 
     pub fn ring_count(mut self, ring_count: usize) -> Self {
+        assert!(ring_count > 0);
         self.scale_log_base = (self.max_distance.ln() / ring_count as f32).exp();
         self
     }
 
-    pub fn marker_near_size(mut self, marker_near_size: impl Into<f32>) -> Self {
-        self.marker_near_size = marker_near_size.into();
+    pub fn marker_near_size(mut self, marker_near_size: f32) -> Self {
+        assert!(marker_near_size >= 0.0);
+        self.marker_near_size = marker_near_size;
         self
     }
 
-    pub fn marker_far_size(mut self, marker_far_size: impl Into<f32>) -> Self {
-        self.marker_far_size = marker_far_size.into();
+    pub fn marker_far_size(mut self, marker_far_size: f32) -> Self {
+        assert!(marker_far_size >= 0.0);
+        self.marker_far_size = marker_far_size;
         self
     }
 
@@ -165,6 +172,8 @@ impl<'a> Widget for PolarCompass<'a> {
                 let max_log = self.max_distance.log(self.scale_log_base);
                 assert!(max_log < 256.0); // Prevent accidental OoM deaths during development
 
+                // No off-by-one bugs here, non-inclusive range end is used to
+                // avoid double rendering the outermost ring.
                 for i in 1..max_log.ceil() as usize {
                     ui.painter().circle_stroke(
                         rect.center(),
