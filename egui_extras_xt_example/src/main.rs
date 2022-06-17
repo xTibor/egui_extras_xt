@@ -11,7 +11,7 @@ use egui_extras_xt::segmented_display::{
 };
 use egui_extras_xt::{
     AngleKnob, AudioKnob, CompassMarkerShape, LinearCompass, LinearCompassMarker, Orientation,
-    PolarCompass, PolarCompassMarker, WidgetShape, Winding, WrapMode,
+    PolarCompass, PolarCompassMarker, PolarCompassOverflow, WidgetShape, Winding, WrapMode,
 };
 
 struct EguiExtrasXtExampleApp {
@@ -37,6 +37,15 @@ struct EguiExtrasXtExampleApp {
     linear_compass_value: f32,
     linear_compass_spread: f32,
     linear_compass_show_cursor: bool,
+
+    // PolarCompass
+    polar_compass_overflow: PolarCompassOverflow,
+    polar_compass_max_distance: f32,
+    polar_compass_scale_log_base: f32,
+    polar_compass_diameter: f32,
+    polar_compass_label_height: f32,
+    polar_compass_marker_near_size: f32,
+    polar_compass_marker_far_size: f32,
 
     // SegmentedDisplayWidget
     segmented_display_display_kind: Box<dyn DisplayKind>,
@@ -74,6 +83,15 @@ impl Default for EguiExtrasXtExampleApp {
             linear_compass_value: 0.0,
             linear_compass_spread: TAU / 2.0,
             linear_compass_show_cursor: true,
+
+            // PolarCompass
+            polar_compass_overflow: PolarCompassOverflow::Saturate,
+            polar_compass_max_distance: 10000.0,
+            polar_compass_scale_log_base: 10.0,
+            polar_compass_diameter: 256.0,
+            polar_compass_label_height: 24.0,
+            polar_compass_marker_near_size: 16.0,
+            polar_compass_marker_far_size: 8.0,
 
             // SegmentedDisplayWidget
             segmented_display_display_kind: Box::new(SixteenSegment),
@@ -226,16 +244,49 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.heading("PolarCompass");
                 ui.add_space(8.0);
 
+                ui.horizontal(|ui| {
+                    ui.selectable_value(
+                        &mut self.polar_compass_overflow,
+                        PolarCompassOverflow::Clip,
+                        "✂ Clip",
+                    );
+                    ui.selectable_value(
+                        &mut self.polar_compass_overflow,
+                        PolarCompassOverflow::Saturate,
+                        "➡| Saturate",
+                    );
+                });
+
+                ui.horizontal(|ui| {
+                    ui.add(DragValue::new(&mut self.polar_compass_max_distance));
+                    ui.add(DragValue::new(&mut self.polar_compass_scale_log_base));
+                });
+
+                ui.horizontal(|ui| {
+                    ui.add(DragValue::new(&mut self.polar_compass_diameter));
+                    ui.add(DragValue::new(&mut self.polar_compass_label_height));
+                });
+
+                ui.horizontal(|ui| {
+                    ui.add(DragValue::new(&mut self.polar_compass_marker_near_size));
+                    ui.add(DragValue::new(&mut self.polar_compass_marker_far_size));
+                });
+
+                ui.add_space(8.0);
+
                 ui.add(
                     PolarCompass::new()
                         .orientation(self.common_orientation)
                         .winding(self.common_winding)
-                        .diameter(256.0)
+                        .overflow(self.polar_compass_overflow)
+                        .diameter(self.polar_compass_diameter)
                         .labels(["N", "E", "S", "W"])
-                        .label_height(24.0)
-                        .max_distance(10000.0)
+                        .label_height(self.polar_compass_label_height)
+                        .max_distance(self.polar_compass_max_distance)
+                        .scale_log_base(self.polar_compass_scale_log_base)
                         .ring_count(4)
-                        .marker_size(8.0..=16.0)
+                        .marker_near_size(self.polar_compass_marker_near_size)
+                        .marker_far_size(self.polar_compass_marker_far_size)
                         .markers(&[
                             PolarCompassMarker::new(-15.0f32.to_radians(), 1.0)
                                 .color(Color32::KHAKI)

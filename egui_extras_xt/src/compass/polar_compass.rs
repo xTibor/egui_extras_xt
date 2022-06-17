@@ -2,12 +2,21 @@ use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
 use egui::color::tint_color_towards;
-use egui::{Align2, Color32, FontFamily, FontId, Rect, Response, Shape, Stroke, Ui, Vec2, Widget};
-use epaint::TextShape;
+use egui::{
+    lerp, Align2, Color32, FontFamily, FontId, Rect, Response, Shape, Stroke, Ui, Vec2, Widget,
+};
 
-use crate::common::{normalized_angle_unsigned_excl, Winding, WrapMode};
+use crate::common::{normalized_angle_unsigned_excl, Winding};
 use crate::compass::{CompassLabels, CompassMarkerShape};
 use crate::Orientation;
+
+// ----------------------------------------------------------------------------
+
+#[derive(Copy, Clone, PartialEq)]
+pub enum PolarCompassOverflow {
+    Clip,
+    Saturate,
+}
 
 // ----------------------------------------------------------------------------
 
@@ -45,12 +54,15 @@ impl<'a> PolarCompassMarker {
 pub struct PolarCompass<'a> {
     orientation: Orientation,
     winding: Winding,
+    overflow: PolarCompassOverflow,
     diameter: f32,
     labels: CompassLabels<'a>,
     label_height: f32,
     max_distance: f32,
+    scale_log_base: f32,
     ring_count: usize,
-    marker_size: RangeInclusive<f32>,
+    marker_near_size: f32,
+    marker_far_size: f32,
     markers: &'a [PolarCompassMarker],
 }
 
@@ -59,12 +71,15 @@ impl<'a> PolarCompass<'a> {
         Self {
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
+            overflow: PolarCompassOverflow::Saturate,
             diameter: 256.0,
             labels: ["N", "E", "S", "W"],
             label_height: 48.0,
             max_distance: 10000.0,
+            scale_log_base: 10.0,
             ring_count: 4,
-            marker_size: 8.0..=16.0,
+            marker_near_size: 16.0,
+            marker_far_size: 8.0,
             markers: &[],
         }
     }
@@ -79,8 +94,18 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
+    pub fn overflow(mut self, overflow: PolarCompassOverflow) -> Self {
+        self.overflow = overflow;
+        self
+    }
+
     pub fn diameter(mut self, diameter: impl Into<f32>) -> Self {
         self.diameter = diameter.into();
+        self
+    }
+
+    pub fn scale_log_base(mut self, scale_log_base: impl Into<f32>) -> Self {
+        self.scale_log_base = scale_log_base.into();
         self
     }
 
@@ -104,8 +129,13 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
-    pub fn marker_size(mut self, marker_size: RangeInclusive<f32>) -> Self {
-        self.marker_size = marker_size;
+    pub fn marker_near_size(mut self, marker_near_size: impl Into<f32>) -> Self {
+        self.marker_near_size = marker_near_size.into();
+        self
+    }
+
+    pub fn marker_far_size(mut self, marker_far_size: impl Into<f32>) -> Self {
+        self.marker_far_size = marker_far_size.into();
         self
     }
 
@@ -170,6 +200,12 @@ impl<'a> Widget for PolarCompass<'a> {
             }
 
             for marker in self.markers {
+                if (marker.distance > self.max_distance)
+                    && (self.overflow == PolarCompassOverflow::Clip)
+                {
+                    continue;
+                }
+
                 let marker_color = marker.color.unwrap_or(ui.style().visuals.text_color());
 
                 let marker_stroke = {
@@ -178,12 +214,13 @@ impl<'a> Widget for PolarCompass<'a> {
                     Stroke::new(1.0, stroke_color)
                 };
 
-                let marker_log =
-                    (marker.distance.log10() / self.max_distance.log10()).clamp(0.0, 1.0);
+                let max_log = self.max_distance.log(self.scale_log_base);
+                let marker_log = marker.distance.log(self.scale_log_base);
+                let marker_t = (marker_log / max_log).clamp(0.0, 1.0);
 
                 let marker_rect = Rect::from_center_size(
-                    rect.center() + angle_to_direction(marker.angle) * (radius * marker_log),
-                    Vec2::splat(16.0),
+                    rect.center() + angle_to_direction(marker.angle) * (radius * marker_t),
+                    Vec2::splat(lerp(self.marker_near_size..=self.marker_far_size, marker_t)),
                 );
 
                 marker
