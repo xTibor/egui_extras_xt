@@ -16,6 +16,7 @@ use egui_extras_xt::{
 
 struct EguiExtrasXtExampleApp {
     // Common properties
+    common_interactive: bool,
     common_orientation: Orientation,
     common_winding: Winding,
     common_wrap: WrapMode,
@@ -69,6 +70,7 @@ impl Default for EguiExtrasXtExampleApp {
     fn default() -> Self {
         Self {
             // Common properties
+            common_interactive: true,
             common_orientation: Orientation::Top,
             common_winding: Winding::Clockwise,
             common_wrap: WrapMode::Signed,
@@ -250,7 +252,11 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 }
             });
 
-            ui.checkbox(&mut self.common_animated, "Animated");
+            ui.horizontal(|ui| {
+                ui.checkbox(&mut self.common_animated, "Animated");
+                ui.checkbox(&mut self.common_interactive, "Interactive");
+            });
+
             ui.add_space(8.0);
             ui.separator();
 
@@ -307,6 +313,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
 
                 ui.add(
                     PolarCompass::new(&mut self.polar_compass_value)
+                        .interactive(self.common_interactive)
                         .orientation(self.common_orientation)
                         .winding(self.common_winding)
                         .overflow(self.polar_compass_overflow)
@@ -465,6 +472,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     {
                         ui.add(
                             AudioKnob::new(&mut self.audio_knob_value, audio_knob_range)
+                                .interactive(self.common_interactive)
                                 .diameter(audio_knob_size)
                                 .orientation(self.common_orientation)
                                 .winding(self.common_winding)
@@ -491,6 +499,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     for angle_knob_size in [64.0, 32.0] {
                         ui.add(
                             AngleKnob::new(&mut self.angle_knob_value)
+                                .interactive(self.common_interactive)
                                 .diameter(angle_knob_size)
                                 .orientation(self.common_orientation)
                                 .winding(self.common_winding)
@@ -519,6 +528,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
 
                 ui.add(
                     LinearCompass::new(&mut self.linear_compass_value)
+                        .interactive(self.common_interactive)
                         .wrap(self.common_wrap)
                         .winding(self.common_winding)
                         .width(512.0)

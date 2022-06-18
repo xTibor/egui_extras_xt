@@ -1,6 +1,6 @@
 use std::f32::consts::TAU;
 
-use egui::{self, Response, Ui, Widget};
+use egui::{self, Response, Sense, Ui, Widget};
 use emath::Vec2;
 use epaint::{Shape, Stroke};
 
@@ -78,6 +78,7 @@ impl AngleKnobPreset {
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct AngleKnob<'a> {
     get_set_value: GetSetValue<'a>,
+    interactive: bool,
     diameter: f32,
     orientation: Orientation,
     winding: Winding,
@@ -104,6 +105,7 @@ impl<'a> AngleKnob<'a> {
     pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<f32>) -> f32) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
+            interactive: true,
             diameter: 32.0,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
@@ -116,6 +118,11 @@ impl<'a> AngleKnob<'a> {
             show_axes: true,
             axis_count: 4,
         }
+    }
+
+    pub fn interactive(mut self, interactive: bool) -> Self {
+        self.interactive = interactive;
+        self
     }
 
     pub fn preset(mut self, preset: AngleKnobPreset) -> Self {
@@ -182,8 +189,15 @@ impl<'a> AngleKnob<'a> {
 impl<'a> Widget for AngleKnob<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = Vec2::splat(self.diameter);
-        let (rect, mut response) =
-            ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
+
+        let (rect, mut response) = ui.allocate_exact_size(
+            desired_size,
+            if self.interactive {
+                Sense::click_and_drag()
+            } else {
+                Sense::hover()
+            },
+        );
 
         let rotation_matrix = self.orientation.rot2();
 

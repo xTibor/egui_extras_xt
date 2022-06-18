@@ -2,7 +2,8 @@ use std::f32::consts::TAU;
 
 use egui::color::tint_color_towards;
 use egui::{
-    lerp, Align2, Color32, FontFamily, FontId, Rect, Response, Shape, Stroke, Ui, Vec2, Widget,
+    lerp, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Shape, Stroke, Ui, Vec2,
+    Widget,
 };
 
 use crate::common::{normalized_angle_unsigned_excl, Winding};
@@ -73,6 +74,7 @@ impl<'a> PolarCompassMarker<'a> {
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct PolarCompass<'a> {
     get_set_value: GetSetValue<'a>,
+    interactive: bool,
     orientation: Orientation,
     winding: Winding,
     overflow: PolarCompassOverflow,
@@ -105,6 +107,7 @@ impl<'a> PolarCompass<'a> {
     pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<f32>) -> f32) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
+            interactive: false,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
             overflow: PolarCompassOverflow::Saturate,
@@ -123,6 +126,11 @@ impl<'a> PolarCompass<'a> {
             show_marker_lines: false,
             markers: &[],
         }
+    }
+
+    pub fn interactive(mut self, interactive: bool) -> Self {
+        self.interactive = interactive;
+        self
     }
 
     pub fn orientation(mut self, orientation: Orientation) -> Self {
@@ -228,8 +236,15 @@ impl<'a> PolarCompass<'a> {
 impl<'a> Widget for PolarCompass<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = Vec2::splat(self.diameter + self.label_height * 2.0);
-        let (rect, mut response) =
-            ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
+
+        let (rect, mut response) = ui.allocate_exact_size(
+            desired_size,
+            if self.interactive {
+                Sense::click_and_drag()
+            } else {
+                Sense::hover()
+            },
+        );
 
         let rotation_matrix = self.orientation.rot2();
 

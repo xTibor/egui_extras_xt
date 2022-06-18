@@ -1,7 +1,7 @@
 use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
-use egui::{self, Response, Ui, Widget};
+use egui::{self, Response, Sense, Ui, Widget};
 use emath::{remap_clamp, Vec2};
 
 use crate::common::{Orientation, WidgetShape, Winding};
@@ -25,6 +25,7 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct AudioKnob<'a> {
     get_set_value: GetSetValue<'a>,
+    interactive: bool,
     diameter: f32,
     winding: Winding,
     orientation: Orientation,
@@ -53,6 +54,7 @@ impl<'a> AudioKnob<'a> {
     ) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
+            interactive: true,
             diameter: 32.0,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
@@ -64,6 +66,11 @@ impl<'a> AudioKnob<'a> {
             snap: None,
             shift_snap: None,
         }
+    }
+
+    pub fn interactive(mut self, interactive: bool) -> Self {
+        self.interactive = interactive;
+        self
     }
 
     pub fn diameter(mut self, diameter: impl Into<f32>) -> Self {
@@ -115,8 +122,15 @@ impl<'a> AudioKnob<'a> {
 impl<'a> Widget for AudioKnob<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = Vec2::splat(self.diameter);
-        let (rect, mut response) =
-            ui.allocate_exact_size(desired_size, egui::Sense::click_and_drag());
+
+        let (rect, mut response) = ui.allocate_exact_size(
+            desired_size,
+            if self.interactive {
+                Sense::click_and_drag()
+            } else {
+                Sense::hover()
+            },
+        );
 
         let constrain_value = |value: f32| value.clamp(*self.range.start(), *self.range.end());
 
