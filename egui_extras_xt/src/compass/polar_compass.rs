@@ -173,13 +173,13 @@ impl<'a> PolarCompass<'a> {
     }
 
     pub fn marker_near_size(mut self, marker_near_size: f32) -> Self {
-        assert!(marker_near_size >= 0.0);
+        assert!(marker_near_size > 0.0);
         self.marker_near_size = marker_near_size;
         self
     }
 
     pub fn marker_far_size(mut self, marker_far_size: f32) -> Self {
-        assert!(marker_far_size >= 0.0);
+        assert!(marker_far_size > 0.0);
         self.marker_far_size = marker_far_size;
         self
     }
