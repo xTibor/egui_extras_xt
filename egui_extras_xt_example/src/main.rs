@@ -295,26 +295,22 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .marker_near_size(self.polar_compass_marker_near_size)
                         .marker_far_size(self.polar_compass_marker_far_size)
                         .markers(&[
-                            PolarCompassMarker::new(-15.0f32.to_radians(), 1.0)
-                                .color(Color32::KHAKI)
-                                .shape(CompassMarkerShape::Circle)
-                                .label("Circle"),
                             PolarCompassMarker::new(0.0f32.to_radians(), 20.0)
-                                .color(Color32::RED)
-                                .shape(CompassMarkerShape::Circle)
-                                .label("Circle"),
+                                .color(Color32::from_rgb(0xF0, 0xBF, 0x89))
+                                .shape(CompassMarkerShape::Diamond)
+                                .label("Haibara"),
                             PolarCompassMarker::new(15.0f32.to_radians(), 200.0)
-                                .color(Color32::GREEN)
-                                .shape(CompassMarkerShape::Square)
-                                .label("Square"),
-                            PolarCompassMarker::new(30.0f32.to_radians(), 2000.0)
-                                .color(Color32::BLUE)
-                                .shape(CompassMarkerShape::UpArrow)
-                                .label("UpArrow"),
-                            PolarCompassMarker::new(45.0f32.to_radians(), 20000.0)
-                                .color(Color32::GOLD)
+                                .color(Color32::from_rgb(0x9C, 0xCF, 0xEE))
                                 .shape(CompassMarkerShape::DownArrow)
-                                .label("DownArrow"),
+                                .label("Mitsuhiko"),
+                            PolarCompassMarker::new(30.0f32.to_radians(), 2000.0)
+                                .color(Color32::from_rgb(0x8A, 0xDC, 0x71))
+                                .shape(CompassMarkerShape::Circle)
+                                .label("Genta"),
+                            PolarCompassMarker::new(45.0f32.to_radians(), 20000.0)
+                                .color(Color32::from_rgb(0xEF, 0xBB, 0xC4))
+                                .shape(CompassMarkerShape::UpArrow)
+                                .label("Ayumi"),
                         ]),
                 );
 
