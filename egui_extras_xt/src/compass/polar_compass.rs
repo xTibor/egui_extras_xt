@@ -33,25 +33,32 @@ pub enum PolarCompassOverflow {
 
 // ----------------------------------------------------------------------------
 
-pub struct PolarCompassMarker {
+pub struct PolarCompassMarker<'a> {
     angle: f32,
     distance: f32,
     shape: CompassMarkerShape,
+    label: Option<&'a str>,
     color: Option<Color32>,
 }
 
-impl<'a> PolarCompassMarker {
+impl<'a> PolarCompassMarker<'a> {
     pub fn new(angle: f32, distance: f32) -> Self {
         Self {
             angle: normalized_angle_unsigned_excl(angle),
             distance,
             shape: CompassMarkerShape::Square,
+            label: None,
             color: None,
         }
     }
 
     pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
         self.shape = shape;
+        self
+    }
+
+    pub fn label(mut self, label: &'a str) -> Self {
+        self.label = Some(label);
         self
     }
 
@@ -77,7 +84,7 @@ pub struct PolarCompass<'a> {
     scale_log_mult: f32,
     marker_near_size: f32,
     marker_far_size: f32,
-    markers: &'a [PolarCompassMarker],
+    markers: &'a [PolarCompassMarker<'a>],
 }
 
 impl<'a> PolarCompass<'a> {
@@ -177,7 +184,7 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
-    pub fn markers(mut self, markers: &'a [PolarCompassMarker]) -> Self {
+    pub fn markers(mut self, markers: &'a [PolarCompassMarker<'a>]) -> Self {
         self.markers = markers;
         self
     }
@@ -275,14 +282,28 @@ impl<'a> Widget for PolarCompass<'a> {
                 let marker_log = (marker.distance / self.scale_log_mult).log(self.scale_log_base);
                 let marker_t = (marker_log / max_log).clamp(0.0, 1.0);
 
-                let marker_rect = Rect::from_center_size(
-                    rect.center() + angle_to_direction(marker.angle) * (radius * marker_t),
-                    Vec2::splat(lerp(self.marker_near_size..=self.marker_far_size, marker_t)),
+                let marker_center =
+                    rect.center() + angle_to_direction(marker.angle) * (radius * marker_t);
+                let marker_size = lerp(self.marker_near_size..=self.marker_far_size, marker_t);
+
+                let label_center = marker_center + Vec2::DOWN * marker_size;
+
+                marker.shape.paint(
+                    ui,
+                    Rect::from_center_size(marker_center, Vec2::splat(marker_size)),
+                    marker_color,
+                    marker_stroke,
                 );
 
-                marker
-                    .shape
-                    .paint(ui, marker_rect, marker_color, marker_stroke)
+                if let Some(marker_label) = marker.label {
+                    ui.painter().text(
+                        label_center,
+                        Align2::CENTER_CENTER,
+                        marker_label,
+                        FontId::new(marker_size, FontFamily::Proportional),
+                        marker_color,
+                    );
+                }
             }
         }
 

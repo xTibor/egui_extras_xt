@@ -297,19 +297,24 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .markers(&[
                             PolarCompassMarker::new(-15.0f32.to_radians(), 1.0)
                                 .color(Color32::KHAKI)
-                                .shape(CompassMarkerShape::Circle),
+                                .shape(CompassMarkerShape::Circle)
+                                .label("Circle"),
                             PolarCompassMarker::new(0.0f32.to_radians(), 20.0)
                                 .color(Color32::RED)
-                                .shape(CompassMarkerShape::Circle),
+                                .shape(CompassMarkerShape::Circle)
+                                .label("Circle"),
                             PolarCompassMarker::new(15.0f32.to_radians(), 200.0)
                                 .color(Color32::GREEN)
-                                .shape(CompassMarkerShape::Square),
+                                .shape(CompassMarkerShape::Square)
+                                .label("Square"),
                             PolarCompassMarker::new(30.0f32.to_radians(), 2000.0)
                                 .color(Color32::BLUE)
-                                .shape(CompassMarkerShape::UpArrow),
+                                .shape(CompassMarkerShape::UpArrow)
+                                .label("UpArrow"),
                             PolarCompassMarker::new(45.0f32.to_radians(), 20000.0)
                                 .color(Color32::GOLD)
-                                .shape(CompassMarkerShape::DownArrow),
+                                .shape(CompassMarkerShape::DownArrow)
+                                .label("DownArrow"),
                         ]),
                 );
 
