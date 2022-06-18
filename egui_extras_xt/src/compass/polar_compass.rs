@@ -84,6 +84,11 @@ pub struct PolarCompass<'a> {
     scale_log_mult: f32,
     marker_near_size: f32,
     marker_far_size: f32,
+    show_axes: bool,
+    show_rings: bool,
+    show_cursor: bool,
+    show_marker_labels: bool,
+    show_marker_lines: bool,
     markers: &'a [PolarCompassMarker<'a>],
 }
 
@@ -111,6 +116,11 @@ impl<'a> PolarCompass<'a> {
             scale_log_mult: 1.0,
             marker_near_size: 16.0,
             marker_far_size: 8.0,
+            show_axes: true,
+            show_rings: true,
+            show_cursor: true,
+            show_marker_labels: false,
+            show_marker_lines: false,
             markers: &[],
         }
     }
@@ -184,6 +194,31 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
+    pub fn show_axes(mut self, show_axes: bool) -> Self {
+        self.show_axes = show_axes;
+        self
+    }
+
+    pub fn show_rings(mut self, show_rings: bool) -> Self {
+        self.show_rings = show_rings;
+        self
+    }
+
+    pub fn show_cursor(mut self, show_cursor: bool) -> Self {
+        self.show_cursor = show_cursor;
+        self
+    }
+
+    pub fn show_marker_labels(mut self, show_marker_labels: bool) -> Self {
+        self.show_marker_labels = show_marker_labels;
+        self
+    }
+
+    pub fn show_marker_lines(mut self, show_marker_lines: bool) -> Self {
+        self.show_marker_lines = show_marker_lines;
+        self
+    }
+
     pub fn markers(mut self, markers: &'a [PolarCompassMarker<'a>]) -> Self {
         self.markers = markers;
         self
@@ -198,6 +233,19 @@ impl<'a> Widget for PolarCompass<'a> {
 
         let rotation_matrix = self.orientation.rot2();
 
+        if response.clicked() || response.dragged() {
+            let prev_value = get(&mut self.get_set_value);
+            let mut new_value = -(rotation_matrix
+                * (rect.center() - response.interact_pointer_pos().unwrap()))
+            .angle()
+                * self.winding.to_float();
+
+            // ...
+
+            set(&mut self.get_set_value, new_value);
+            response.mark_changed();
+        }
+
         if ui.is_rect_visible(rect) {
             let visuals = *ui.style().interact(&response);
             let radius = self.diameter / 2.0;
@@ -209,9 +257,11 @@ impl<'a> Widget for PolarCompass<'a> {
                     rect.center(),
                     radius,
                     ui.style().visuals.extreme_bg_color, // TODO: Semantically correct color
-                    ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
+                    visuals.fg_stroke,                   // TODO: Semantically correct color
                 );
+            }
 
+            if self.show_rings {
                 let max_log = (self.max_distance / self.scale_log_mult).log(self.scale_log_base);
                 assert!(max_log < 256.0); // Prevent accidental OoM deaths during development
 
@@ -230,7 +280,7 @@ impl<'a> Widget for PolarCompass<'a> {
                 rotation_matrix * Vec2::angled((angle - value) * self.winding.to_float())
             };
 
-            {
+            if self.show_cursor {
                 ui.painter().add(Shape::dashed_line(
                     &[
                         rect.center(),
@@ -238,29 +288,31 @@ impl<'a> Widget for PolarCompass<'a> {
                     ],
                     ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
                     2.0,
-                    4.0,
+                    2.0,
                 ));
             }
 
-            for (axis_index, axis_label) in self.labels.iter().enumerate() {
-                let axis_angle = axis_index as f32 * (TAU / (self.labels.len() as f32));
+            if self.show_axes {
+                for (axis_index, axis_label) in self.labels.iter().enumerate() {
+                    let axis_angle = axis_index as f32 * (TAU / (self.labels.len() as f32));
 
-                ui.painter().add(Shape::line_segment(
-                    [
-                        rect.center(),
-                        rect.center() + angle_to_direction(axis_angle) * radius,
-                    ],
-                    ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
-                ));
+                    ui.painter().add(Shape::line_segment(
+                        [
+                            rect.center(),
+                            rect.center() + angle_to_direction(axis_angle) * radius,
+                        ],
+                        visuals.fg_stroke, // TODO: Semantically correct color
+                    ));
 
-                ui.painter().text(
-                    rect.center()
-                        + angle_to_direction(axis_angle) * (radius + self.label_height / 2.0),
-                    Align2::CENTER_CENTER,
-                    axis_label,
-                    FontId::new(self.label_height, FontFamily::Proportional),
-                    ui.style().visuals.text_color(), // TODO: Semantically correct color
-                );
+                    ui.painter().text(
+                        rect.center()
+                            + angle_to_direction(axis_angle) * (radius + self.label_height / 2.0),
+                        Align2::CENTER_CENTER,
+                        axis_label,
+                        FontId::new(self.label_height, FontFamily::Proportional),
+                        visuals.text_color(), // TODO: Semantically correct color
+                    );
+                }
             }
 
             for marker in self.markers {
@@ -286,7 +338,14 @@ impl<'a> Widget for PolarCompass<'a> {
                     rect.center() + angle_to_direction(marker.angle) * (radius * marker_t);
                 let marker_size = lerp(self.marker_near_size..=self.marker_far_size, marker_t);
 
-                let label_center = marker_center + Vec2::DOWN * marker_size;
+                if self.show_marker_lines {
+                    ui.painter().add(Shape::dashed_line(
+                        &[rect.center(), marker_center],
+                        marker_stroke,
+                        2.0,
+                        4.0,
+                    ));
+                }
 
                 marker.shape.paint(
                     ui,
@@ -295,14 +354,18 @@ impl<'a> Widget for PolarCompass<'a> {
                     marker_stroke,
                 );
 
-                if let Some(marker_label) = marker.label {
-                    ui.painter().text(
-                        label_center,
-                        Align2::CENTER_CENTER,
-                        marker_label,
-                        FontId::new(marker_size, FontFamily::Proportional),
-                        marker_color,
-                    );
+                if self.show_marker_labels {
+                    let label_center = marker_center + Vec2::DOWN * marker_size;
+
+                    if let Some(marker_label) = marker.label {
+                        ui.painter().text(
+                            label_center,
+                            Align2::CENTER_CENTER,
+                            marker_label,
+                            FontId::new(marker_size, FontFamily::Proportional),
+                            marker_color,
+                        );
+                    }
                 }
             }
         }

@@ -48,6 +48,11 @@ struct EguiExtrasXtExampleApp {
     polar_compass_label_height: f32,
     polar_compass_marker_near_size: f32,
     polar_compass_marker_far_size: f32,
+    polar_compass_show_axes: bool,
+    polar_compass_show_rings: bool,
+    polar_compass_show_cursor: bool,
+    polar_compass_show_marker_labels: bool,
+    polar_compass_show_marker_lines: bool,
 
     // SegmentedDisplayWidget
     segmented_display_display_kind: Box<dyn DisplayKind>,
@@ -96,6 +101,11 @@ impl Default for EguiExtrasXtExampleApp {
             polar_compass_label_height: 24.0,
             polar_compass_marker_near_size: 16.0,
             polar_compass_marker_far_size: 8.0,
+            polar_compass_show_axes: true,
+            polar_compass_show_rings: true,
+            polar_compass_show_cursor: true,
+            polar_compass_show_marker_labels: true,
+            polar_compass_show_marker_lines: true,
 
             // SegmentedDisplayWidget
             segmented_display_display_kind: Box::new(SixteenSegment),
@@ -279,6 +289,20 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     ui.add(DragValue::new(&mut self.polar_compass_marker_far_size));
                 });
 
+                ui.horizontal(|ui| {
+                    ui.checkbox(&mut self.polar_compass_show_axes, "Show axes");
+                    ui.checkbox(&mut self.polar_compass_show_rings, "Show rings");
+                    ui.checkbox(&mut self.polar_compass_show_cursor, "Show cursor");
+                    ui.checkbox(
+                        &mut self.polar_compass_show_marker_labels,
+                        "Show marker labels",
+                    );
+                    ui.checkbox(
+                        &mut self.polar_compass_show_marker_lines,
+                        "Show marker lines",
+                    );
+                });
+
                 ui.add_space(8.0);
 
                 ui.add(
@@ -294,6 +318,11 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .scale_log_mult(self.polar_compass_scale_log_mult)
                         .marker_near_size(self.polar_compass_marker_near_size)
                         .marker_far_size(self.polar_compass_marker_far_size)
+                        .show_axes(self.polar_compass_show_axes)
+                        .show_rings(self.polar_compass_show_rings)
+                        .show_cursor(self.polar_compass_show_cursor)
+                        .show_marker_labels(self.polar_compass_show_marker_labels)
+                        .show_marker_lines(self.polar_compass_show_marker_lines)
                         .markers(&[
                             PolarCompassMarker::new(0.0f32.to_radians(), 20.0)
                                 .color(Color32::from_rgb(0xF0, 0xBF, 0x89))
