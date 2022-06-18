@@ -74,6 +74,7 @@ pub struct PolarCompass<'a> {
     label_height: f32,
     max_distance: f32,
     scale_log_base: f32,
+    scale_log_mult: f32,
     marker_near_size: f32,
     marker_far_size: f32,
     markers: &'a [PolarCompassMarker],
@@ -100,6 +101,7 @@ impl<'a> PolarCompass<'a> {
             label_height: 48.0,
             max_distance: 10000.0,
             scale_log_base: 10.0,
+            scale_log_mult: 1.0,
             marker_near_size: 16.0,
             marker_far_size: 8.0,
             markers: &[],
@@ -133,6 +135,12 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
+    pub fn scale_log_mult(mut self, scale_log_mult: f32) -> Self {
+        assert!(scale_log_mult > 0.0);
+        self.scale_log_mult = scale_log_mult;
+        self
+    }
+
     pub fn labels(mut self, labels: CompassLabels<'a>) -> Self {
         self.labels = labels;
         self
@@ -153,6 +161,7 @@ impl<'a> PolarCompass<'a> {
     pub fn ring_count(mut self, ring_count: usize) -> Self {
         assert!(ring_count > 0);
         self.scale_log_base = (self.max_distance.ln() / ring_count as f32).exp();
+        self.scale_log_mult = 1.0;
         self
     }
 
@@ -196,7 +205,7 @@ impl<'a> Widget for PolarCompass<'a> {
                     ui.style().visuals.noninteractive().fg_stroke, // TODO: Semantically correct color
                 );
 
-                let max_log = self.max_distance.log(self.scale_log_base);
+                let max_log = (self.max_distance / self.scale_log_mult).log(self.scale_log_base);
                 assert!(max_log < 256.0); // Prevent accidental OoM deaths during development
 
                 // No off-by-one bugs here, non-inclusive range end is used to
@@ -213,7 +222,6 @@ impl<'a> Widget for PolarCompass<'a> {
             let angle_to_direction = |angle: f32| {
                 rotation_matrix * Vec2::angled((angle - value) * self.winding.to_float())
             };
-
 
             {
                 ui.painter().add(Shape::dashed_line(
@@ -263,8 +271,8 @@ impl<'a> Widget for PolarCompass<'a> {
                     Stroke::new(1.0, stroke_color)
                 };
 
-                let max_log = self.max_distance.log(self.scale_log_base);
-                let marker_log = marker.distance.log(self.scale_log_base);
+                let max_log = (self.max_distance / self.scale_log_mult).log(self.scale_log_base);
+                let marker_log = (marker.distance / self.scale_log_mult).log(self.scale_log_base);
                 let marker_t = (marker_log / max_log).clamp(0.0, 1.0);
 
                 let marker_rect = Rect::from_center_size(
