@@ -4,7 +4,7 @@ use egui::{self, Response, Sense, Ui, Widget};
 use emath::Vec2;
 use epaint::{Shape, Stroke};
 
-use crate::common::{normalized_angle_unsigned_excl, Orientation, WidgetShape, Winding, WrapMode};
+use crate::common::{snap_wrap_constrain_angle, Orientation, WidgetShape, Winding, WrapMode};
 
 // ----------------------------------------------------------------------------
 
@@ -208,40 +208,16 @@ impl<'a> Widget for AngleKnob<'a> {
             .angle()
                 * self.winding.to_float();
 
-            if let Some(snap_angle) = if ui.input().modifiers.shift_only() {
-                self.shift_snap
-            } else {
-                self.snap
-            } {
-                assert!(
-                    snap_angle > 0.0,
-                    "non-positive snap angles are not supported"
-                );
-                new_value = (new_value / snap_angle).round() * snap_angle;
-            }
-
-            if self.wrap == WrapMode::Unsigned {
-                new_value = normalized_angle_unsigned_excl(new_value);
-            }
-
-            if self.wrap == WrapMode::None {
-                let prev_turns = (prev_value / TAU).round();
-                new_value += prev_turns * TAU;
-
-                if new_value - prev_value > (TAU / 2.0) {
-                    new_value -= TAU;
-                } else if new_value - prev_value < -(TAU / 2.0) {
-                    new_value += TAU;
-                }
-            }
-
-            if let Some(min) = self.min {
-                new_value = new_value.max(min);
-            }
-
-            if let Some(max) = self.max {
-                new_value = new_value.min(max);
-            }
+            new_value = snap_wrap_constrain_angle(
+                prev_value,
+                new_value,
+                ui.input().modifiers.shift_only(),
+                self.snap,
+                self.shift_snap,
+                self.wrap,
+                self.min,
+                self.max,
+            );
 
             set(&mut self.get_set_value, new_value);
             response.mark_changed();

@@ -218,6 +218,52 @@ impl WidgetShape<'_> {
 
 // ----------------------------------------------------------------------------
 
+pub fn snap_wrap_constrain_angle(
+    prev_value: f32,
+    mut new_value: f32,
+    shift: bool,
+    snap: Option<f32>,
+    shift_snap: Option<f32>,
+    wrap: WrapMode,
+    min: Option<f32>,
+    max: Option<f32>,
+) -> f32 {
+    if let Some(snap_angle) = if shift { shift_snap } else { snap } {
+        assert!(
+            snap_angle > 0.0,
+            "non-positive snap angles are not supported"
+        );
+        new_value = (new_value / snap_angle).round() * snap_angle;
+    }
+
+    if wrap == WrapMode::Unsigned {
+        new_value = normalized_angle_unsigned_excl(new_value);
+    }
+
+    if wrap == WrapMode::None {
+        let prev_turns = (prev_value / TAU).round();
+        new_value += prev_turns * TAU;
+
+        if new_value - prev_value > (TAU / 2.0) {
+            new_value -= TAU;
+        } else if new_value - prev_value < -(TAU / 2.0) {
+            new_value += TAU;
+        }
+    }
+
+    if let Some(min) = min {
+        new_value = new_value.max(min);
+    }
+
+    if let Some(max) = max {
+        new_value = new_value.min(max);
+    }
+
+    new_value
+}
+
+// ----------------------------------------------------------------------------
+
 /// Wrap angle to `(0..TAU)` range.
 pub fn normalized_angle_unsigned_excl(angle: f32) -> f32 {
     ((angle % TAU) + TAU) % TAU

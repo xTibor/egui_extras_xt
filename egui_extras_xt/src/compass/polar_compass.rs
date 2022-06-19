@@ -6,9 +6,9 @@ use egui::{
     Widget,
 };
 
-use crate::common::{normalized_angle_unsigned_excl, Winding};
+use crate::common::{normalized_angle_unsigned_excl, snap_wrap_constrain_angle, Winding};
 use crate::compass::{CompassLabels, CompassMarkerShape};
-use crate::Orientation;
+use crate::{Orientation, WrapMode};
 
 // ----------------------------------------------------------------------------
 
@@ -79,6 +79,11 @@ pub struct PolarCompass<'a> {
     winding: Winding,
     overflow: PolarCompassOverflow,
     diameter: f32,
+    wrap: WrapMode,
+    min: Option<f32>,
+    max: Option<f32>,
+    snap: Option<f32>,
+    shift_snap: Option<f32>,
     labels: CompassLabels<'a>,
     label_height: f32,
     max_distance: f32,
@@ -112,6 +117,11 @@ impl<'a> PolarCompass<'a> {
             winding: Winding::Clockwise,
             overflow: PolarCompassOverflow::Saturate,
             diameter: 256.0,
+            wrap: WrapMode::Unsigned,
+            min: None,
+            max: None,
+            snap: None,
+            shift_snap: Some(TAU / 24.0),
             labels: ["N", "E", "S", "W"],
             label_height: 48.0,
             max_distance: 10000.0,
@@ -151,6 +161,31 @@ impl<'a> PolarCompass<'a> {
     pub fn diameter(mut self, diameter: f32) -> Self {
         assert!(diameter > 0.0);
         self.diameter = diameter.into();
+        self
+    }
+
+    pub fn wrap(mut self, wrap: WrapMode) -> Self {
+        self.wrap = wrap;
+        self
+    }
+
+    pub fn min(mut self, min: Option<f32>) -> Self {
+        self.min = min;
+        self
+    }
+
+    pub fn max(mut self, max: Option<f32>) -> Self {
+        self.max = max;
+        self
+    }
+
+    pub fn snap(mut self, snap: Option<f32>) -> Self {
+        self.snap = snap;
+        self
+    }
+
+    pub fn shift_snap(mut self, shift_snap: Option<f32>) -> Self {
+        self.shift_snap = shift_snap;
         self
     }
 
@@ -255,7 +290,16 @@ impl<'a> Widget for PolarCompass<'a> {
             .angle()
                 * self.winding.to_float();
 
-            // ...
+            new_value = snap_wrap_constrain_angle(
+                prev_value,
+                new_value,
+                ui.input().modifiers.shift_only(),
+                self.snap,
+                self.shift_snap,
+                self.wrap,
+                self.min,
+                self.max,
+            );
 
             set(&mut self.get_set_value, new_value);
             response.mark_changed();
