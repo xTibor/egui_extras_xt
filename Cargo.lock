@@ -411,6 +411,7 @@ dependencies = [
  "eframe",
  "egui_extras_xt",
  "itertools",
+ "lazy_static",
 ]
 
 [[package]]

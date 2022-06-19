@@ -5,6 +5,8 @@ authors = ["Nagy Tibor <xnagytibor@protonmail.com>"]
 license = "MIT"
 edition = "2021"
 
+default-run = "showcase_demo"
+
 [badges]
 maintenance = { status = "as-is" }
 
@@ -13,3 +15,4 @@ egui_extras_xt = { path = "../egui_extras_xt/" }
 
 eframe = "0.18.0"
 itertools = "0.10.3"
+lazy_static = "1.4.0"
