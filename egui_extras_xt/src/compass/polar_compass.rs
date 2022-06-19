@@ -125,7 +125,7 @@ impl<'a> PolarCompass<'a> {
             animated: false,
             shift_snap: Some(TAU / 24.0),
             labels: ["N", "E", "S", "W"],
-            label_height: 48.0,
+            label_height: 24.0,
             max_distance: 10000.0,
             scale_log_base: 10.0,
             scale_log_mult: 1.0,
