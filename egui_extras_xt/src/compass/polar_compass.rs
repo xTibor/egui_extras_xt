@@ -84,6 +84,7 @@ pub struct PolarCompass<'a> {
     max: Option<f32>,
     snap: Option<f32>,
     shift_snap: Option<f32>,
+    animated: bool,
     labels: CompassLabels<'a>,
     label_height: f32,
     max_distance: f32,
@@ -121,6 +122,7 @@ impl<'a> PolarCompass<'a> {
             min: None,
             max: None,
             snap: None,
+            animated: false,
             shift_snap: Some(TAU / 24.0),
             labels: ["N", "E", "S", "W"],
             label_height: 48.0,
@@ -186,6 +188,11 @@ impl<'a> PolarCompass<'a> {
 
     pub fn shift_snap(mut self, shift_snap: Option<f32>) -> Self {
         self.shift_snap = shift_snap;
+        self
+    }
+
+    pub fn animated(mut self, animated: bool) -> Self {
+        self.animated = animated;
         self
     }
 
@@ -309,7 +316,12 @@ impl<'a> Widget for PolarCompass<'a> {
             let visuals = *ui.style().interact(&response);
             let radius = self.diameter / 2.0;
 
-            let value = get(&mut self.get_set_value);
+            let value = if self.animated {
+                ui.ctx()
+                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1)
+            } else {
+                get(&mut self.get_set_value)
+            };
 
             {
                 ui.painter().circle(

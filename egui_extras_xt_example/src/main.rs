@@ -74,7 +74,7 @@ impl Default for EguiExtrasXtExampleApp {
             common_orientation: Orientation::Top,
             common_winding: Winding::Clockwise,
             common_wrap: WrapMode::Signed,
-            common_animated: true,
+            common_animated: false,
             common_snap: None,
             common_shift_snap: None,
             common_minimum_angle: None,
@@ -323,6 +323,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .max(self.common_maximum_angle)
                         .snap(self.common_snap)
                         .shift_snap(self.common_shift_snap)
+                        .animated(self.common_animated)
                         .labels(["N", "E", "S", "W"])
                         .label_height(self.polar_compass_label_height)
                         .max_distance(self.polar_compass_max_distance)
@@ -514,6 +515,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                                 .max(self.common_maximum_angle)
                                 .snap(self.common_snap)
                                 .shift_snap(self.common_shift_snap)
+                                .animated(self.common_animated)
                                 .show_axes(true)
                                 .axis_count(4),
                         );

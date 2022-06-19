@@ -88,6 +88,7 @@ pub struct AngleKnob<'a> {
     max: Option<f32>,
     snap: Option<f32>,
     shift_snap: Option<f32>,
+    animated: bool,
     show_axes: bool,
     axis_count: usize,
 }
@@ -115,6 +116,7 @@ impl<'a> AngleKnob<'a> {
             max: None,
             snap: None,
             shift_snap: Some(TAU / 24.0),
+            animated: false,
             show_axes: true,
             axis_count: 4,
         }
@@ -175,6 +177,11 @@ impl<'a> AngleKnob<'a> {
         self
     }
 
+    pub fn animated(mut self, animated: bool) -> Self {
+        self.animated = animated;
+        self
+    }
+
     pub fn show_axes(mut self, show_axes: bool) -> Self {
         self.show_axes = show_axes;
         self
@@ -227,7 +234,12 @@ impl<'a> Widget for AngleKnob<'a> {
             let visuals = ui.style().interact(&response).clone();
             let radius = self.diameter / 2.0;
 
-            let value = get(&mut self.get_set_value);
+            let value = if self.animated {
+                ui.ctx()
+                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1)
+            } else {
+                get(&mut self.get_set_value)
+            };
 
             let angle_to_shape_outline = |angle: f32| {
                 rotation_matrix
