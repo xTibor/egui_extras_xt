@@ -3,6 +3,7 @@ pub mod polar_compass;
 
 use std::f32::consts::TAU;
 
+use egui::color::Hsva;
 use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Shape, Stroke, Ui, Vec2};
 use itertools::Itertools;
 
@@ -11,6 +12,26 @@ use crate::common::normalized_angle_unsigned_excl;
 // ----------------------------------------------------------------------------
 
 pub type CompassLabels<'a> = [&'a str; 4];
+
+// ----------------------------------------------------------------------------
+
+pub enum DefaultCompassMarkerColor {
+    System,
+    Fixed(Color32),
+    HsvByAngle { saturation: f32, value: f32 },
+}
+
+impl DefaultCompassMarkerColor {
+    fn color(&self, ui: &Ui, marker: &CompassMarker) -> Color32 {
+        match *self {
+            DefaultCompassMarkerColor::System => ui.style().visuals.text_color(),
+            DefaultCompassMarkerColor::Fixed(color) => color,
+            DefaultCompassMarkerColor::HsvByAngle { saturation, value } => {
+                Color32::from(Hsva::new(marker.angle / TAU, saturation, value, 1.0))
+            }
+        }
+    }
+}
 
 // ----------------------------------------------------------------------------
 

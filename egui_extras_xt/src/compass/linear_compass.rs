@@ -6,7 +6,7 @@ use epaint::color::tint_color_towards;
 use epaint::{Color32, FontFamily, FontId, Stroke};
 
 use crate::common::{normalized_angle_unsigned_incl, Winding, WrapMode};
-use crate::compass::{CompassLabels, CompassMarker, CompassMarkerShape};
+use crate::compass::{CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor};
 
 // ----------------------------------------------------------------------------
 
@@ -41,6 +41,7 @@ pub struct LinearCompass<'a> {
     animated: bool,
     show_cursor: bool,
     markers: &'a [CompassMarker<'a>],
+    default_marker_color: DefaultCompassMarkerColor,
 }
 
 impl<'a> LinearCompass<'a> {
@@ -70,6 +71,10 @@ impl<'a> LinearCompass<'a> {
             animated: false,
             show_cursor: true,
             markers: &[],
+            default_marker_color: DefaultCompassMarkerColor::HsvByAngle {
+                saturation: 1.0,
+                value: 1.0,
+            },
         }
     }
 
@@ -140,6 +145,11 @@ impl<'a> LinearCompass<'a> {
 
     pub fn markers(mut self, markers: &'a [CompassMarker]) -> Self {
         self.markers = markers;
+        self
+    }
+
+    pub fn default_marker_color(mut self, default_marker_color: DefaultCompassMarkerColor) -> Self {
+        self.default_marker_color = default_marker_color;
         self
     }
 }
@@ -284,7 +294,9 @@ impl<'a> Widget for LinearCompass<'a> {
 
                 for tau in start_tau..=end_tau {
                     for marker in self.markers.iter() {
-                        let marker_color = marker.color.unwrap_or(ui.style().visuals.text_color());
+                        let marker_color = marker
+                            .color
+                            .unwrap_or_else(|| self.default_marker_color.color(ui, marker));
 
                         let marker_stroke = {
                             let stroke_color =
