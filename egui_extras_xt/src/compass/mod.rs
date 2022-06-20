@@ -8,6 +8,7 @@ use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Shape, Stroke, Ui, V
 use itertools::Itertools;
 
 use crate::common::normalized_angle_unsigned_excl;
+use crate::hash::PearsonHash;
 
 // ----------------------------------------------------------------------------
 
@@ -19,6 +20,7 @@ pub enum DefaultCompassMarkerColor {
     System,
     Fixed(Color32),
     HsvByAngle { saturation: f32, value: f32 },
+    HsvByLabel { saturation: f32, value: f32 },
 }
 
 impl DefaultCompassMarkerColor {
@@ -27,7 +29,13 @@ impl DefaultCompassMarkerColor {
             DefaultCompassMarkerColor::System => ui.style().visuals.text_color(),
             DefaultCompassMarkerColor::Fixed(color) => color,
             DefaultCompassMarkerColor::HsvByAngle { saturation, value } => {
-                Color32::from(Hsva::new(marker.angle / TAU, saturation, value, 1.0))
+                let hue = marker.angle / TAU;
+                Color32::from(Hsva::new(hue, saturation, value, 1.0))
+            }
+            DefaultCompassMarkerColor::HsvByLabel { saturation, value } => {
+                let marker_label = marker.label.unwrap_or("");
+                let hue = marker_label.pearson_hash() as f32 / 255.0;
+                Color32::from(Hsva::new(hue, saturation, value, 1.0))
             }
         }
     }

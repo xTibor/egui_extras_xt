@@ -1,5 +1,6 @@
 mod common;
 mod compass;
+mod hash;
 mod knob;
 
 pub use common::{Orientation, WidgetShape, WidgetShapeFn, Winding, WrapMode};
