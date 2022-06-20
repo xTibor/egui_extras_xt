@@ -2,12 +2,11 @@ use std::f32::consts::TAU;
 
 use egui::color::tint_color_towards;
 use egui::{
-    lerp, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Shape, Stroke, Ui, Vec2,
-    Widget,
+    lerp, Align2, FontFamily, FontId, Rect, Response, Sense, Shape, Stroke, Ui, Vec2, Widget,
 };
 
-use crate::common::{normalized_angle_unsigned_excl, snap_wrap_constrain_angle, Winding};
-use crate::compass::{CompassLabels, CompassMarkerShape};
+use crate::common::{snap_wrap_constrain_angle, Winding};
+use crate::compass::{CompassLabels, CompassMarker};
 use crate::{Orientation, WrapMode};
 
 // ----------------------------------------------------------------------------
@@ -30,43 +29,6 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 pub enum PolarCompassOverflow {
     Clip,
     Saturate,
-}
-
-// ----------------------------------------------------------------------------
-
-pub struct PolarCompassMarker<'a> {
-    angle: f32,
-    distance: f32,
-    shape: CompassMarkerShape,
-    label: Option<&'a str>,
-    color: Option<Color32>,
-}
-
-impl<'a> PolarCompassMarker<'a> {
-    pub fn new(angle: f32, distance: f32) -> Self {
-        Self {
-            angle: normalized_angle_unsigned_excl(angle),
-            distance,
-            shape: CompassMarkerShape::Square,
-            label: None,
-            color: None,
-        }
-    }
-
-    pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
-        self.shape = shape;
-        self
-    }
-
-    pub fn label(mut self, label: &'a str) -> Self {
-        self.label = Some(label);
-        self
-    }
-
-    pub fn color(mut self, color: Color32) -> Self {
-        self.color = Some(color);
-        self
-    }
 }
 
 // ----------------------------------------------------------------------------
@@ -97,7 +59,7 @@ pub struct PolarCompass<'a> {
     show_cursor: bool,
     show_marker_labels: bool,
     show_marker_lines: bool,
-    markers: &'a [PolarCompassMarker<'a>],
+    markers: &'a [CompassMarker<'a>],
 }
 
 impl<'a> PolarCompass<'a> {
@@ -269,7 +231,7 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
-    pub fn markers(mut self, markers: &'a [PolarCompassMarker<'a>]) -> Self {
+    pub fn markers(mut self, markers: &'a [CompassMarker<'a>]) -> Self {
         self.markers = markers;
         self
     }
@@ -387,7 +349,9 @@ impl<'a> Widget for PolarCompass<'a> {
             }
 
             for marker in self.markers {
-                if (marker.distance > self.max_distance)
+                let marker_distance = marker.distance.expect("marker has no distance");
+
+                if (marker_distance > self.max_distance)
                     && (self.overflow == PolarCompassOverflow::Clip)
                 {
                     continue;
@@ -402,7 +366,7 @@ impl<'a> Widget for PolarCompass<'a> {
                 };
 
                 let max_log = (self.max_distance / self.scale_log_mult).log(self.scale_log_base);
-                let marker_log = (marker.distance / self.scale_log_mult).log(self.scale_log_base);
+                let marker_log = (marker_distance / self.scale_log_mult).log(self.scale_log_base);
                 let marker_t = (marker_log / max_log).clamp(0.0, 1.0);
 
                 let marker_center =

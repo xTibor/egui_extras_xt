@@ -10,8 +10,8 @@ use egui_extras_xt::segmented_display::{
     SevenSegment, SixteenSegment,
 };
 use egui_extras_xt::{
-    AngleKnob, AudioKnob, CompassMarkerShape, LinearCompass, LinearCompassMarker, Orientation,
-    PolarCompass, PolarCompassMarker, PolarCompassOverflow, WidgetShape, Winding, WrapMode,
+    AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, LinearCompass, Orientation,
+    PolarCompass, PolarCompassOverflow, WidgetShape, Winding, WrapMode,
 };
 
 struct EguiExtrasXtExampleApp {
@@ -337,19 +337,23 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .show_marker_labels(self.polar_compass_show_marker_labels)
                         .show_marker_lines(self.polar_compass_show_marker_lines)
                         .markers(&[
-                            PolarCompassMarker::new(0.0f32.to_radians(), 20.0)
+                            CompassMarker::new(0.0f32.to_radians())
+                                .distance(20.0)
                                 .color(Color32::from_rgb(0xF0, 0xBF, 0x89))
                                 .shape(CompassMarkerShape::Diamond)
                                 .label("Haibara"),
-                            PolarCompassMarker::new(15.0f32.to_radians(), 200.0)
+                            CompassMarker::new(15.0f32.to_radians())
+                                .distance(200.0)
                                 .color(Color32::from_rgb(0x9C, 0xCF, 0xEE))
                                 .shape(CompassMarkerShape::DownArrow)
                                 .label("Mitsuhiko"),
-                            PolarCompassMarker::new(30.0f32.to_radians(), 2000.0)
+                            CompassMarker::new(30.0f32.to_radians())
+                                .distance(2000.0)
                                 .color(Color32::from_rgb(0x8A, 0xDC, 0x71))
                                 .shape(CompassMarkerShape::Circle)
                                 .label("Genta"),
-                            PolarCompassMarker::new(45.0f32.to_radians(), 20000.0)
+                            CompassMarker::new(45.0f32.to_radians())
+                                .distance(20000.0)
                                 .color(Color32::from_rgb(0xEF, 0xBB, 0xC4))
                                 .shape(CompassMarkerShape::UpArrow)
                                 .label("Ayumi"),
@@ -549,61 +553,61 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .animated(self.common_animated)
                         .show_cursor(self.linear_compass_show_cursor)
                         .markers(&[
-                            LinearCompassMarker::new(0.0f32.to_radians())
+                            CompassMarker::new(0.0f32.to_radians())
                                 .shape(CompassMarkerShape::Star(5, 0.5))
                                 .label("Test")
                                 .color(Color32::from_rgb(0x00, 0xA0, 0x00)),
                             // Grand Theft Auto style markers
-                            LinearCompassMarker::new(70.0f32.to_radians())
+                            CompassMarker::new(70.0f32.to_radians())
                                 .shape(CompassMarkerShape::Square)
                                 .label("Sweet")
                                 .color(Color32::from_rgb(0x00, 0x00, 0xFF)),
-                            LinearCompassMarker::new(85.0f32.to_radians())
+                            CompassMarker::new(85.0f32.to_radians())
                                 .shape(CompassMarkerShape::DownArrow)
                                 .label("Reece's")
                                 .color(Color32::from_rgb(0xFF, 0xFF, 0x00)),
-                            LinearCompassMarker::new(100.0f32.to_radians())
+                            CompassMarker::new(100.0f32.to_radians())
                                 .shape(CompassMarkerShape::UpArrow)
                                 .label("Big Smoke")
                                 .color(Color32::from_rgb(0xFF, 0x00, 0x00)),
                             // Emoji markers
-                            LinearCompassMarker::new(553.0f32.to_radians())
+                            CompassMarker::new(553.0f32.to_radians())
                                 .shape(CompassMarkerShape::Emoji('🐱'))
                                 .label("Cat")
                                 .color(Color32::from_rgb(0xF8, 0xE9, 0xFF)),
-                            LinearCompassMarker::new(563.0f32.to_radians())
+                            CompassMarker::new(563.0f32.to_radians())
                                 .shape(CompassMarkerShape::Emoji('🐶'))
                                 .label("Dog")
                                 .color(Color32::from_rgb(0xC0, 0x8C, 0x85)),
                             // All marker shapes
-                            LinearCompassMarker::new(240.0f32.to_radians())
+                            CompassMarker::new(240.0f32.to_radians())
                                 .shape(CompassMarkerShape::Square),
-                            LinearCompassMarker::new(250.0f32.to_radians())
+                            CompassMarker::new(250.0f32.to_radians())
                                 .shape(CompassMarkerShape::Circle),
-                            LinearCompassMarker::new(260.0f32.to_radians())
+                            CompassMarker::new(260.0f32.to_radians())
                                 .shape(CompassMarkerShape::RightArrow),
-                            LinearCompassMarker::new(270.0f32.to_radians())
+                            CompassMarker::new(270.0f32.to_radians())
                                 .shape(CompassMarkerShape::UpArrow),
-                            LinearCompassMarker::new(280.0f32.to_radians())
+                            CompassMarker::new(280.0f32.to_radians())
                                 .shape(CompassMarkerShape::LeftArrow),
-                            LinearCompassMarker::new(290.0f32.to_radians())
+                            CompassMarker::new(290.0f32.to_radians())
                                 .shape(CompassMarkerShape::DownArrow),
-                            LinearCompassMarker::new(300.0f32.to_radians())
+                            CompassMarker::new(300.0f32.to_radians())
                                 .shape(CompassMarkerShape::Diamond),
-                            LinearCompassMarker::new(310.0f32.to_radians())
+                            CompassMarker::new(310.0f32.to_radians())
                                 .shape(CompassMarkerShape::Star(5, 0.5)),
-                            LinearCompassMarker::new(320.0f32.to_radians())
+                            CompassMarker::new(320.0f32.to_radians())
                                 .shape(CompassMarkerShape::Emoji('🗿')),
                             // Transparent colors
-                            LinearCompassMarker::new(30.0f32.to_radians())
+                            CompassMarker::new(30.0f32.to_radians())
                                 .shape(CompassMarkerShape::Square)
                                 .label("Near")
                                 .color(Color32::from_rgb(0x40, 0x80, 0x80).linear_multiply(1.0)),
-                            LinearCompassMarker::new(40.0f32.to_radians())
+                            CompassMarker::new(40.0f32.to_radians())
                                 .shape(CompassMarkerShape::Square)
                                 .label("Far")
                                 .color(Color32::from_rgb(0x40, 0x80, 0x80).linear_multiply(0.5)),
-                            LinearCompassMarker::new(50.0f32.to_radians())
+                            CompassMarker::new(50.0f32.to_radians())
                                 .shape(CompassMarkerShape::Square)
                                 .label("Very far")
                                 .color(Color32::from_rgb(0x40, 0x80, 0x80).linear_multiply(0.25)),

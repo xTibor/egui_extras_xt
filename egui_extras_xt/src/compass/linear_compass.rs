@@ -5,10 +5,8 @@ use emath::{normalized_angle, pos2, vec2, Align2, Rect, Vec2};
 use epaint::color::tint_color_towards;
 use epaint::{Color32, FontFamily, FontId, Stroke};
 
-use crate::common::{
-    normalized_angle_unsigned_excl, normalized_angle_unsigned_incl, Winding, WrapMode,
-};
-use crate::compass::{CompassLabels, CompassMarkerShape};
+use crate::common::{normalized_angle_unsigned_incl, Winding, WrapMode};
+use crate::compass::{CompassLabels, CompassMarker, CompassMarkerShape};
 
 // ----------------------------------------------------------------------------
 
@@ -22,41 +20,6 @@ fn get(get_set_value: &mut GetSetValue<'_>) -> f32 {
 
 fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
     (get_set_value)(Some(value));
-}
-
-// ----------------------------------------------------------------------------
-
-pub struct LinearCompassMarker<'a> {
-    angle: f32,
-    shape: CompassMarkerShape,
-    label: Option<&'a str>,
-    color: Option<Color32>,
-}
-
-impl<'a> LinearCompassMarker<'a> {
-    pub fn new(angle: f32) -> Self {
-        Self {
-            angle: normalized_angle_unsigned_excl(angle),
-            shape: CompassMarkerShape::Square,
-            label: None,
-            color: None,
-        }
-    }
-
-    pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
-        self.shape = shape;
-        self
-    }
-
-    pub fn label(mut self, label: &'a str) -> Self {
-        self.label = Some(label);
-        self
-    }
-
-    pub fn color(mut self, color: Color32) -> Self {
-        self.color = Some(color);
-        self
-    }
 }
 
 // ----------------------------------------------------------------------------
@@ -77,7 +40,7 @@ pub struct LinearCompass<'a> {
     max: Option<f32>,
     animated: bool,
     show_cursor: bool,
-    markers: &'a [LinearCompassMarker<'a>],
+    markers: &'a [CompassMarker<'a>],
 }
 
 impl<'a> LinearCompass<'a> {
@@ -175,7 +138,7 @@ impl<'a> LinearCompass<'a> {
         self
     }
 
-    pub fn markers(mut self, markers: &'a [LinearCompassMarker]) -> Self {
+    pub fn markers(mut self, markers: &'a [CompassMarker]) -> Self {
         self.markers = markers;
         self
     }

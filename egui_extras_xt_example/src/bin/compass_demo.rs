@@ -3,7 +3,7 @@ use std::f32::consts::TAU;
 use eframe::egui::{self, global_dark_light_mode_switch, DragValue, Response};
 use eframe::epaint::color::Hsva;
 use eframe::epaint::Color32;
-use egui_extras_xt::{LinearCompass, LinearCompassMarker, PolarCompass, PolarCompassMarker};
+use egui_extras_xt::{CompassMarker, LinearCompass, PolarCompass};
 
 use lazy_static::lazy_static;
 
@@ -98,16 +98,11 @@ impl eframe::App for CompassExampleApp {
                 drag_angle_slow(&mut self.gps_position.1);
             });
 
-            // TODO: dedup PolarCompassMarker, LinearCompassMarker => CompassMarker
-
-            {
-                let markers = TARGETS
-                    .iter()
-                    .map(|(name, target_gps_position)| {
-                        PolarCompassMarker::new(
-                            self.gps_position.bearing_to(target_gps_position),
-                            self.gps_position.distance_to(target_gps_position),
-                        )
+            let markers = TARGETS
+                .iter()
+                .map(|(name, target_gps_position)| {
+                    CompassMarker::new(self.gps_position.bearing_to(target_gps_position))
+                        .distance(self.gps_position.distance_to(target_gps_position))
                         .label(name)
                         // TODO: PolarCompass.default_color(DefaultColor::HueByBearing)
                         .color(Color32::from(Hsva::new(
@@ -116,42 +111,25 @@ impl eframe::App for CompassExampleApp {
                             1.0,
                             1.0,
                         )))
-                    })
-                    .collect::<Vec<PolarCompassMarker>>();
+                })
+                .collect::<Vec<CompassMarker>>();
 
-                ui.add(
-                    PolarCompass::new(&mut self.heading)
-                        .interactive(true)
-                        .markers(&markers)
-                        .diameter(512.0)
-                        .show_marker_labels(true)
-                        .show_marker_lines(true)
-                        .max_distance(1000.0),
-                );
-            }
+            ui.add(
+                PolarCompass::new(&mut self.heading)
+                    .interactive(true)
+                    .markers(&markers)
+                    .diameter(512.0)
+                    .show_marker_labels(true)
+                    .show_marker_lines(true)
+                    .max_distance(1000.0),
+            );
 
-            {
-                let markers = TARGETS
-                    .iter()
-                    .map(|(name, target_gps_position)| {
-                        LinearCompassMarker::new(self.gps_position.bearing_to(target_gps_position))
-                            .label(name)
-                            .color(Color32::from(Hsva::new(
-                                self.gps_position.bearing_to(target_gps_position) / TAU,
-                                1.0,
-                                1.0,
-                                1.0,
-                            )))
-                    })
-                    .collect::<Vec<LinearCompassMarker>>();
-
-                ui.add(
-                    LinearCompass::new(&mut self.heading)
-                        .interactive(true)
-                        .width(512.0 + 24.0 * 2.0)
-                        .markers(&markers),
-                );
-            }
+            ui.add(
+                LinearCompass::new(&mut self.heading)
+                    .interactive(true)
+                    .width(512.0 + 24.0 * 2.0)
+                    .markers(&markers),
+            );
         });
     }
 }

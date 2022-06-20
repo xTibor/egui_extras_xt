@@ -6,9 +6,53 @@ use std::f32::consts::TAU;
 use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Shape, Stroke, Ui, Vec2};
 use itertools::Itertools;
 
+use crate::common::normalized_angle_unsigned_excl;
+
 // ----------------------------------------------------------------------------
 
 pub type CompassLabels<'a> = [&'a str; 4];
+
+// ----------------------------------------------------------------------------
+
+pub struct CompassMarker<'a> {
+    angle: f32,
+    distance: Option<f32>,
+    shape: CompassMarkerShape,
+    label: Option<&'a str>,
+    color: Option<Color32>,
+}
+
+impl<'a> CompassMarker<'a> {
+    pub fn new(angle: f32) -> Self {
+        Self {
+            angle: normalized_angle_unsigned_excl(angle),
+            distance: None,
+            shape: CompassMarkerShape::Square,
+            label: None,
+            color: None,
+        }
+    }
+
+    pub fn distance(mut self, distance: f32) -> Self {
+        self.distance = Some(distance);
+        self
+    }
+
+    pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
+        self.shape = shape;
+        self
+    }
+
+    pub fn label(mut self, label: &'a str) -> Self {
+        self.label = Some(label);
+        self
+    }
+
+    pub fn color(mut self, color: Color32) -> Self {
+        self.color = Some(color);
+        self
+    }
+}
 
 // ----------------------------------------------------------------------------
 
