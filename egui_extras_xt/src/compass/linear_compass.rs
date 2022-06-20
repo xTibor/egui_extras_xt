@@ -42,6 +42,7 @@ pub struct LinearCompass<'a> {
     show_cursor: bool,
     markers: &'a [CompassMarker<'a>],
     default_marker_color: DefaultCompassMarkerColor,
+    default_marker_shape: CompassMarkerShape,
 }
 
 impl<'a> LinearCompass<'a> {
@@ -75,6 +76,7 @@ impl<'a> LinearCompass<'a> {
                 saturation: 1.0,
                 value: 1.0,
             },
+            default_marker_shape: CompassMarkerShape::Square,
         }
     }
 
@@ -150,6 +152,11 @@ impl<'a> LinearCompass<'a> {
 
     pub fn default_marker_color(mut self, default_marker_color: DefaultCompassMarkerColor) -> Self {
         self.default_marker_color = default_marker_color;
+        self
+    }
+
+    pub fn default_marker_shape(mut self, default_marker_shape: CompassMarkerShape) -> Self {
+        self.default_marker_shape = default_marker_shape;
         self
     }
 }
@@ -304,12 +311,14 @@ impl<'a> Widget for LinearCompass<'a> {
                             Stroke::new(1.0, stroke_color)
                         };
 
+                        let marker_shape = marker.shape.unwrap_or(self.default_marker_shape);
+
                         paint_marker(
                             ui,
                             (tau as f32 * TAU) + marker.angle,
                             marker.label,
                             marker_color,
-                            marker.shape,
+                            marker_shape,
                             marker_color,
                             marker_stroke,
                         );

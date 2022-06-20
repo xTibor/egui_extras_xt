@@ -46,7 +46,7 @@ impl DefaultCompassMarkerColor {
 pub struct CompassMarker<'a> {
     angle: f32,
     distance: Option<f32>,
-    shape: CompassMarkerShape,
+    shape: Option<CompassMarkerShape>,
     label: Option<&'a str>,
     color: Option<Color32>,
 }
@@ -56,7 +56,7 @@ impl<'a> CompassMarker<'a> {
         Self {
             angle: normalized_angle_unsigned_excl(angle),
             distance: None,
-            shape: CompassMarkerShape::Square,
+            shape: None,
             label: None,
             color: None,
         }
@@ -68,7 +68,7 @@ impl<'a> CompassMarker<'a> {
     }
 
     pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
-        self.shape = shape;
+        self.shape = Some(shape);
         self
     }
 

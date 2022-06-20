@@ -7,7 +7,7 @@ use egui::{
 
 use crate::common::{snap_wrap_constrain_angle, Winding};
 use crate::compass::{CompassLabels, CompassMarker};
-use crate::{DefaultCompassMarkerColor, Orientation, WrapMode};
+use crate::{CompassMarkerShape, DefaultCompassMarkerColor, Orientation, WrapMode};
 
 // ----------------------------------------------------------------------------
 
@@ -61,6 +61,7 @@ pub struct PolarCompass<'a> {
     show_marker_lines: bool,
     markers: &'a [CompassMarker<'a>],
     default_marker_color: DefaultCompassMarkerColor,
+    default_marker_shape: CompassMarkerShape,
 }
 
 impl<'a> PolarCompass<'a> {
@@ -104,6 +105,7 @@ impl<'a> PolarCompass<'a> {
                 saturation: 1.0,
                 value: 1.0,
             },
+            default_marker_shape: CompassMarkerShape::Square,
         }
     }
 
@@ -243,6 +245,11 @@ impl<'a> PolarCompass<'a> {
 
     pub fn default_marker_color(mut self, default_marker_color: DefaultCompassMarkerColor) -> Self {
         self.default_marker_color = default_marker_color;
+        self
+    }
+
+    pub fn default_marker_shape(mut self, default_marker_shape: CompassMarkerShape) -> Self {
+        self.default_marker_shape = default_marker_shape;
         self
     }
 }
@@ -394,7 +401,9 @@ impl<'a> Widget for PolarCompass<'a> {
                     ));
                 }
 
-                marker.shape.paint(
+                let marker_shape = marker.shape.unwrap_or(self.default_marker_shape);
+
+                marker_shape.paint(
                     ui,
                     Rect::from_center_size(marker_center, Vec2::splat(marker_size)),
                     marker_color,

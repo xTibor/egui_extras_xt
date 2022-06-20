@@ -1,5 +1,5 @@
 use eframe::egui::{self, global_dark_light_mode_switch};
-use egui_extras_xt::{CompassMarker, LinearCompass, PolarCompass};
+use egui_extras_xt::{CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass};
 
 use lazy_static::lazy_static;
 
@@ -98,6 +98,7 @@ impl eframe::App for CompassExampleApp {
                     .diameter(512.0)
                     .show_marker_labels(true)
                     .show_marker_lines(true)
+                    .default_marker_shape(CompassMarkerShape::Star(5, 0.5))
                     .max_distance(1000.0),
             );
 
@@ -105,6 +106,7 @@ impl eframe::App for CompassExampleApp {
                 LinearCompass::new(&mut self.heading)
                     .interactive(true)
                     .width(512.0 + 24.0 * 2.0)
+                    .default_marker_shape(CompassMarkerShape::Star(5, 0.5))
                     .markers(&markers),
             );
         });
