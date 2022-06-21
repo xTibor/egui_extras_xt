@@ -296,9 +296,11 @@ impl<'a> Widget for PolarCompass<'a> {
             new_value = snap_wrap_constrain_angle(
                 prev_value,
                 new_value,
-                ui.input().modifiers.shift_only(),
-                self.snap,
-                self.shift_snap,
+                if ui.input().modifiers.shift_only() {
+                    self.shift_snap
+                } else {
+                    self.snap
+                },
                 self.wrap,
                 self.min,
                 self.max,

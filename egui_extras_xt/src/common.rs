@@ -221,14 +221,12 @@ impl WidgetShape<'_> {
 pub fn snap_wrap_constrain_angle(
     prev_value: f32,
     mut new_value: f32,
-    shift: bool,
     snap: Option<f32>,
-    shift_snap: Option<f32>,
     wrap: WrapMode,
     min: Option<f32>,
     max: Option<f32>,
 ) -> f32 {
-    if let Some(snap_angle) = if shift { shift_snap } else { snap } {
+    if let Some(snap_angle) = snap {
         assert!(
             snap_angle > 0.0,
             "non-positive snap angles are not supported"
