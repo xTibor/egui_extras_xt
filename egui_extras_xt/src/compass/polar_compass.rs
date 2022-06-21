@@ -315,8 +315,11 @@ impl<'a> Widget for PolarCompass<'a> {
             let radius = self.diameter / 2.0;
 
             let value = if self.animated {
-                ui.ctx()
-                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1)
+                ui.ctx().animate_value_with_time(
+                    response.id,
+                    get(&mut self.get_set_value),
+                    ui.style().animation_time,
+                )
             } else {
                 get(&mut self.get_set_value)
             };

@@ -149,8 +149,11 @@ impl<'a> Widget for AudioKnob<'a> {
         if response.drag_released() {
             if self.animated {
                 ui.ctx().clear_animations();
-                ui.ctx()
-                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1);
+                ui.ctx().animate_value_with_time(
+                    response.id,
+                    get(&mut self.get_set_value),
+                    ui.style().animation_time,
+                );
             }
 
             if let Some(snap_angle) = if ui.input().modifiers.shift_only() {
