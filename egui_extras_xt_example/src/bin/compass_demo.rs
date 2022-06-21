@@ -1,4 +1,5 @@
 use eframe::egui::{self, global_dark_light_mode_switch};
+use eframe::emath::vec2;
 use egui_extras_xt::{CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass};
 
 use lazy_static::lazy_static;
@@ -114,7 +115,10 @@ impl eframe::App for CompassExampleApp {
 }
 
 fn main() {
-    let options = eframe::NativeOptions::default();
+    let options = eframe::NativeOptions {
+        initial_window_size: Some(vec2(580.0, 680.0)),
+        ..Default::default()
+    };
 
     eframe::run_native(
         "Compass widgets",
