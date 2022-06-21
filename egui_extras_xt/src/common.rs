@@ -277,3 +277,19 @@ pub fn normalized_angle_unsigned_incl(angle: f32) -> f32 {
         angle
     }
 }
+
+// ----------------------------------------------------------------------------
+
+pub trait SymLog {
+    fn symlog(&self, base: Self) -> Self;
+}
+
+impl SymLog for f32 {
+    fn symlog(&self, base: Self) -> Self {
+        if self.abs() < base {
+            (self.abs() / base) * self.signum()
+        } else {
+            self.abs().log(base) * self.signum()
+        }
+    }
+}

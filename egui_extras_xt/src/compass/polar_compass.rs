@@ -6,7 +6,7 @@ use egui::{
 };
 use emath::normalized_angle;
 
-use crate::common::{snap_wrap_constrain_angle, Winding};
+use crate::common::{snap_wrap_constrain_angle, SymLog, Winding};
 use crate::compass::{CompassLabels, CompassMarker};
 use crate::{CompassMarkerShape, DefaultCompassMarkerColor, Orientation, WrapMode};
 
@@ -334,7 +334,7 @@ impl<'a> Widget for PolarCompass<'a> {
             }
 
             if self.show_rings {
-                let max_log = (self.max_distance / self.scale_log_mult).log(self.scale_log_base);
+                let max_log = (self.max_distance / self.scale_log_mult).symlog(self.scale_log_base);
                 assert!(max_log < 256.0); // Prevent accidental OoM deaths during development
 
                 // No off-by-one bugs here, non-inclusive range end is used to
@@ -406,8 +406,9 @@ impl<'a> Widget for PolarCompass<'a> {
                     Stroke::new(1.0, stroke_color)
                 };
 
-                let max_log = (self.max_distance / self.scale_log_mult).log(self.scale_log_base);
-                let marker_log = (marker_distance / self.scale_log_mult).log(self.scale_log_base);
+                let max_log = (self.max_distance / self.scale_log_mult).symlog(self.scale_log_base);
+                let marker_log =
+                    (marker_distance / self.scale_log_mult).symlog(self.scale_log_base);
                 let marker_t = (marker_log / max_log).clamp(0.0, 1.0);
 
                 let marker_center =
