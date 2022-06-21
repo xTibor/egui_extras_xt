@@ -44,7 +44,7 @@ impl SegmentedDisplayWidget {
         self.digits.extend(
             [None]
                 .into_iter()
-                .chain(value.chars().map(|e| Some(e)))
+                .chain(value.chars().map(Some))
                 .chain([None])
                 .tuple_windows()
                 .flat_map(|(prev, curr, next)| match curr {

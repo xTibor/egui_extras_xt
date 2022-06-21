@@ -132,7 +132,7 @@ impl<'a> PolarCompass<'a> {
 
     pub fn diameter(mut self, diameter: f32) -> Self {
         assert!(diameter > 0.0);
-        self.diameter = diameter.into();
+        self.diameter = diameter;
         self
     }
 

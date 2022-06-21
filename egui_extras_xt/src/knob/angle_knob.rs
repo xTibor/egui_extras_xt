@@ -188,7 +188,7 @@ impl<'a> AngleKnob<'a> {
     }
 
     pub fn axis_count(mut self, axis_count: usize) -> Self {
-        self.axis_count = axis_count.into();
+        self.axis_count = axis_count;
         self
     }
 }
@@ -231,7 +231,7 @@ impl<'a> Widget for AngleKnob<'a> {
         }
 
         if ui.is_rect_visible(rect) {
-            let visuals = ui.style().interact(&response).clone();
+            let visuals = *ui.style().interact(&response);
             let radius = self.diameter / 2.0;
 
             let value = if self.animated {
