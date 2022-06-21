@@ -27,25 +27,25 @@ impl GpsPosition {
 lazy_static! {
     #[rustfmt::skip]
     static ref TARGETS: [(&'static str, GpsPosition); 19] = [
-        ("Szombathely",    GpsPosition::from_degrees(47.230795, 16.621286)),
-        ("Zalaegerszeg",   GpsPosition::from_degrees(46.833170, 16.846919)),
-        ("Győr",           GpsPosition::from_degrees(47.674452, 17.649232)),
-        ("Kaposvár",       GpsPosition::from_degrees(46.353691, 17.796872)),
-        ("Veszprém",       GpsPosition::from_degrees(47.094285, 17.906540)),
-        ("Pécs",           GpsPosition::from_degrees(46.076389, 18.228098)),
-        ("Tatabánya",      GpsPosition::from_degrees(47.576595, 18.398840)),
-        ("Székesfehérvár", GpsPosition::from_degrees(47.191392, 18.409764)),
-        ("Szekszárd",      GpsPosition::from_degrees(46.349588, 18.699044)),
-        ("Budapest",       GpsPosition::from_degrees(47.497870, 19.040246)),
-        ("Kecskemét",      GpsPosition::from_degrees(46.908010, 19.693137)),
-        ("Salgótarján",    GpsPosition::from_degrees(48.099903, 19.804960)),
-        ("Szeged",         GpsPosition::from_degrees(46.250742, 20.151697)),
-        ("Szolnok",        GpsPosition::from_degrees(47.176968, 20.184351)),
-        ("Eger",           GpsPosition::from_degrees(47.902627, 20.377112)),
-        ("Miskolc",        GpsPosition::from_degrees(48.103211, 20.777915)),
-        ("Békéscsaba",     GpsPosition::from_degrees(46.674736, 21.086400)),
-        ("Debrecen",       GpsPosition::from_degrees(47.531371, 21.624222)),
-        ("Nyíregyháza",    GpsPosition::from_degrees(47.955528, 21.716693)),
+        ("Szombathely",    GpsPosition::from_degrees(47.2307, 16.6212)),
+        ("Zalaegerszeg",   GpsPosition::from_degrees(46.8331, 16.8469)),
+        ("Győr",           GpsPosition::from_degrees(47.6744, 17.6492)),
+        ("Kaposvár",       GpsPosition::from_degrees(46.3536, 17.7968)),
+        ("Veszprém",       GpsPosition::from_degrees(47.0942, 17.9065)),
+        ("Pécs",           GpsPosition::from_degrees(46.0763, 18.2280)),
+        ("Tatabánya",      GpsPosition::from_degrees(47.5765, 18.3988)),
+        ("Székesfehérvár", GpsPosition::from_degrees(47.1913, 18.4097)),
+        ("Szekszárd",      GpsPosition::from_degrees(46.3495, 18.6990)),
+        ("Budapest",       GpsPosition::from_degrees(47.4979, 19.0402)),
+        ("Kecskemét",      GpsPosition::from_degrees(46.9080, 19.6931)),
+        ("Salgótarján",    GpsPosition::from_degrees(48.0999, 19.8049)),
+        ("Szeged",         GpsPosition::from_degrees(46.2507, 20.1516)),
+        ("Szolnok",        GpsPosition::from_degrees(47.1769, 20.1843)),
+        ("Eger",           GpsPosition::from_degrees(47.9026, 20.3771)),
+        ("Miskolc",        GpsPosition::from_degrees(48.1032, 20.7779)),
+        ("Békéscsaba",     GpsPosition::from_degrees(46.6747, 21.0864)),
+        ("Debrecen",       GpsPosition::from_degrees(47.5314, 21.6242)),
+        ("Nyíregyháza",    GpsPosition::from_degrees(47.9555, 21.7166)),
     ];
 }
 
@@ -58,7 +58,7 @@ impl Default for CompassExampleApp {
     fn default() -> Self {
         Self {
             heading: 0.0,
-            gps_position: GpsPosition::from_degrees(47.082944, 17.978775),
+            gps_position: GpsPosition::from_degrees(47.0829, 17.9787),
         }
     }
 }
