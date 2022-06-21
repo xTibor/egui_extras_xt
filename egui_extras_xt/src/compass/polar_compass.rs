@@ -2,11 +2,11 @@ use std::f32::consts::TAU;
 
 use egui::color::tint_color_towards;
 use egui::{
-    lerp, Align2, FontFamily, FontId, Rect, Response, Sense, Shape, Stroke, Ui, Vec2, Widget,
+    lerp, Align2, FontFamily, FontId, Pos2, Rect, Response, Sense, Shape, Stroke, Ui, Vec2, Widget,
 };
-use emath::{normalized_angle, Rot2};
+use emath::normalized_angle;
 
-use crate::common::{normalized_angle_unsigned_excl, snap_wrap_constrain_angle, Winding};
+use crate::common::{snap_wrap_constrain_angle, Winding};
 use crate::compass::{CompassLabels, CompassMarker};
 use crate::{CompassMarkerShape, DefaultCompassMarkerColor, Orientation, WrapMode};
 
@@ -271,9 +271,8 @@ impl<'a> Widget for PolarCompass<'a> {
         let rotation_matrix = self.orientation.rot2();
 
         if response.drag_started() {
-            ui.memory()
-                .data
-                .insert_temp::<f32>(response.id, get(&mut self.get_set_value));
+            let value_before_drag = get(&mut self.get_set_value);
+            ui.memory().data.insert_temp(response.id, value_before_drag);
         }
 
         if response.drag_released() {
@@ -281,19 +280,17 @@ impl<'a> Widget for PolarCompass<'a> {
         }
 
         if response.dragged() {
+            let screen_pos_to_angle = |pos: Pos2| {
+                -(rotation_matrix * (rect.center() - pos)).angle() * self.winding.to_float()
+            };
+
+            let value_before_drag = ui.memory().data.get_temp::<f32>(response.id).unwrap();
             let prev_value = get(&mut self.get_set_value);
 
-            let original_value = ui.memory().data.get_temp::<f32>(response.id).unwrap();
-
             let mut new_value = normalized_angle(
-                (-(rotation_matrix * (rect.center() - response.interact_pointer_pos().unwrap()))
-                    .angle()
-                    * self.winding.to_float())
-                    - (-(rotation_matrix
-                        * (rect.center() - ui.input().pointer.press_origin().unwrap()))
-                    .angle()
-                        * self.winding.to_float())
-                    + original_value,
+                screen_pos_to_angle(response.interact_pointer_pos().unwrap())
+                    - screen_pos_to_angle(ui.input().pointer.press_origin().unwrap())
+                    + value_before_drag,
             );
 
             new_value = snap_wrap_constrain_angle(
