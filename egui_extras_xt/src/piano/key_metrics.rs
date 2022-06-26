@@ -35,6 +35,7 @@ pub enum PianoKeyColor {
 
 pub struct PianoKeyMetrics {
     pub color: PianoKeyColor,
+    // Z-index used for hit testing keys based on key bounds checking
     pub z_index: isize,
     pub bounds: PianoKeyLogicalBounds,
     pub geometry_first: &'static [PianoKeyLogicalPos],
