@@ -10,4 +10,5 @@ pub use compass::{CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompa
 pub use knob::angle_knob::{AngleKnob, AngleKnobPreset};
 pub use knob::audio_knob::AudioKnob;
 
+pub mod piano;
 pub mod segmented_display;

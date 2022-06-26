@@ -3,6 +3,7 @@ use std::f32::consts::TAU;
 use eframe::egui::{self, global_dark_light_mode_switch, DragValue};
 use eframe::epaint::Color32;
 
+use egui_extras_xt::piano::PianoWidget;
 use itertools::Itertools;
 
 use egui_extras_xt::segmented_display::{
@@ -64,6 +65,9 @@ struct EguiExtrasXtExampleApp {
     segmented_display_show_dots: bool,
     segmented_display_show_colons: bool,
     segmented_display_show_apostrophes: bool,
+
+    // PianoWidget
+    piano_widget_value: f32,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -118,6 +122,9 @@ impl Default for EguiExtrasXtExampleApp {
             segmented_display_show_dots: true,
             segmented_display_show_colons: true,
             segmented_display_show_apostrophes: true,
+
+            // PianoWidget
+            piano_widget_value: 0.0,
         }
     }
 }
@@ -261,6 +268,13 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("PianoWidget");
+                ui.add_space(8.0);
+
+                ui.add(PianoWidget::new(&mut self.piano_widget_value));
+
+                ui.add_space(8.0);
+
                 ui.heading("PolarCompass");
                 ui.add_space(8.0);
 
