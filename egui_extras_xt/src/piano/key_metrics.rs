@@ -42,6 +42,38 @@ pub struct PianoKeyMetrics {
     pub geometry_last: &'static [PianoKeyLogicalPos],
 }
 
+impl PianoKeyMetrics {
+    pub fn bounds(&self, octave_index: isize) -> PianoKeyLogicalBounds {
+        PianoKeyLogicalBounds {
+            top: self.bounds.top,
+            bottom: self.bounds.bottom,
+            left: self.bounds.left + (PIANO_OCTAVE_WIDTH * octave_index),
+            right: self.bounds.right + (PIANO_OCTAVE_WIDTH * octave_index),
+        }
+    }
+
+    fn translate_geometry<'a>(
+        geometry: &'a [PianoKeyLogicalPos],
+        octave_index: isize,
+    ) -> impl Iterator<Item = PianoKeyLogicalPos> + 'a {
+        geometry.iter().map(move |PianoKeyLogicalPos(x, y)| {
+            PianoKeyLogicalPos(*x + (PIANO_OCTAVE_WIDTH * octave_index), *y)
+        })
+    }
+
+    pub fn geometry_first(&self, octave_index: isize) -> impl Iterator<Item = PianoKeyLogicalPos> {
+        Self::translate_geometry(self.geometry_first, octave_index)
+    }
+
+    pub fn geometry_middle(&self, octave_index: isize) -> impl Iterator<Item = PianoKeyLogicalPos> {
+        Self::translate_geometry(self.geometry_middle, octave_index)
+    }
+
+    pub fn geometry_last(&self, octave_index: isize) -> impl Iterator<Item = PianoKeyLogicalPos> {
+        Self::translate_geometry(self.geometry_last, octave_index)
+    }
+}
+
 #[rustfmt::skip]
 pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
