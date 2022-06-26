@@ -3,7 +3,8 @@ use epaint::Stroke;
 use itertools::Itertools;
 
 use crate::piano::key_metrics::{
-    PianoKeyColor, PianoKeyLogicalPos, PIANO_KEY_METRICS, PIANO_OCTAVE_HEIGHT, PIANO_OCTAVE_WIDTH,
+    PianoKeyColor, PianoKeyLogicalBounds, PIANO_KEY_METRICS, PIANO_OCTAVE_HEIGHT,
+    PIANO_OCTAVE_WIDTH,
 };
 
 // ----------------------------------------------------------------------------
@@ -55,8 +56,7 @@ impl<'a> Widget for PianoWidget<'a> {
                 .iter()
                 .sorted_by_key(|metrics| -metrics.z_index)
             {
-                let (PianoKeyLogicalPos(left, top), PianoKeyLogicalPos(right, bottom)) =
-                    metrics.bounds;
+                let PianoKeyLogicalBounds(left, top, right, bottom) = metrics.bounds;
 
                 let r = Rect::from_min_size(
                     rect.left_top() + vec2(left as f32, top as f32),

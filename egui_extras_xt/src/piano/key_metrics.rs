@@ -20,6 +20,8 @@ pub const PIANO_OCTAVE_HEIGHT: isize = 300;
 
 pub struct PianoKeyLogicalPos(pub isize, pub isize);
 
+pub struct PianoKeyLogicalBounds(pub isize, pub isize, pub isize, pub isize); // (left, top, right, bottom)
+
 #[derive(PartialEq)]
 pub enum PianoKeyColor {
     White,
@@ -29,7 +31,7 @@ pub enum PianoKeyColor {
 pub struct PianoKeyMetrics {
     pub color: PianoKeyColor,
     pub z_index: isize,
-    pub bounds: (PianoKeyLogicalPos, PianoKeyLogicalPos),
+    pub bounds: PianoKeyLogicalBounds,
     pub geometry_first: &'static [PianoKeyLogicalPos],
     pub geometry_middle: &'static [PianoKeyLogicalPos],
     pub geometry_last: &'static [PianoKeyLogicalPos],
@@ -40,10 +42,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::White,
         z_index: 1,
-        bounds: (
-            PianoKeyLogicalPos(  0,   0),
-            PianoKeyLogicalPos( 48, 300),
-        ),
+        bounds: PianoKeyLogicalBounds(0, 0, 48, 300),
         geometry_first: &[
             PianoKeyLogicalPos(  0,   0),
             PianoKeyLogicalPos( 30,   0),
@@ -70,10 +69,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::Black,
         z_index: 0,
-        bounds: (
-            PianoKeyLogicalPos( 30,   0),
-            PianoKeyLogicalPos( 58, 189),
-        ),
+        bounds: PianoKeyLogicalBounds(30, 0, 58, 189),
         geometry_first: &[
             PianoKeyLogicalPos( 30,   0),
             PianoKeyLogicalPos( 58,   0),
@@ -96,10 +92,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::White,
         z_index: 1,
-        bounds: (
-            PianoKeyLogicalPos( 48,   0),
-            PianoKeyLogicalPos( 96, 300),
-        ),
+        bounds: PianoKeyLogicalBounds(48, 0, 96, 300),
         geometry_first: &[
             PianoKeyLogicalPos( 48,   0),
             PianoKeyLogicalPos( 86,   0),
@@ -130,10 +123,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::Black,
         z_index: 0,
-        bounds: (
-            PianoKeyLogicalPos( 86,   0),
-            PianoKeyLogicalPos(114, 189),
-        ),
+        bounds: PianoKeyLogicalBounds(86, 0, 114, 189),
         geometry_first: &[
             PianoKeyLogicalPos( 86,   0),
             PianoKeyLogicalPos(114,   0),
@@ -156,10 +146,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::White,
         z_index: 1,
-        bounds: (
-            PianoKeyLogicalPos( 96,   0),
-            PianoKeyLogicalPos(144, 300),
-        ),
+        bounds: PianoKeyLogicalBounds(96, 0, 144, 300),
         geometry_first: &[
             PianoKeyLogicalPos( 96,   0),
             PianoKeyLogicalPos(144,   0),
@@ -186,10 +173,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::White,
         z_index: 1,
-        bounds: (
-            PianoKeyLogicalPos(144,   0),
-            PianoKeyLogicalPos(192, 300),
-        ),
+        bounds: PianoKeyLogicalBounds(144, 0, 192, 300),
         geometry_first: &[
             PianoKeyLogicalPos(144,   0),
             PianoKeyLogicalPos(170,   0),
@@ -216,10 +200,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::Black,
         z_index: 0,
-        bounds: (
-            PianoKeyLogicalPos(170,   0),
-            PianoKeyLogicalPos(198, 189),
-        ),
+        bounds: PianoKeyLogicalBounds(170, 0, 198, 189),
         geometry_first: &[
             PianoKeyLogicalPos(170,   0),
             PianoKeyLogicalPos(198,   0),
@@ -242,10 +223,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::White,
         z_index: 1,
-        bounds: (
-            PianoKeyLogicalPos(192,   0),
-            PianoKeyLogicalPos(240, 300),
-        ),
+        bounds: PianoKeyLogicalBounds(192, 0, 240, 300),
         geometry_first: &[
             PianoKeyLogicalPos(192,   0),
             PianoKeyLogicalPos(226,   0),
@@ -276,10 +254,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::Black,
         z_index: 0,
-        bounds: (
-            PianoKeyLogicalPos(226,   0),
-            PianoKeyLogicalPos(254, 189),
-        ),
+        bounds: PianoKeyLogicalBounds(226, 0, 254, 189),
         geometry_first: &[
             PianoKeyLogicalPos(226,   0),
             PianoKeyLogicalPos(254,   0),
@@ -302,10 +277,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::White,
         z_index: 1,
-        bounds: (
-            PianoKeyLogicalPos(240,   0),
-            PianoKeyLogicalPos(288, 300),
-        ),
+        bounds: PianoKeyLogicalBounds(240, 0, 288, 300),
         geometry_first: &[
             PianoKeyLogicalPos(240,   0),
             PianoKeyLogicalPos(282,   0),
@@ -336,10 +308,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::Black,
         z_index: 0,
-        bounds: (
-            PianoKeyLogicalPos(282,   0),
-            PianoKeyLogicalPos(310, 189),
-        ),
+        bounds: PianoKeyLogicalBounds(282, 0, 310, 189),
         geometry_first: &[
             PianoKeyLogicalPos(282,   0),
             PianoKeyLogicalPos(310,   0),
@@ -362,10 +331,7 @@ pub const PIANO_KEY_METRICS: [PianoKeyMetrics; 12] = [
     PianoKeyMetrics {
         color: PianoKeyColor::White,
         z_index: 1,
-        bounds: (
-            PianoKeyLogicalPos(288,   0),
-            PianoKeyLogicalPos(336, 300),
-        ),
+        bounds: PianoKeyLogicalBounds(288, 0, 336, 300),
         geometry_first: &[
             PianoKeyLogicalPos(288,   0),
             PianoKeyLogicalPos(336,   0),
