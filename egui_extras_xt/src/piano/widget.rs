@@ -2,7 +2,9 @@ use egui::{self, vec2, Color32, Rect, Response, Sense, Ui, Widget};
 use epaint::Stroke;
 use itertools::Itertools;
 
-use crate::piano::key_metrics::{KeyColor, KEY_METRICS, KEY_OCTAVE_HEIGHT, KEY_OCTAVE_WIDTH};
+use crate::piano::key_metrics::{
+    PianoKeyColor, PianoKeyLogicalPos, PIANO_KEY_METRICS, PIANO_OCTAVE_HEIGHT, PIANO_OCTAVE_WIDTH,
+};
 
 // ----------------------------------------------------------------------------
 
@@ -44,13 +46,17 @@ impl<'a> PianoWidget<'a> {
 
 impl<'a> Widget for PianoWidget<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
-        let desired_size = vec2(KEY_OCTAVE_WIDTH as f32, KEY_OCTAVE_HEIGHT as f32);
+        let desired_size = vec2(PIANO_OCTAVE_WIDTH as f32, PIANO_OCTAVE_HEIGHT as f32);
 
         let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
 
         if ui.is_rect_visible(rect) {
-            for metrics in KEY_METRICS.iter().sorted_by_key(|metrics| -metrics.z_index) {
-                let ((left, top), (right, bottom)) = metrics.bounds;
+            for metrics in PIANO_KEY_METRICS
+                .iter()
+                .sorted_by_key(|metrics| -metrics.z_index)
+            {
+                let (PianoKeyLogicalPos(left, top), PianoKeyLogicalPos(right, bottom)) =
+                    metrics.bounds;
 
                 let r = Rect::from_min_size(
                     rect.left_top() + vec2(left as f32, top as f32),
@@ -61,8 +67,8 @@ impl<'a> Widget for PianoWidget<'a> {
                     r,
                     0.0,
                     match metrics.color {
-                        KeyColor::White => Color32::WHITE,
-                        KeyColor::Black => Color32::BLACK,
+                        PianoKeyColor::White => Color32::WHITE,
+                        PianoKeyColor::Black => Color32::BLACK,
                     },
                     Stroke::new(2.0, Color32::BLACK),
                 )
