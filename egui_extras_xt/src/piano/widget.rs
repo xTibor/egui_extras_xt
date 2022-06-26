@@ -56,7 +56,7 @@ impl<'a> Widget for PianoWidget<'a> {
                 .iter()
                 .sorted_by_key(|metrics| -metrics.z_index)
             {
-                let PianoKeyLogicalBounds(left, top, right, bottom) = metrics.bounds;
+                let PianoKeyLogicalBounds { left, top, right, bottom } = metrics.bounds;
 
                 let r = Rect::from_min_size(
                     rect.left_top() + vec2(left as f32, top as f32),
