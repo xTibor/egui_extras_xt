@@ -1,12 +1,11 @@
 use std::ops::RangeInclusive;
 
-use egui::{self, vec2, Color32, Rect, Response, Sense, Ui, Widget};
+use egui::{self, vec2, Color32, Pos2, Response, Sense, Shape, Ui, Widget};
 use epaint::Stroke;
-use itertools::Itertools;
+use itertools::{Itertools, Position};
 
 use crate::piano::key_metrics::{
-    PianoKeyColor, PianoKeyLogicalBounds, PIANO_KEY_METRICS, PIANO_OCTAVE_HEIGHT,
-    PIANO_OCTAVE_WIDTH,
+    PianoKeyColor, PianoKeyLogicalPos, PIANO_KEY_METRICS, PIANO_OCTAVE_HEIGHT,
 };
 
 // ----------------------------------------------------------------------------
@@ -21,6 +20,20 @@ fn get(get_set_value: &mut GetSetValue<'_>) -> f32 {
 
 fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
     (get_set_value)(Some(value));
+}
+
+// ----------------------------------------------------------------------------
+
+trait NoteUtils {
+    fn octave_pitch_class(&self) -> (Self, Self)
+    where
+        Self: Sized;
+}
+
+impl NoteUtils for isize {
+    fn octave_pitch_class(&self) -> (isize, isize) {
+        (self / 12, self.rem_euclid(12))
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -57,13 +70,12 @@ impl<'a> PianoWidget<'a> {
 impl<'a> Widget for PianoWidget<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let piano_start_x = {
-            let (octave, pitch_class) =
-                (self.note_range.start() / 12, self.note_range.start() % 12);
+            let (octave, pitch_class) = self.note_range.start().octave_pitch_class();
             PIANO_KEY_METRICS[pitch_class as usize].bounds(octave).left
         };
 
         let piano_end_x = {
-            let (octave, pitch_class) = (self.note_range.end() / 12, self.note_range.end() % 12);
+            let (octave, pitch_class) = self.note_range.end().octave_pitch_class();
             PIANO_KEY_METRICS[pitch_class as usize].bounds(octave).right
         };
 
@@ -74,33 +86,32 @@ impl<'a> Widget for PianoWidget<'a> {
 
         let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
 
+        let map_logical_pos_to_screen_pos = |pos: PianoKeyLogicalPos| -> Pos2 {
+            rect.left_top() + vec2(pos.0 as f32 - piano_start_x as f32, pos.1 as f32)
+        };
+
         if ui.is_rect_visible(rect) {
-            for note in self.note_range {
-                let (octave, pitch_class) = (note / 12, note % 12);
+            for note in self.note_range.with_position() {
+                let (octave, pitch_class) = note.into_inner().octave_pitch_class();
 
                 let metrics = &PIANO_KEY_METRICS[pitch_class as usize];
 
-                let PianoKeyLogicalBounds {
-                    left,
-                    top,
-                    right,
-                    bottom,
-                } = metrics.bounds(octave);
+                let geometry = match note {
+                    Position::First(_) => metrics.geometry_first(octave),
+                    Position::Middle(_) => metrics.geometry_middle(octave),
+                    Position::Last(_) => metrics.geometry_last(octave),
+                    Position::Only(_) => metrics.geometry_middle(octave),
+                };
 
-                let r = Rect::from_min_size(
-                    rect.left_top() + vec2(left as f32 - piano_start_x as f32, top as f32),
-                    vec2(right as f32 - left as f32, bottom as f32 - top as f32),
-                );
-
-                ui.painter().rect(
-                    r,
-                    0.0,
+                // https://github.com/emilk/egui/issues/513
+                ui.painter().add(Shape::convex_polygon(
+                    geometry.map(map_logical_pos_to_screen_pos).collect_vec(),
                     match metrics.color {
                         PianoKeyColor::White => Color32::WHITE,
                         PianoKeyColor::Black => Color32::BLACK,
                     },
                     Stroke::new(2.0, Color32::BLACK),
-                )
+                ));
             }
         }
 

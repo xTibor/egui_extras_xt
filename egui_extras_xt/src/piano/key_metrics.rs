@@ -56,21 +56,30 @@ impl PianoKeyMetrics {
     fn translate_geometry<'a>(
         geometry: &'a [PianoKeyLogicalPos],
         octave_index: isize,
-    ) -> impl Iterator<Item = PianoKeyLogicalPos> + 'a {
-        geometry.iter().map(move |PianoKeyLogicalPos(x, y)| {
+    ) -> Box<dyn Iterator<Item = PianoKeyLogicalPos> + 'a> {
+        Box::new(geometry.iter().map(move |PianoKeyLogicalPos(x, y)| {
             PianoKeyLogicalPos(*x + (PIANO_OCTAVE_WIDTH * octave_index), *y)
-        })
+        }))
     }
 
-    pub fn geometry_first(&self, octave_index: isize) -> impl Iterator<Item = PianoKeyLogicalPos> {
+    pub fn geometry_first(
+        &self,
+        octave_index: isize,
+    ) -> Box<dyn Iterator<Item = PianoKeyLogicalPos>> {
         Self::translate_geometry(self.geometry_first, octave_index)
     }
 
-    pub fn geometry_middle(&self, octave_index: isize) -> impl Iterator<Item = PianoKeyLogicalPos> {
+    pub fn geometry_middle(
+        &self,
+        octave_index: isize,
+    ) -> Box<dyn Iterator<Item = PianoKeyLogicalPos>> {
         Self::translate_geometry(self.geometry_middle, octave_index)
     }
 
-    pub fn geometry_last(&self, octave_index: isize) -> impl Iterator<Item = PianoKeyLogicalPos> {
+    pub fn geometry_last(
+        &self,
+        octave_index: isize,
+    ) -> Box<dyn Iterator<Item = PianoKeyLogicalPos>> {
         Self::translate_geometry(self.geometry_last, octave_index)
     }
 }
