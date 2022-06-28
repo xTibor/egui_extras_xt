@@ -91,7 +91,13 @@ impl<'a> Widget for PianoWidget<'a> {
         };
 
         if ui.is_rect_visible(rect) {
-            for note in self.note_range.with_position() {
+            for note in self.note_range.with_position().sorted_by_key(|note| {
+                // TODO: Remove this sorted_by_key() hack when polygon renderer gets finally fixed.
+                // https://github.com/emilk/egui/issues/513
+                let (_, pitch_class) = note.into_inner().octave_pitch_class();
+                let metrics = &PIANO_KEY_METRICS[pitch_class as usize];
+                -metrics.z_index
+            }) {
                 let (octave, pitch_class) = note.into_inner().octave_pitch_class();
 
                 let metrics = &PIANO_KEY_METRICS[pitch_class as usize];
