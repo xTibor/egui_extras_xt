@@ -1,7 +1,7 @@
 use std::f32::consts::TAU;
 
 use egui::Ui;
-use emath::{almost_equal, lerp, Pos2, Rot2, Vec2};
+use emath::{almost_equal, lerp, pos2, vec2, Pos2, Rot2, Vec2};
 use epaint::{Color32, Shape, Stroke};
 
 use itertools::Itertools;
@@ -214,6 +214,27 @@ impl WidgetShape<'_> {
         //     stroke,
         // )
     }
+}
+
+// ----------------------------------------------------------------------------
+
+pub fn paint_ellipse(
+    ui: &mut Ui,
+    center: Pos2,
+    size: Vec2,
+    fill: Color32,
+    stroke: Stroke,
+    rotation: Rot2,
+) {
+    const ELLIPSE_RESOLUTION: usize = 32;
+
+    let points = (0..ELLIPSE_RESOLUTION)
+        .map(|i| ((i as f32) / (ELLIPSE_RESOLUTION as f32)) * TAU)
+        .map(|t| center + rotation * (Vec2::angled(t) * (size / 2.0)))
+        .collect();
+
+    ui.painter()
+        .add(Shape::convex_polygon(points, fill, stroke));
 }
 
 // ----------------------------------------------------------------------------

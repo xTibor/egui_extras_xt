@@ -11,7 +11,7 @@ use egui_extras_xt::segmented_display::{
 };
 use egui_extras_xt::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, LinearCompass, Orientation,
-    PolarCompass, PolarCompassOverflow, WidgetShape, Winding, WrapMode,
+    PolarCompass, PolarCompassOverflow, ThumbstickKnob, WidgetShape, Winding, WrapMode,
 };
 
 struct EguiExtrasXtExampleApp {
@@ -64,6 +64,9 @@ struct EguiExtrasXtExampleApp {
     segmented_display_show_dots: bool,
     segmented_display_show_colons: bool,
     segmented_display_show_apostrophes: bool,
+
+    // ThumbstickKnob
+    thumbstick_knob_value: (f32, f32),
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -118,6 +121,9 @@ impl Default for EguiExtrasXtExampleApp {
             segmented_display_show_dots: true,
             segmented_display_show_colons: true,
             segmented_display_show_apostrophes: true,
+
+            // ThumbstickKnob
+            thumbstick_knob_value: (0.0, 0.0),
         }
     }
 }
@@ -261,6 +267,27 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("ThumbstickKnob");
+                ui.add_space(8.0);
+
+                ui.horizontal(|ui| {
+                    ui.add(
+                        DragValue::new(&mut self.thumbstick_knob_value.0)
+                            .clamp_range(-1.0..=1.0)
+                            .speed(0.05),
+                    );
+                    ui.add(
+                        DragValue::new(&mut self.thumbstick_knob_value.1)
+                            .clamp_range(-1.0..=1.0)
+                            .speed(0.05),
+                    );
+                });
+
+                ui.add(ThumbstickKnob::new(&mut self.thumbstick_knob_value));
+
+                ui.add_space(8.0);
+                ui.separator();
+
                 ui.heading("PolarCompass");
                 ui.add_space(8.0);
 

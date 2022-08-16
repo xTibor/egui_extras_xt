@@ -9,5 +9,6 @@ pub use compass::polar_compass::{PolarCompass, PolarCompassOverflow};
 pub use compass::{CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor};
 pub use knob::angle_knob::{AngleKnob, AngleKnobPreset};
 pub use knob::audio_knob::AudioKnob;
+pub use knob::thumbstick_knob::ThumbstickKnob;
 
 pub mod segmented_display;
