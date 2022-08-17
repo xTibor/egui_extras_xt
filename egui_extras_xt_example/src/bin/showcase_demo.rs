@@ -283,10 +283,17 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     );
                 });
 
-                ui.add(
-                    ThumbstickKnob::new(&mut self.thumbstick_knob_value)
-                        .interactive(self.common_interactive),
-                );
+                {
+                    let thumb_response = ui.add(
+                        ThumbstickKnob::new(&mut self.thumbstick_knob_value)
+                            .interactive(self.common_interactive)
+                            .animated(self.common_animated),
+                    );
+
+                    if thumb_response.drag_released() {
+                        self.thumbstick_knob_value = (0.0, 0.0);
+                    }
+                }
 
                 ui.add_space(8.0);
                 ui.separator();

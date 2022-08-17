@@ -1,5 +1,5 @@
 use egui::{self, Response, Sense, Ui, Widget};
-use emath::{Rot2, Vec2};
+use emath::{vec2, Rot2, Vec2};
 
 use crate::common::paint_ellipse;
 
@@ -91,7 +91,20 @@ impl<'a> Widget for ThumbstickKnob<'a> {
             let visuals = *ui.style().interact(&response);
 
             let (r, theta) = {
-                let v: Vec2 = get(&mut self.get_set_value).into();
+                let v = if self.animated {
+                    let (x, y) = get(&mut self.get_set_value);
+
+                    // Where's .animate_vec2_with_time()?
+                    vec2(
+                        ui.ctx()
+                            .animate_value_with_time(response.id.with("x"), x, 0.1),
+                        ui.ctx()
+                            .animate_value_with_time(response.id.with("y"), y, 0.1),
+                    )
+                } else {
+                    get(&mut self.get_set_value).into()
+                };
+
                 (v.length().clamp(0.0, 1.0), v.angle())
             };
 
