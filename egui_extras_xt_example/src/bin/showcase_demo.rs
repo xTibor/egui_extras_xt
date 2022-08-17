@@ -285,7 +285,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
 
                 {
                     let thumb_response = ui.add(
-                        ThumbstickKnob::new(&mut self.thumbstick_knob_value)
+                        ThumbstickKnob::new(&mut self.thumbstick_knob_value, -1.0..=1.0)
                             .interactive(self.common_interactive)
                             .animated(self.common_animated),
                     );

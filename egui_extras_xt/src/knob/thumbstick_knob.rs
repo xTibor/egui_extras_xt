@@ -1,7 +1,9 @@
+use std::ops::RangeInclusive;
+
 use egui::{self, Response, Sense, Ui, Widget};
 use emath::{vec2, Rot2, Vec2};
 
-use crate::common::paint_ellipse;
+use crate::common::{paint_ellipse, Vec2Ext};
 
 // ----------------------------------------------------------------------------
 
@@ -22,14 +24,15 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: (f32, f32)) {
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct ThumbstickKnob<'a> {
     get_set_value: GetSetValue<'a>,
+    range: RangeInclusive<f32>,
     interactive: bool,
     diameter: f32,
     animated: bool,
 }
 
 impl<'a> ThumbstickKnob<'a> {
-    pub fn new(value: &'a mut (f32, f32)) -> Self {
-        Self::from_get_set(move |v: Option<(f32, f32)>| {
+    pub fn new(value: &'a mut (f32, f32), range: RangeInclusive<f32>) -> Self {
+        Self::from_get_set(range, move |v: Option<(f32, f32)>| {
             if let Some(v) = v {
                 *value = v;
             }
@@ -37,9 +40,13 @@ impl<'a> ThumbstickKnob<'a> {
         })
     }
 
-    pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<(f32, f32)>) -> (f32, f32)) -> Self {
+    pub fn from_get_set(
+        range: RangeInclusive<f32>,
+        get_set_value: impl 'a + FnMut(Option<(f32, f32)>) -> (f32, f32),
+    ) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
+            range,
             interactive: true,
             diameter: 96.0,
             animated: true,
@@ -83,6 +90,8 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                 v = v.normalized();
             }
 
+            v = v.remap_clamp(-1.0..=1.0, self.range.clone());
+
             set(&mut self.get_set_value, v.into());
             response.mark_changed();
         }
@@ -91,10 +100,9 @@ impl<'a> Widget for ThumbstickKnob<'a> {
             let visuals = *ui.style().interact(&response);
 
             let (r, theta) = {
-                let v = if self.animated {
-                    let (x, y) = get(&mut self.get_set_value);
-
+                let mut v = if self.animated {
                     // Where's .animate_vec2_with_time()?
+                    let (x, y) = get(&mut self.get_set_value);
                     vec2(
                         ui.ctx()
                             .animate_value_with_time(response.id.with("x"), x, 0.1),
@@ -105,6 +113,7 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                     get(&mut self.get_set_value).into()
                 };
 
+                v = v.remap_clamp(self.range.clone(), -1.0..=1.0);
                 (v.length().clamp(0.0, 1.0), v.angle())
             };
 
