@@ -5,7 +5,7 @@ use crate::segmented_display::{DisplayFontGlyph, DisplayKind, SegmentGeometryTra
 
 // ----------------------------------------------------------------------------
 
-#[derive(Copy, Clone, Default)]
+#[derive(Clone, Copy, Default)]
 pub struct SixteenSegment;
 
 impl DisplayKind for SixteenSegment {

@@ -16,7 +16,7 @@ use egui::Pos2;
 
 pub type DisplayFontGlyph = u16;
 
-#[derive(Copy, Clone, Default)]
+#[derive(Clone, Copy, Default)]
 pub struct DisplayDigit {
     pub glyph: DisplayFontGlyph,
     pub dot: bool,

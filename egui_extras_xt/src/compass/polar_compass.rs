@@ -26,7 +26,7 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 
 // ----------------------------------------------------------------------------
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub enum PolarCompassOverflow {
     Clip,
     Saturate,

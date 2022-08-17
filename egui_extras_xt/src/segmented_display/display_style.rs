@@ -2,7 +2,7 @@ use egui::{Color32, Stroke, Ui};
 
 // ----------------------------------------------------------------------------
 
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy)]
 pub struct DisplayStyle {
     pub background_color: Color32,
     pub segment_on_color: Color32,
@@ -48,7 +48,7 @@ impl Default for DisplayStyle {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy)]
 pub enum DisplayStylePreset {
     Default,
     Calculator,

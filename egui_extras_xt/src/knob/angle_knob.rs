@@ -23,7 +23,7 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AngleKnobPreset {
     AdobePhotoshop,
     AdobePremierePro,

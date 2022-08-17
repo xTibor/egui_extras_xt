@@ -1,4 +1,4 @@
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy)]
 pub struct DisplayMetrics {
     pub segment_spacing: f32,
     pub segment_thickness: f32,
@@ -23,7 +23,7 @@ impl Default for DisplayMetrics {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy)]
 pub enum DisplayMetricsPreset {
     Default,
     KnightRider,

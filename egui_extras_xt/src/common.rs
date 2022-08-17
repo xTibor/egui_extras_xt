@@ -8,7 +8,7 @@ use itertools::Itertools;
 
 // ----------------------------------------------------------------------------
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Orientation {
     Right,
     Bottom,
@@ -31,7 +31,7 @@ impl Orientation {
 
 // ----------------------------------------------------------------------------
 
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Winding {
     Clockwise,
     Counterclockwise,
@@ -48,7 +48,7 @@ impl Winding {
 
 // ----------------------------------------------------------------------------
 
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum WrapMode {
     None,
     Signed,
