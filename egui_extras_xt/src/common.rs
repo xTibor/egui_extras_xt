@@ -31,15 +31,15 @@ impl Orientation {
 
 // ----------------------------------------------------------------------------
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(Eq, PartialEq, Debug, Clone, Copy)]
 pub enum Winding {
     Clockwise,
     Counterclockwise,
 }
 
 impl Winding {
-    pub(crate) fn to_float(&self) -> f32 {
-        match *self {
+    pub(crate) fn to_float(self) -> f32 {
+        match self {
             Self::Clockwise => 1.0,
             Self::Counterclockwise => -1.0,
         }
@@ -48,7 +48,7 @@ impl Winding {
 
 // ----------------------------------------------------------------------------
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(Eq, PartialEq, Debug, Clone, Copy)]
 pub enum WrapMode {
     None,
     Signed,
@@ -142,6 +142,7 @@ impl WidgetShape<'_> {
         ui.painter().add(Shape::closed_line(outline_points, stroke));
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn paint_arc(
         &self,
         ui: &mut Ui,
