@@ -2,7 +2,7 @@ use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
 use egui::{self, lerp, Response, Sense, Ui, Widget};
-use emath::{remap_clamp, vec2, Rot2, Vec2};
+use emath::{remap_clamp, vec2, Rect, Rot2, Vec2};
 
 use crate::common::{paint_ellipse, Orientation, WidgetShape, Winding};
 
@@ -87,29 +87,37 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                 (v.length().clamp(0.0, 1.0), v.angle())
             };
 
-            let squish_factor = 0.75;
+            let tilt_factor = 0.75;
 
-            ui.painter().circle_stroke(
+            ui.painter().circle(
                 rect.center(),
                 self.diameter / 2.0,
+                ui.style().visuals.faint_bg_color,
                 ui.style().visuals.window_stroke(),
             );
 
-            let mut paint_thumbstick = |size: Vec2| {
-                // TODO
+            let mut paint_thumbstick = |size| {
+                let ellipse_center = rect.center()
+                    + Vec2::angled(theta)
+                        * r
+                        * ((self.diameter - (self.diameter * tilt_factor * size)) / 2.0);
+
+                let ellipse_size = Vec2::splat(self.diameter)
+                    * size
+                    * Vec2::new(1.0 - (1.0 - tilt_factor) * r, 1.0);
+
                 paint_ellipse(
                     ui,
-                    rect.center() + Vec2::angled(theta) * r * ((self.diameter - self.diameter * size.y * squish_factor) / 2.0),
-                    size * self.diameter * vec2(1.0 - squish_factor * r, 1.0),
+                    ellipse_center,
+                    ellipse_size,
                     visuals.bg_fill,
                     visuals.fg_stroke,
                     Rot2::from_angle(theta),
                 );
             };
 
-            paint_thumbstick(Vec2::splat(0.750));
-            paint_thumbstick(Vec2::splat(0.625));
-            paint_thumbstick(Vec2::splat(0.150));
+            paint_thumbstick(0.750);
+            paint_thumbstick(0.625);
         }
 
         response
