@@ -1,10 +1,7 @@
-use std::f32::consts::TAU;
-use std::ops::RangeInclusive;
+use egui::{self, Response, Sense, Ui, Widget};
+use emath::{Rot2, Vec2};
 
-use egui::{self, lerp, Response, Sense, Ui, Widget};
-use emath::{remap_clamp, vec2, Rect, Rot2, Vec2};
-
-use crate::common::{paint_ellipse, Orientation, WidgetShape, Winding};
+use crate::common::paint_ellipse;
 
 // ----------------------------------------------------------------------------
 
@@ -44,7 +41,7 @@ impl<'a> ThumbstickKnob<'a> {
         Self {
             get_set_value: Box::new(get_set_value),
             interactive: true,
-            diameter: 128.0,
+            diameter: 96.0,
             animated: true,
         }
     }
@@ -78,16 +75,27 @@ impl<'a> Widget for ThumbstickKnob<'a> {
             },
         );
 
+        if response.dragged() {
+            let mut v =
+                (response.interact_pointer_pos().unwrap() - rect.center()) / (self.diameter / 2.0);
+
+            if v.length() > 1.0 {
+                v = v.normalized();
+            }
+
+            set(&mut self.get_set_value, v.into());
+            response.mark_changed();
+        }
+
         if ui.is_rect_visible(rect) {
             let visuals = *ui.style().interact(&response);
 
             let (r, theta) = {
-                let (x, y) = get(&mut self.get_set_value);
-                let v = vec2(x, y);
+                let v: Vec2 = get(&mut self.get_set_value).into();
                 (v.length().clamp(0.0, 1.0), v.angle())
             };
 
-            let tilt_factor = 0.75;
+            let tilt_factor = 0.9;
 
             ui.painter().circle(
                 rect.center(),

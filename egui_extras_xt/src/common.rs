@@ -1,7 +1,7 @@
 use std::f32::consts::TAU;
 
 use egui::Ui;
-use emath::{almost_equal, lerp, pos2, vec2, Pos2, Rot2, Vec2};
+use emath::{almost_equal, lerp, Pos2, Rot2, Vec2};
 use epaint::{Color32, Shape, Stroke};
 
 use itertools::Itertools;

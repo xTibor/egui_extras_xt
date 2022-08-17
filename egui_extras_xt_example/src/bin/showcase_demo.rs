@@ -283,7 +283,10 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     );
                 });
 
-                ui.add(ThumbstickKnob::new(&mut self.thumbstick_knob_value));
+                ui.add(
+                    ThumbstickKnob::new(&mut self.thumbstick_knob_value)
+                        .interactive(self.common_interactive),
+                );
 
                 ui.add_space(8.0);
                 ui.separator();
