@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use egui::{self, Response, Sense, Ui, Widget, remap_clamp};
+use egui::{self, remap_clamp, Response, Sense, Ui, Widget};
 use emath::{vec2, Rot2, Vec2};
 
 use crate::common::paint_ellipse;
@@ -41,9 +41,7 @@ impl<'a> ThumbstickKnob<'a> {
         })
     }
 
-    pub fn from_get_set(
-        get_set_value: impl 'a + FnMut(Option<(f32, f32)>) -> (f32, f32),
-    ) -> Self {
+    pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<(f32, f32)>) -> (f32, f32)) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
             range_x: -1.0..=1.0,
