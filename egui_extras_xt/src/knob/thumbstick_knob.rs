@@ -1,9 +1,9 @@
 use std::ops::RangeInclusive;
 
-use egui::{self, Response, Sense, Ui, Widget};
+use egui::{self, Response, Sense, Ui, Widget, remap_clamp};
 use emath::{vec2, Rot2, Vec2};
 
-use crate::common::{paint_ellipse, Vec2Ext};
+use crate::common::paint_ellipse;
 
 // ----------------------------------------------------------------------------
 
@@ -24,15 +24,16 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: (f32, f32)) {
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct ThumbstickKnob<'a> {
     get_set_value: GetSetValue<'a>,
-    range: RangeInclusive<f32>,
+    range_x: RangeInclusive<f32>,
+    range_y: RangeInclusive<f32>,
     interactive: bool,
     diameter: f32,
     animated: bool,
 }
 
 impl<'a> ThumbstickKnob<'a> {
-    pub fn new(value: &'a mut (f32, f32), range: RangeInclusive<f32>) -> Self {
-        Self::from_get_set(range, move |v: Option<(f32, f32)>| {
+    pub fn new(value: &'a mut (f32, f32)) -> Self {
+        Self::from_get_set(move |v: Option<(f32, f32)>| {
             if let Some(v) = v {
                 *value = v;
             }
@@ -41,12 +42,12 @@ impl<'a> ThumbstickKnob<'a> {
     }
 
     pub fn from_get_set(
-        range: RangeInclusive<f32>,
         get_set_value: impl 'a + FnMut(Option<(f32, f32)>) -> (f32, f32),
     ) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
-            range,
+            range_x: -1.0..=1.0,
+            range_y: -1.0..=1.0,
             interactive: true,
             diameter: 96.0,
             animated: true,
@@ -65,6 +66,22 @@ impl<'a> ThumbstickKnob<'a> {
 
     pub fn animated(mut self, animated: bool) -> Self {
         self.animated = animated;
+        self
+    }
+
+    pub fn range(mut self, range: RangeInclusive<f32>) -> Self {
+        self.range_x = range.clone();
+        self.range_y = range;
+        self
+    }
+
+    pub fn range_x(mut self, range_x: RangeInclusive<f32>) -> Self {
+        self.range_x = range_x;
+        self
+    }
+
+    pub fn range_y(mut self, range_y: RangeInclusive<f32>) -> Self {
+        self.range_y = range_y;
         self
     }
 }
@@ -90,7 +107,8 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                 v = v.normalized();
             }
 
-            v = v.remap_clamp(-1.0..=1.0, self.range.clone());
+            v.x = remap_clamp(v.x, -1.0..=1.0, self.range_x.clone());
+            v.y = remap_clamp(v.y, -1.0..=1.0, self.range_y.clone());
 
             set(&mut self.get_set_value, v.into());
             response.mark_changed();
@@ -113,7 +131,9 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                     get(&mut self.get_set_value).into()
                 };
 
-                v = v.remap_clamp(self.range.clone(), -1.0..=1.0);
+                v.x = remap_clamp(v.x, self.range_x.clone(), -1.0..=1.0);
+                v.y = remap_clamp(v.y, self.range_y.clone(), -1.0..=1.0);
+
                 (v.length().clamp(0.0, 1.0), v.angle())
             };
 

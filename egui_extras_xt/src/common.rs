@@ -1,7 +1,6 @@
 use std::f32::consts::TAU;
-use std::ops::RangeInclusive;
 
-use egui::{remap_clamp, vec2, Ui};
+use egui::Ui;
 use emath::{almost_equal, lerp, Pos2, Rot2, Vec2};
 use epaint::{Color32, Shape, Stroke};
 
@@ -314,20 +313,5 @@ impl SymLog for f32 {
         } else {
             self.abs().log(base) * self.signum()
         }
-    }
-}
-
-// ----------------------------------------------------------------------------
-
-pub trait Vec2Ext {
-    fn remap_clamp(self, from: RangeInclusive<f32>, to: RangeInclusive<f32>) -> Vec2;
-}
-
-impl Vec2Ext for Vec2 {
-    fn remap_clamp(self, from: RangeInclusive<f32>, to: RangeInclusive<f32>) -> Vec2 {
-        vec2(
-            remap_clamp(self.x, from.clone(), to.clone()),
-            remap_clamp(self.y, from.clone(), to.clone()),
-        )
     }
 }
