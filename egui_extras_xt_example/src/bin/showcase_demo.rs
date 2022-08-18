@@ -519,7 +519,8 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .cartesian_product([64.0, 32.0])
                     {
                         ui.add(
-                            AudioKnob::new(&mut self.audio_knob_value, audio_knob_range)
+                            AudioKnob::new(&mut self.audio_knob_value)
+                                .range(audio_knob_range)
                                 .interactive(self.common_interactive)
                                 .diameter(audio_knob_size)
                                 .orientation(self.common_orientation)

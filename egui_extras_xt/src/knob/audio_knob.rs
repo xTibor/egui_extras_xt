@@ -39,8 +39,8 @@ pub struct AudioKnob<'a> {
 }
 
 impl<'a> AudioKnob<'a> {
-    pub fn new(value: &'a mut f32, range: RangeInclusive<f32>) -> Self {
-        Self::from_get_set(range, move |v: Option<f32>| {
+    pub fn new(value: &'a mut f32) -> Self {
+        Self::from_get_set(move |v: Option<f32>| {
             if let Some(v) = v {
                 *value = v;
             }
@@ -48,17 +48,14 @@ impl<'a> AudioKnob<'a> {
         })
     }
 
-    pub fn from_get_set(
-        range: RangeInclusive<f32>,
-        get_set_value: impl 'a + FnMut(Option<f32>) -> f32,
-    ) -> Self {
+    pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<f32>) -> f32) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
             interactive: true,
             diameter: 32.0,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
-            range,
+            range: 0.0..=1.0,
             spread: 1.0,
             thickness: 0.66,
             shape: WidgetShape::Squircle(4.0),
@@ -85,6 +82,11 @@ impl<'a> AudioKnob<'a> {
 
     pub fn orientation(mut self, orientation: Orientation) -> Self {
         self.orientation = orientation;
+        self
+    }
+
+    pub fn range(mut self, range: RangeInclusive<f32>) -> Self {
+        self.range = range;
         self
     }
 
