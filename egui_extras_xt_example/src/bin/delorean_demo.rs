@@ -1,4 +1,4 @@
-use eframe::egui::{self, global_dark_light_mode_switch, Ui};
+use eframe::egui::{self, Style, Ui, Visuals};
 use eframe::emath::vec2;
 use egui_extras_xt::segmented_display::{DisplayStylePreset, SegmentedDisplayWidget};
 
@@ -23,13 +23,6 @@ impl Default for DeLoreanDemoApp {
 impl eframe::App for DeLoreanDemoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                global_dark_light_mode_switch(ui);
-                ui.heading("DeLorean Time Machine");
-            });
-
-            ui.separator();
-
             let add_time_machine_segment =
                 |ui: &mut Ui, datetime: DateTime<_>, label, style_preset| {
                     let str_month = datetime.format("%b").to_string().to_uppercase();
@@ -133,6 +126,13 @@ fn main() {
     eframe::run_native(
         "DeLorean Time Machine",
         options,
-        Box::new(|_cc| Box::new(DeLoreanDemoApp::default())),
+        Box::new(|cc| {
+            cc.egui_ctx.set_style(Style {
+                visuals: Visuals::dark(),
+                ..Style::default()
+            });
+
+            Box::new(DeLoreanDemoApp::default())
+        }),
     );
 }
