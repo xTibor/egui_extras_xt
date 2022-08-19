@@ -114,9 +114,27 @@ impl DisplayStylePreset {
                 segment_on_stroke: Stroke::none(),
                 segment_off_stroke: Stroke::none(),
             },
-            DisplayStylePreset::DeLoreanRed => todo!(),
-            DisplayStylePreset::DeLoreanGreen => todo!(),
-            DisplayStylePreset::DeLoreanAmber => todo!(),
+            DisplayStylePreset::DeLoreanRed => DisplayStyle {
+                background_color: Color32::from_rgb(0x12, 0x07, 0x0A),
+                segment_on_color: Color32::from_rgb(0xFF, 0x59, 0x13),
+                segment_off_color: Color32::from_rgb(0x48, 0x0A, 0x0B),
+                segment_on_stroke: Stroke::none(),
+                segment_off_stroke: Stroke::none(),
+            },
+            DisplayStylePreset::DeLoreanGreen => DisplayStyle {
+                background_color: Color32::from_rgb(0x05, 0x0A, 0x0A),
+                segment_on_color: Color32::from_rgb(0x4A, 0xF5, 0x0F),
+                segment_off_color: Color32::from_rgb(0x07, 0x29, 0x0F),
+                segment_on_stroke: Stroke::none(),
+                segment_off_stroke: Stroke::none(),
+            },
+            DisplayStylePreset::DeLoreanAmber => DisplayStyle {
+                background_color: Color32::from_rgb(0x08, 0x08, 0x0B),
+                segment_on_color: Color32::from_rgb(0xF2, 0xC4, 0x21),
+                segment_off_color: Color32::from_rgb(0x51, 0x2C, 0x0F),
+                segment_on_stroke: Stroke::none(),
+                segment_off_stroke: Stroke::none(),
+            },
         }
     }
 }
