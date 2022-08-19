@@ -2,20 +2,23 @@ use eframe::egui::{self, Style, Ui, Visuals};
 use eframe::emath::vec2;
 use egui_extras_xt::segmented_display::{DisplayStylePreset, SegmentedDisplayWidget};
 
-use chrono::{DateTime, TimeZone, Timelike, Utc};
+use chrono::{DateTime, TimeZone, Timelike};
+use chrono_tz::Tz;
 
 struct DeLoreanDemoApp {
-    destination_time: DateTime<Utc>,
-    present_time: DateTime<Utc>,
-    last_time_departed: DateTime<Utc>,
+    destination_time: DateTime<Tz>,
+    present_time: DateTime<Tz>,
+    last_time_departed: DateTime<Tz>,
 }
 
 impl Default for DeLoreanDemoApp {
     fn default() -> Self {
+        use chrono_tz::US::Pacific;
+
         Self {
-            destination_time: Utc.ymd(1885, 1, 1).and_hms(12, 0, 0),
-            present_time: Utc.ymd(1955, 11, 12).and_hms(9, 28, 0),
-            last_time_departed: Utc.ymd(1985, 10, 27).and_hms(14, 42, 0),
+            destination_time: Pacific.ymd(1885, 1, 1).and_hms(12, 0, 0),
+            present_time: Pacific.ymd(1955, 11, 12).and_hms(9, 28, 0),
+            last_time_departed: Pacific.ymd(1985, 10, 27).and_hms(14, 42, 0),
         }
     }
 }
