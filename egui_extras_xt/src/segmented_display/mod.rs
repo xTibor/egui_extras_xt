@@ -1,33 +1,52 @@
 mod display_metrics;
 mod display_style;
-mod seven_segment;
-mod sixteen_segment;
 mod widget;
+
+pub mod seven_segment;
+pub mod sixteen_segment;
 
 pub use display_metrics::{DisplayMetrics, DisplayMetricsPreset};
 pub use display_style::{DisplayStyle, DisplayStylePreset};
-pub use seven_segment::SevenSegment;
-pub use sixteen_segment::SixteenSegment;
 pub use widget::SegmentedDisplayWidget;
 
 use egui::Pos2;
 
 // ----------------------------------------------------------------------------
 
-pub type DisplayFontGlyph = u16;
+pub type DisplayGlyph = u16;
 
 #[derive(Clone, Copy, Default)]
 pub struct DisplayDigit {
-    pub glyph: DisplayFontGlyph,
+    pub glyph: DisplayGlyph,
     pub dot: bool,
     pub colon: bool,
     pub apostrophe: bool,
 }
 
+// ----------------------------------------------------------------------------
+
+#[non_exhaustive]
+#[derive(Eq, PartialEq, Copy, Clone)]
+pub enum DisplayKind {
+    SevenSegment,
+    SixteenSegment,
+}
+
+impl DisplayKind {
+    pub fn display_impl(&self) -> Box<dyn DisplayImpl> {
+        match *self {
+            DisplayKind::SevenSegment => Box::new(seven_segment::SevenSegment),
+            DisplayKind::SixteenSegment => Box::new(sixteen_segment::SixteenSegment),
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+
 pub type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
 
-pub trait DisplayKind {
-    fn glyph(&self, c: char) -> Option<DisplayFontGlyph>;
+pub trait DisplayImpl {
+    fn glyph(&self, c: char) -> Option<DisplayGlyph>;
 
     fn geometry(
         &self,

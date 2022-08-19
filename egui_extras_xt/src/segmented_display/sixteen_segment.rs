@@ -1,17 +1,17 @@
 use egui::Pos2;
 use itertools::Itertools;
 
-use crate::segmented_display::{DisplayFontGlyph, DisplayKind, SegmentGeometryTransformFn};
+use crate::segmented_display::{DisplayGlyph, DisplayImpl, SegmentGeometryTransformFn};
 
 // ----------------------------------------------------------------------------
 
 #[derive(Clone, Copy, Default)]
 pub struct SixteenSegment;
 
-impl DisplayKind for SixteenSegment {
-    fn glyph(&self, c: char) -> Option<DisplayFontGlyph> {
+impl DisplayImpl for SixteenSegment {
+    fn glyph(&self, c: char) -> Option<DisplayGlyph> {
         #[rustfmt::skip]
-        const GLYPH_DATA: &[(char, DisplayFontGlyph)] = &[
+        const GLYPH_DATA: &[(char, DisplayGlyph)] = &[
             // Basic Latin
             (' ',  0x0000), ('!',  0x2200), ('"',  0x0280), ('#',  0xAA3C),
             ('$',  0xAABB), ('%',  0xEE99), ('&',  0x9379), ('\'', 0x0080),
@@ -312,40 +312,40 @@ impl DisplayKind for SixteenSegment {
 
 impl SixteenSegment {
     #[rustfmt::skip]
-    pub const GLYPHS_HALFWIDTH_NUMBERS: [DisplayFontGlyph; 20] = [
+    pub const GLYPHS_HALFWIDTH_NUMBERS: [DisplayGlyph; 20] = [
         0x221E, 0x000C, 0x2816, 0x081E, 0x0A0C, 0x0A1A, 0x2A1A, 0x020E,
         0x2A1E, 0x0A1E, 0x22DE, 0x00CC, 0x28D6, 0x08DE, 0x0ACC, 0x0ADA,
         0x2ADA, 0x02CE, 0x2ADE, 0x0ADE,
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_FADE_LEFT_RIGHT: [DisplayFontGlyph; 6] = [
+    pub const GLYPHS_FADE_LEFT_RIGHT: [DisplayGlyph; 6] = [
         0x0000, 0x00C0, 0xC1E1, 0xE3E1, 0xFFF3, 0xFFFF,
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_FADE_RIGHT_LEFT: [DisplayFontGlyph; 6] = [
+    pub const GLYPHS_FADE_RIGHT_LEFT: [DisplayGlyph; 6] = [
         0x0000, 0x000C, 0x1C1E, 0x3E1E, 0xFF3F, 0xFFFF,
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_FADE_TOP_BOTTOM: [DisplayFontGlyph; 6] = [
+    pub const GLYPHS_FADE_TOP_BOTTOM: [DisplayGlyph; 6] = [
         0x0000, 0x0003, 0x0787, 0x8F87, 0xFFCF, 0xFFFF,
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_FADE_BOTTOM_TOP: [DisplayFontGlyph; 6] = [
+    pub const GLYPHS_FADE_BOTTOM_TOP: [DisplayGlyph; 6] = [
         0x0000, 0x0030, 0x7078, 0xF878, 0xFFFC, 0xFFFF,
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_BLOCKS: [DisplayFontGlyph; 16] = [
+    pub const GLYPHS_BLOCKS: [DisplayGlyph; 16] = [
         0x0000, 0x8381, 0x0E06, 0x8F87, 0xE060, 0xE3E1, 0xEE66, 0xEFE7,
         0x3818, 0xBB99, 0x3E1E, 0xBF9F, 0xF878, 0xFBF9, 0xFE7E, 0xFFFF,
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_SPINNER_1: [DisplayFontGlyph; 64] = [
+    pub const GLYPHS_SPINNER_1: [DisplayGlyph; 64] = [
         0x02FF, 0x06FF, 0x0AFF, 0x12FF, 0x22FF, 0x42FF, 0x82FF, 0x03FF,
         0x06FF, 0x04FF, 0x0CFF, 0x14FF, 0x24FF, 0x44FF, 0x84FF, 0x05FF,
         0x0AFF, 0x0CFF, 0x08FF, 0x18FF, 0x28FF, 0x48FF, 0x88FF, 0x09FF,
@@ -357,7 +357,7 @@ impl SixteenSegment {
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_SPINNER_2: [DisplayFontGlyph; 60] = [
+    pub const GLYPHS_SPINNER_2: [DisplayGlyph; 60] = [
         0x00C0, 0x0081, 0x0003, 0x0006, 0x000C, 0x0018, 0x0030, 0x0060,
         0x00C0, 0x0081, 0x0003, 0x0006, 0x000C, 0x0018, 0x0030, 0x0060,
         0x00C0, 0x0081, 0x0003, 0x0006, 0x000C, 0x0018, 0x0030, 0x0060,
@@ -369,17 +369,17 @@ impl SixteenSegment {
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_SPINNER_3: [DisplayFontGlyph; 8] = [
+    pub const GLYPHS_SPINNER_3: [DisplayGlyph; 8] = [
         0xE3E1, 0xC7C3, 0x8F87, 0x1F0F, 0x3E1E, 0x7C3C, 0xF878, 0xF1F0,
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_SPINNER_4: [DisplayFontGlyph; 8] = [
+    pub const GLYPHS_SPINNER_4: [DisplayGlyph; 8] = [
         0x02FF, 0x04FF, 0x08FF, 0x10FF, 0x20FF, 0x40FF, 0x80FF, 0x01FF,
     ];
 
     #[rustfmt::skip]
-    pub const GLYPHS_SPINNER_5: [DisplayFontGlyph; 8] = [
+    pub const GLYPHS_SPINNER_5: [DisplayGlyph; 8] = [
         0x8281, 0x0503, 0x0A06, 0x140C, 0x2818, 0x5030, 0xA060, 0x41C0,
     ];
 }

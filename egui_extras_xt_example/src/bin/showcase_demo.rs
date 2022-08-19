@@ -7,7 +7,6 @@ use itertools::Itertools;
 
 use egui_extras_xt::segmented_display::{
     DisplayKind, DisplayMetrics, DisplayStyle, DisplayStylePreset, SegmentedDisplayWidget,
-    SevenSegment, SixteenSegment,
 };
 use egui_extras_xt::{
     AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, LinearCompass, Orientation,
@@ -56,7 +55,7 @@ struct EguiExtrasXtExampleApp {
     polar_compass_show_marker_lines: bool,
 
     // SegmentedDisplayWidget
-    segmented_display_display_kind: Box<dyn DisplayKind>,
+    segmented_display_display_kind: DisplayKind,
     segmented_display_display_string: String,
     segmented_display_digit_height: f32,
     segmented_display_style: DisplayStyle,
@@ -113,7 +112,7 @@ impl Default for EguiExtrasXtExampleApp {
             polar_compass_show_marker_lines: true,
 
             // SegmentedDisplayWidget
-            segmented_display_display_kind: Box::new(SixteenSegment),
+            segmented_display_display_kind: DisplayKind::SixteenSegment,
             segmented_display_display_string: String::from("12.34:5' HELLO"),
             segmented_display_digit_height: 128.0,
             segmented_display_style: DisplayStylePreset::NintendoGameBoy.style(),
@@ -476,13 +475,16 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 });
 
                 ui.horizontal(|ui| {
-                    if ui.button("7-segment").clicked() {
-                        self.segmented_display_display_kind = Box::new(SevenSegment);
-                    }
-
-                    if ui.button("16-segment").clicked() {
-                        self.segmented_display_display_kind = Box::new(SixteenSegment);
-                    }
+                    ui.selectable_value(
+                        &mut self.segmented_display_display_kind,
+                        DisplayKind::SevenSegment,
+                        "7-segment",
+                    );
+                    ui.selectable_value(
+                        &mut self.segmented_display_display_kind,
+                        DisplayKind::SixteenSegment,
+                        "16-segment",
+                    );
                 });
 
                 ui.add(egui::TextEdit::singleline(
@@ -492,7 +494,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.add_space(8.0);
 
                 ui.add(
-                    SegmentedDisplayWidget::new(Box::new(SixteenSegment))
+                    SegmentedDisplayWidget::new(self.segmented_display_display_kind)
                         .style(self.segmented_display_style)
                         .metrics(self.segmented_display_metrics)
                         .digit_height(self.segmented_display_digit_height)

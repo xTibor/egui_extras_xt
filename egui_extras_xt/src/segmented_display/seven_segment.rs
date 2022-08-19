@@ -1,17 +1,17 @@
 use egui::Pos2;
 use itertools::Itertools;
 
-use crate::segmented_display::{DisplayFontGlyph, DisplayKind, SegmentGeometryTransformFn};
+use crate::segmented_display::{DisplayGlyph, DisplayImpl, SegmentGeometryTransformFn};
 
 // ----------------------------------------------------------------------------
 
 #[derive(Clone, Copy, Default)]
 pub struct SevenSegment;
 
-impl DisplayKind for SevenSegment {
-    fn glyph(&self, c: char) -> Option<DisplayFontGlyph> {
+impl DisplayImpl for SevenSegment {
+    fn glyph(&self, c: char) -> Option<DisplayGlyph> {
         #[rustfmt::skip]
-        const GLYPH_DATA: &[(char, DisplayFontGlyph)] = &[
+        const GLYPH_DATA: &[(char, DisplayGlyph)] = &[
             // Basic Latin
             (' ',  0x0000), ('!',  0x0030), ('"',  0x0022), ('#',  0x0000),
             ('$',  0x0000), ('%',  0x0000), ('&',  0x0000), ('\'', 0x0002),

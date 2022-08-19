@@ -3,12 +3,12 @@ use itertools::Itertools;
 
 use crate::segmented_display::{
     DisplayDigit, DisplayKind, DisplayMetrics, DisplayMetricsPreset, DisplayStyle,
-    DisplayStylePreset, SevenSegment, SixteenSegment,
+    DisplayStylePreset,
 };
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct SegmentedDisplayWidget {
-    display_kind: Box<dyn DisplayKind>,
+    display_kind: DisplayKind,
     digits: Vec<DisplayDigit>,
     digit_height: f32,
     metrics: DisplayMetrics,
@@ -19,7 +19,7 @@ pub struct SegmentedDisplayWidget {
 }
 
 impl SegmentedDisplayWidget {
-    pub fn new(display_kind: Box<dyn DisplayKind>) -> Self {
+    pub fn new(display_kind: DisplayKind) -> Self {
         Self {
             display_kind,
             digits: Vec::new(),
@@ -33,14 +33,16 @@ impl SegmentedDisplayWidget {
     }
 
     pub fn seven_segment(value: &str) -> Self {
-        Self::new(Box::new(SevenSegment)).push_string(value)
+        Self::new(DisplayKind::SevenSegment).push_string(value)
     }
 
     pub fn sixteen_segment(value: &str) -> Self {
-        Self::new(Box::new(SixteenSegment)).push_string(value)
+        Self::new(DisplayKind::SixteenSegment).push_string(value)
     }
 
     pub fn push_string(mut self, value: &str) -> Self {
+        let display_impl = self.display_kind.display_impl();
+
         self.digits.extend(
             [None]
                 .into_iter()
@@ -51,8 +53,8 @@ impl SegmentedDisplayWidget {
                     Some('.') if self.show_dots => None,
                     Some(':') if self.show_colons => None,
                     Some('\'') if self.show_apostrophes => None,
-                    Some(c) if self.display_kind.glyph(c).is_some() => Some(DisplayDigit {
-                        glyph: self.display_kind.glyph(c).unwrap(),
+                    Some(c) if display_impl.glyph(c).is_some() => Some(DisplayDigit {
+                        glyph: display_impl.glyph(c).unwrap(),
                         dot: (next == Some('.')) && self.show_dots,
                         colon: (prev == Some(':')) && self.show_colons,
                         apostrophe: (prev == Some('\'')) && self.show_apostrophes,
@@ -111,6 +113,8 @@ impl SegmentedDisplayWidget {
 
 impl Widget for SegmentedDisplayWidget {
     fn ui(self, ui: &mut Ui) -> Response {
+        let display_impl = self.display_kind.display_impl();
+
         let digit_height = self.digit_height;
         let digit_width = digit_height * self.metrics.digit_ratio;
 
@@ -148,7 +152,7 @@ impl Widget for SegmentedDisplayWidget {
                         - vec2((dy / (digit_height / 2.0)) * digit_shearing, 0.0)
                 };
 
-                let segment_points = self.display_kind.geometry(
+                let segment_points = display_impl.geometry(
                     &tr,
                     digit_width,
                     digit_height,
