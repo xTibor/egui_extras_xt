@@ -1,5 +1,3 @@
-use std::f32::consts::TAU;
-
 use eframe::egui::{self, global_dark_light_mode_switch, DragValue, Style, Visuals};
 use eframe::epaint::Color32;
 
@@ -83,7 +81,7 @@ impl Default for EguiExtrasXtExampleApp {
             common_maximum_angle: None,
 
             // AngleKnob
-            angle_knob_value: TAU / 18.0,
+            angle_knob_value: 20.0f32.to_radians(),
 
             // AudioKnob
             audio_knob_value: 0.75,
@@ -92,7 +90,7 @@ impl Default for EguiExtrasXtExampleApp {
 
             // LinearCompass
             linear_compass_value: 0.0,
-            linear_compass_spread: TAU / 2.0,
+            linear_compass_spread: 180.0f32.to_radians(),
             linear_compass_show_cursor: true,
 
             // PolarCompass
@@ -195,7 +193,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     ui.toggle_value(&mut snap_enabled, "Snap");
 
                     self.common_snap = match (snap_enabled, self.common_snap) {
-                        (true, None) => Some(TAU / 24.0),
+                        (true, None) => Some(15.0f32.to_radians()),
                         (false, Some(_)) => None,
                         _ => self.common_snap,
                     };
@@ -212,7 +210,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     ui.toggle_value(&mut shift_snap_enabled, "Shift snap");
 
                     self.common_shift_snap = match (shift_snap_enabled, self.common_shift_snap) {
-                        (true, None) => Some(TAU / 24.0),
+                        (true, None) => Some(15.0f32.to_radians()),
                         (false, Some(_)) => None,
                         _ => self.common_shift_snap,
                     };
@@ -231,7 +229,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     ui.toggle_value(&mut minimum_enabled, "Minimum");
 
                     self.common_minimum_angle = match (minimum_enabled, self.common_minimum_angle) {
-                        (true, None) => Some(-TAU),
+                        (true, None) => Some(-360.0f32.to_radians()),
                         (false, Some(_)) => None,
                         _ => self.common_minimum_angle,
                     };
@@ -246,7 +244,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     ui.toggle_value(&mut maximum_enabled, "Maximum");
 
                     self.common_maximum_angle = match (maximum_enabled, self.common_maximum_angle) {
-                        (true, None) => Some(TAU),
+                        (true, None) => Some(360.0f32.to_radians()),
                         (false, Some(_)) => None,
                         _ => self.common_maximum_angle,
                     };
