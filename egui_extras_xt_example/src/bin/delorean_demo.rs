@@ -26,7 +26,6 @@ impl Default for DeLoreanDemoApp {
 impl eframe::App for DeLoreanDemoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-
             let add_time_machine_segment =
                 |ui: &mut Ui, datetime: DateTime<_>, label, style_preset| {
                     let str_month = datetime.format("%b").to_string().to_uppercase();
@@ -38,11 +37,11 @@ impl eframe::App for DeLoreanDemoApp {
 
                     ui.group(|ui| {
                         egui::Grid::new(label).show(ui, |ui| {
-                            ui.label("MONTH");
-                            ui.label("DAY");
-                            ui.label("YEAR");
-                            ui.label("HOUR");
-                            ui.label("MIN");
+                            ui.vertical_centered(|ui| ui.label("MONTH"));
+                            ui.vertical_centered(|ui| ui.label("DAY"));
+                            ui.vertical_centered(|ui| ui.label("YEAR"));
+                            ui.vertical_centered(|ui| ui.label("HOUR"));
+                            ui.vertical_centered(|ui| ui.label("MIN"));
                             ui.end_row();
 
                             ui.add(
