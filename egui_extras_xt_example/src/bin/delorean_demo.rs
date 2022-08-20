@@ -1,6 +1,6 @@
 use eframe::egui::{self, Style, Ui, Visuals};
 use eframe::emath::vec2;
-use egui_extras_xt::display::{DisplayStylePreset, SegmentedDisplayWidget};
+use egui_extras_xt::display::{DisplayStylePreset, LedDisplay, SegmentedDisplayWidget};
 
 use chrono::{DateTime, TimeZone, Timelike};
 use chrono_tz::Tz;
@@ -40,7 +40,9 @@ impl eframe::App for DeLoreanDemoApp {
                             ui.vertical_centered(|ui| ui.label("MONTH"));
                             ui.vertical_centered(|ui| ui.label("DAY"));
                             ui.vertical_centered(|ui| ui.label("YEAR"));
+                            ui.vertical_centered(|ui| ui.label(""));
                             ui.vertical_centered(|ui| ui.label("HOUR"));
+                            ui.vertical_centered(|ui| ui.label(""));
                             ui.vertical_centered(|ui| ui.label("MIN"));
                             ui.end_row();
 
@@ -65,6 +67,22 @@ impl eframe::App for DeLoreanDemoApp {
                                     .show_colons(false)
                                     .show_apostrophes(false),
                             );
+
+                            ui.vertical_centered(|ui| {
+                                ui.label("AM");
+                                ui.add(
+                                    LedDisplay::from_bool(!ampm)
+                                        .style_preset(style_preset)
+                                        .diameter(12.0),
+                                );
+                                ui.label("PM");
+                                ui.add(
+                                    LedDisplay::from_bool(ampm)
+                                        .style_preset(style_preset)
+                                        .diameter(12.0),
+                                );
+                            });
+
                             ui.add(
                                 SegmentedDisplayWidget::seven_segment(&str_hour)
                                     .style_preset(style_preset)
@@ -72,6 +90,20 @@ impl eframe::App for DeLoreanDemoApp {
                                     .show_colons(false)
                                     .show_apostrophes(false),
                             );
+
+                            ui.vertical_centered(|ui| {
+                                ui.add(
+                                    LedDisplay::from_bool(true)
+                                        .style_preset(style_preset)
+                                        .diameter(12.0),
+                                );
+                                ui.add(
+                                    LedDisplay::from_bool(true)
+                                        .style_preset(style_preset)
+                                        .diameter(12.0),
+                                );
+                            });
+
                             ui.add(
                                 SegmentedDisplayWidget::seven_segment(&str_min)
                                     .style_preset(style_preset)
