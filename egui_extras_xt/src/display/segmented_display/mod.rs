@@ -1,12 +1,10 @@
 mod display_metrics;
-mod display_style;
 mod widget;
 
 pub mod seven_segment;
 pub mod sixteen_segment;
 
 pub use display_metrics::{DisplayMetrics, DisplayMetricsPreset};
-pub use display_style::{DisplayStyle, DisplayStylePreset};
 pub use widget::SegmentedDisplayWidget;
 
 use egui::Pos2;

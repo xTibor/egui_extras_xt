@@ -1,3 +1,7 @@
-pub mod angle_knob;
-pub mod audio_knob;
-pub mod thumbstick_knob;
+mod angle_knob;
+mod audio_knob;
+mod thumbstick_knob;
+
+pub use angle_knob::{AngleKnob, AngleKnobPreset};
+pub use audio_knob::AudioKnob;
+pub use thumbstick_knob::ThumbstickKnob;

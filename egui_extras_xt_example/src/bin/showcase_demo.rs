@@ -3,13 +3,15 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
-use egui_extras_xt::segmented_display::{
+use egui_extras_xt::display::{
     DisplayKind, DisplayMetrics, DisplayStyle, DisplayStylePreset, SegmentedDisplayWidget,
 };
-use egui_extras_xt::{
-    AngleKnob, AudioKnob, CompassMarker, CompassMarkerShape, LinearCompass, Orientation,
-    PolarCompass, PolarCompassOverflow, ThumbstickKnob, WidgetShape, Winding, WrapMode,
+
+use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
+use egui_extras_xt::compass::{
+    CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass, PolarCompassOverflow,
 };
+use egui_extras_xt::knob::{AngleKnob, AudioKnob, ThumbstickKnob};
 
 struct EguiExtrasXtExampleApp {
     // Common properties

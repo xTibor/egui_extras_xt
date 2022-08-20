@@ -1,7 +1,7 @@
 use egui::Pos2;
 use itertools::Itertools;
 
-use crate::segmented_display::{DisplayGlyph, DisplayImpl, SegmentGeometryTransformFn};
+use crate::display::segmented_display::{DisplayGlyph, DisplayImpl, SegmentGeometryTransformFn};
 
 // ----------------------------------------------------------------------------
 

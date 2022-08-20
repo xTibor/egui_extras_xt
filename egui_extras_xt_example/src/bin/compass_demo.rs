@@ -1,6 +1,6 @@
 use eframe::egui::{self, global_dark_light_mode_switch, Style, Visuals};
 use eframe::emath::vec2;
-use egui_extras_xt::{CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass};
+use egui_extras_xt::compass::{CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass};
 
 use lazy_static::lazy_static;
 
