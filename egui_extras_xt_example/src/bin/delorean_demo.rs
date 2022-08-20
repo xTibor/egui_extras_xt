@@ -34,6 +34,7 @@ impl eframe::App for DeLoreanDemoApp {
                     let (ampm, _) = datetime.hour12();
                     let str_hour = datetime.format("%I").to_string();
                     let str_min = datetime.format("%M").to_string();
+                    let tick = datetime.time().nanosecond() < 500_000_000;
 
                     ui.group(|ui| {
                         egui::Grid::new(label).min_col_width(20.0).show(ui, |ui| {
@@ -98,13 +99,13 @@ impl eframe::App for DeLoreanDemoApp {
                             ui.vertical_centered(|ui| {
                                 ui.add_space(15.0);
                                 ui.add(
-                                    LedDisplay::from_bool(true)
+                                    LedDisplay::from_bool(tick)
                                         .style_preset(style_preset)
                                         .diameter(12.0),
                                 );
                                 ui.add_space(10.0);
                                 ui.add(
-                                    LedDisplay::from_bool(true)
+                                    LedDisplay::from_bool(tick)
                                         .style_preset(style_preset)
                                         .diameter(12.0),
                                 );
