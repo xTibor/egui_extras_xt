@@ -51,21 +51,24 @@ impl eframe::App for DeLoreanDemoApp {
                                     .style_preset(style_preset)
                                     .show_dots(false)
                                     .show_colons(false)
-                                    .show_apostrophes(false),
+                                    .show_apostrophes(false)
+                                    .digit_height(64.0),
                             );
                             ui.add(
                                 SegmentedDisplayWidget::seven_segment(&str_day)
                                     .style_preset(style_preset)
                                     .show_dots(true)
                                     .show_colons(false)
-                                    .show_apostrophes(false),
+                                    .show_apostrophes(false)
+                                    .digit_height(64.0),
                             );
                             ui.add(
                                 SegmentedDisplayWidget::seven_segment(&str_year)
                                     .style_preset(style_preset)
                                     .show_dots(true)
                                     .show_colons(false)
-                                    .show_apostrophes(false),
+                                    .show_apostrophes(false)
+                                    .digit_height(64.0),
                             );
 
                             ui.vertical_centered(|ui| {
@@ -88,7 +91,8 @@ impl eframe::App for DeLoreanDemoApp {
                                     .style_preset(style_preset)
                                     .show_dots(true)
                                     .show_colons(false)
-                                    .show_apostrophes(false),
+                                    .show_apostrophes(false)
+                                    .digit_height(64.0),
                             );
 
                             ui.vertical_centered(|ui| {
@@ -109,7 +113,8 @@ impl eframe::App for DeLoreanDemoApp {
                                     .style_preset(style_preset)
                                     .show_dots(true)
                                     .show_colons(false)
-                                    .show_apostrophes(false),
+                                    .show_apostrophes(false)
+                                    .digit_height(64.0),
                             );
                             ui.end_row();
                         });
@@ -147,7 +152,7 @@ impl eframe::App for DeLoreanDemoApp {
 
 fn main() {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(800.0, 600.0)),
+        initial_window_size: Some(vec2(1000.0, 500.0)),
         ..Default::default()
     };
 
