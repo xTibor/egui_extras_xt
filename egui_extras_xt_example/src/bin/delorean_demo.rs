@@ -26,6 +26,7 @@ impl Default for DeLoreanDemoApp {
 impl eframe::App for DeLoreanDemoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
+
             let add_time_machine_segment =
                 |ui: &mut Ui, datetime: DateTime<_>, label, style_preset| {
                     let str_month = datetime.format("%b").to_string().to_uppercase();
@@ -36,63 +37,56 @@ impl eframe::App for DeLoreanDemoApp {
                     let str_min = datetime.format("%M").to_string();
 
                     ui.group(|ui| {
-                        ui.horizontal(|ui| {
-                            ui.vertical(|ui| {
-                                ui.label("MONTH");
-                                ui.add(
-                                    SegmentedDisplayWidget::sixteen_segment(&str_month)
-                                        .style_preset(style_preset)
-                                        .show_dots(false)
-                                        .show_colons(false)
-                                        .show_apostrophes(false),
-                                );
-                            });
+                        egui::Grid::new(label).show(ui, |ui| {
+                            ui.label("MONTH");
+                            ui.label("DAY");
+                            ui.label("YEAR");
+                            ui.label("HOUR");
+                            ui.label("MIN");
+                            ui.end_row();
 
-                            ui.vertical(|ui| {
-                                ui.label("DAY");
-                                ui.add(
-                                    SegmentedDisplayWidget::seven_segment(&str_day)
-                                        .style_preset(style_preset)
-                                        .show_dots(true)
-                                        .show_colons(false)
-                                        .show_apostrophes(false),
-                                );
-                            });
-
-                            ui.vertical(|ui| {
-                                ui.label("YEAR");
-                                ui.add(
-                                    SegmentedDisplayWidget::seven_segment(&str_year)
-                                        .style_preset(style_preset)
-                                        .show_dots(true)
-                                        .show_colons(false)
-                                        .show_apostrophes(false),
-                                );
-                            });
-
-                            ui.vertical(|ui| {
-                                ui.label("HOUR");
-                                ui.add(
-                                    SegmentedDisplayWidget::seven_segment(&str_hour)
-                                        .style_preset(style_preset)
-                                        .show_dots(true)
-                                        .show_colons(false)
-                                        .show_apostrophes(false),
-                                );
-                            });
-
-                            ui.vertical(|ui| {
-                                ui.label("MIN");
-                                ui.add(
-                                    SegmentedDisplayWidget::seven_segment(&str_min)
-                                        .style_preset(style_preset)
-                                        .show_dots(true)
-                                        .show_colons(false)
-                                        .show_apostrophes(false),
-                                );
-                            });
+                            ui.add(
+                                SegmentedDisplayWidget::sixteen_segment(&str_month)
+                                    .style_preset(style_preset)
+                                    .show_dots(false)
+                                    .show_colons(false)
+                                    .show_apostrophes(false),
+                            );
+                            ui.add(
+                                SegmentedDisplayWidget::seven_segment(&str_day)
+                                    .style_preset(style_preset)
+                                    .show_dots(true)
+                                    .show_colons(false)
+                                    .show_apostrophes(false),
+                            );
+                            ui.add(
+                                SegmentedDisplayWidget::seven_segment(&str_year)
+                                    .style_preset(style_preset)
+                                    .show_dots(true)
+                                    .show_colons(false)
+                                    .show_apostrophes(false),
+                            );
+                            ui.add(
+                                SegmentedDisplayWidget::seven_segment(&str_hour)
+                                    .style_preset(style_preset)
+                                    .show_dots(true)
+                                    .show_colons(false)
+                                    .show_apostrophes(false),
+                            );
+                            ui.add(
+                                SegmentedDisplayWidget::seven_segment(&str_min)
+                                    .style_preset(style_preset)
+                                    .show_dots(true)
+                                    .show_colons(false)
+                                    .show_apostrophes(false),
+                            );
+                            ui.end_row();
                         });
-                        ui.heading(label);
+
+                        ui.shrink_width_to_current();
+                        ui.vertical_centered(|ui| {
+                            ui.heading(label);
+                        });
                     });
                 };
 
