@@ -1,32 +1,29 @@
 use std::ops::RangeInclusive;
 
 use egui::{self, remap_clamp, Response, Sense, Ui, Widget};
-use emath::{Rot2, Vec2};
+use emath::Vec2;
 use epaint::Stroke;
 
-use crate::common::WidgetShape;
 use crate::display::{DisplayStyle, DisplayStylePreset};
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct LedDisplay<'a> {
+pub struct LedDisplay {
     value: f32,
     diameter: f32,
     padding: f32,
     range: RangeInclusive<f32>,
-    shape: WidgetShape<'a>,
     style: DisplayStyle,
     show_background: bool,
     animated: bool,
 }
 
-impl<'a> LedDisplay<'a> {
+impl LedDisplay {
     pub fn new(value: f32) -> Self {
         Self {
             value,
             diameter: 16.0,
             padding: 0.25,
             range: 0.0..=1.0,
-            shape: WidgetShape::Circle,
             style: DisplayStylePreset::Default.style(),
             show_background: true,
             animated: false,
@@ -52,11 +49,6 @@ impl<'a> LedDisplay<'a> {
         self
     }
 
-    pub fn shape(mut self, shape: WidgetShape<'a>) -> Self {
-        self.shape = shape;
-        self
-    }
-
     pub fn style(mut self, style: DisplayStyle) -> Self {
         self.style = style;
         self
@@ -73,7 +65,7 @@ impl<'a> LedDisplay<'a> {
     }
 }
 
-impl<'a> Widget for LedDisplay<'a> {
+impl Widget for LedDisplay {
     fn ui(self, ui: &mut Ui) -> Response {
         let desired_size = Vec2::splat(self.diameter + self.padding * self.diameter);
 
@@ -100,13 +92,11 @@ impl<'a> Widget for LedDisplay<'a> {
                 );
             }
 
-            self.shape.paint_shape(
-                ui,
+            ui.painter().circle(
                 rect.center(),
                 self.diameter / 2.0,
                 self.style.foreground_color_blend(value),
                 self.style.foreground_stroke_blend(value),
-                Rot2::default(),
             );
         }
 
