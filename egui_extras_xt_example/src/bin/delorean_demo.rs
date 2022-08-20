@@ -36,7 +36,7 @@ impl eframe::App for DeLoreanDemoApp {
                     let str_min = datetime.format("%M").to_string();
 
                     ui.group(|ui| {
-                        egui::Grid::new(label).show(ui, |ui| {
+                        egui::Grid::new(label).min_col_width(20.0).show(ui, |ui| {
                             ui.vertical_centered(|ui| ui.label("MONTH"));
                             ui.vertical_centered(|ui| ui.label("DAY"));
                             ui.vertical_centered(|ui| ui.label("YEAR"));
@@ -96,11 +96,13 @@ impl eframe::App for DeLoreanDemoApp {
                             );
 
                             ui.vertical_centered(|ui| {
+                                ui.add_space(15.0);
                                 ui.add(
                                     LedDisplay::from_bool(true)
                                         .style_preset(style_preset)
                                         .diameter(12.0),
                                 );
+                                ui.add_space(10.0);
                                 ui.add(
                                     LedDisplay::from_bool(true)
                                         .style_preset(style_preset)
