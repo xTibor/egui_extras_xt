@@ -1,4 +1,4 @@
-use eframe::egui::{self, global_dark_light_mode_switch};
+use eframe::egui::{self, global_dark_light_mode_switch, Style, Visuals};
 use eframe::emath::vec2;
 use egui_extras_xt::{CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass};
 
@@ -123,6 +123,13 @@ fn main() {
     eframe::run_native(
         "Compass widgets",
         options,
-        Box::new(|_cc| Box::new(CompassExampleApp::default())),
+        Box::new(|cc| {
+            cc.egui_ctx.set_style(Style {
+                visuals: Visuals::dark(),
+                ..Style::default()
+            });
+
+            Box::new(CompassExampleApp::default())
+        }),
     );
 }
