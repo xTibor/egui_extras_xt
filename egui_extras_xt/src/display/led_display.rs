@@ -1,4 +1,6 @@
-use egui::{self, Response, Sense, Ui, Widget};
+use std::ops::RangeInclusive;
+
+use egui::{self, remap_clamp, Response, Sense, Ui, Widget};
 use emath::{Rot2, Vec2};
 use epaint::Stroke;
 
@@ -9,8 +11,11 @@ use crate::display::{DisplayStyle, DisplayStylePreset};
 pub struct LedDisplay<'a> {
     value: f32,
     diameter: f32,
+    padding: f32,
+    range: RangeInclusive<f32>,
     shape: WidgetShape<'a>,
     style: DisplayStyle,
+    show_background: bool,
     animated: bool,
 }
 
@@ -18,9 +23,12 @@ impl<'a> LedDisplay<'a> {
     pub fn new(value: f32) -> Self {
         Self {
             value,
-            diameter: 32.0,
+            diameter: 16.0,
+            padding: 0.25,
+            range: 0.0..=1.0,
             shape: WidgetShape::Circle,
             style: DisplayStylePreset::Default.style(),
+            show_background: true,
             animated: false,
         }
     }
@@ -31,6 +39,16 @@ impl<'a> LedDisplay<'a> {
 
     pub fn diameter(mut self, diameter: impl Into<f32>) -> Self {
         self.diameter = diameter.into();
+        self
+    }
+
+    pub fn padding(mut self, padding: impl Into<f32>) -> Self {
+        self.padding = padding.into();
+        self
+    }
+
+    pub fn range(mut self, range: RangeInclusive<f32>) -> Self {
+        self.range = range;
         self
     }
 
@@ -57,25 +75,30 @@ impl<'a> LedDisplay<'a> {
 
 impl<'a> Widget for LedDisplay<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let desired_size = Vec2::splat(self.diameter);
+        let desired_size = Vec2::splat(self.diameter + self.padding * self.diameter);
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
         if ui.is_rect_visible(rect) {
-            let value = if self.animated {
-                ui.ctx()
-                    .animate_value_with_time(response.id, self.value, 0.1)
-            } else {
-                self.value
-            };
-            // TODO: clamp
-
-            ui.painter().rect(
-                rect,
-                ui.style().visuals.noninteractive().rounding,
-                self.style.background_color,
-                Stroke::none(),
+            let value = remap_clamp(
+                if self.animated {
+                    ui.ctx()
+                        .animate_value_with_time(response.id, self.value, 0.1)
+                } else {
+                    self.value
+                },
+                self.range,
+                0.0..=1.0,
             );
+
+            if self.show_background {
+                ui.painter().rect(
+                    rect,
+                    ui.style().visuals.noninteractive().rounding,
+                    self.style.background_color,
+                    Stroke::none(),
+                );
+            }
 
             self.shape.paint_shape(
                 ui,
