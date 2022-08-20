@@ -182,8 +182,8 @@ impl Widget for SegmentedDisplayWidget {
                     // https://github.com/emilk/egui/issues/513
                     ui.painter().add(Shape::convex_polygon(
                         segment_points.to_vec(),
-                        self.style.segment_color(segment_on),
-                        self.style.segment_stroke(segment_on),
+                        self.style.foreground_color(segment_on),
+                        self.style.foreground_stroke(segment_on),
                     ));
                 }
 
@@ -191,8 +191,8 @@ impl Widget for SegmentedDisplayWidget {
                     ui.painter().circle(
                         dot_pos,
                         segment_thickness / 2.0,
-                        self.style.segment_color(digit.dot),
-                        self.style.segment_stroke(digit.dot),
+                        self.style.foreground_color(digit.dot),
+                        self.style.foreground_stroke(digit.dot),
                     );
                 }
 
@@ -200,23 +200,23 @@ impl Widget for SegmentedDisplayWidget {
                     ui.painter().circle(
                         colon_top_pos,
                         segment_thickness / 2.0,
-                        self.style.segment_color(digit.colon),
-                        self.style.segment_stroke(digit.colon),
+                        self.style.foreground_color(digit.colon),
+                        self.style.foreground_stroke(digit.colon),
                     );
 
                     ui.painter().circle(
                         colon_bottom_pos,
                         segment_thickness / 2.0,
-                        self.style.segment_color(digit.colon),
-                        self.style.segment_stroke(digit.colon),
+                        self.style.foreground_color(digit.colon),
+                        self.style.foreground_stroke(digit.colon),
                     );
                 }
 
                 if self.show_apostrophes {
                     ui.painter().add(Shape::convex_polygon(
                         apostrophe_points.to_vec(),
-                        self.style.segment_color(digit.apostrophe),
-                        self.style.segment_stroke(digit.apostrophe),
+                        self.style.foreground_color(digit.apostrophe),
+                        self.style.foreground_stroke(digit.apostrophe),
                     ));
                 }
             };

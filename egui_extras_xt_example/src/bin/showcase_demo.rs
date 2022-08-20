@@ -3,13 +3,13 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
-use egui_extras_xt::display::{
-    DisplayKind, DisplayMetrics, DisplayStyle, DisplayStylePreset, SegmentedDisplayWidget,
-};
-
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::compass::{
     CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass, PolarCompassOverflow,
+};
+use egui_extras_xt::display::{
+    DisplayKind, DisplayMetrics, DisplayStyle, DisplayStylePreset, LedDisplay,
+    SegmentedDisplayWidget,
 };
 use egui_extras_xt::knob::{AngleKnob, AudioKnob, ThumbstickKnob};
 
@@ -66,6 +66,9 @@ struct EguiExtrasXtExampleApp {
 
     // ThumbstickKnob
     thumbstick_knob_value: (f32, f32),
+
+    // LedDisplay
+    led_display_value: f32,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -123,6 +126,9 @@ impl Default for EguiExtrasXtExampleApp {
 
             // ThumbstickKnob
             thumbstick_knob_value: (0.0, 0.0),
+
+            // LedDisplay
+            led_display_value: 1.0,
         }
     }
 }
@@ -266,6 +272,20 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("LedDisplay");
+                ui.add_space(8.0);
+
+                ui.add(
+                    DragValue::new(&mut self.led_display_value)
+                        .clamp_range(0.0..=1.0)
+                        .speed(0.05),
+                );
+
+                ui.add(LedDisplay::new(self.led_display_value).animated(self.common_animated));
+
+                ui.add_space(8.0);
+                ui.separator();
+
                 ui.heading("ThumbstickKnob");
                 ui.add_space(8.0);
 
@@ -448,24 +468,32 @@ impl eframe::App for EguiExtrasXtExampleApp {
 
                 ui.horizontal(|ui| {
                     ui.add(
-                        DragValue::new(&mut self.segmented_display_style.segment_on_stroke.width)
-                            .speed(0.1),
+                        DragValue::new(
+                            &mut self.segmented_display_style.foreground_on_stroke.width,
+                        )
+                        .speed(0.1),
                     );
                     ui.color_edit_button_srgba(
-                        &mut self.segmented_display_style.segment_on_stroke.color,
+                        &mut self.segmented_display_style.foreground_on_stroke.color,
                     );
-                    ui.color_edit_button_srgba(&mut self.segmented_display_style.segment_on_color);
+                    ui.color_edit_button_srgba(
+                        &mut self.segmented_display_style.foreground_on_color,
+                    );
                 });
 
                 ui.horizontal(|ui| {
                     ui.add(
-                        DragValue::new(&mut self.segmented_display_style.segment_off_stroke.width)
-                            .speed(0.1),
+                        DragValue::new(
+                            &mut self.segmented_display_style.foreground_off_stroke.width,
+                        )
+                        .speed(0.1),
                     );
                     ui.color_edit_button_srgba(
-                        &mut self.segmented_display_style.segment_off_stroke.color,
+                        &mut self.segmented_display_style.foreground_off_stroke.color,
                     );
-                    ui.color_edit_button_srgba(&mut self.segmented_display_style.segment_off_color);
+                    ui.color_edit_button_srgba(
+                        &mut self.segmented_display_style.foreground_off_color,
+                    );
                 });
 
                 ui.horizontal(|ui| {
