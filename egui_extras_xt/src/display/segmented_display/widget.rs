@@ -36,6 +36,10 @@ impl SegmentedDisplayWidget {
         Self::new(DisplayKind::SevenSegment).push_string(value)
     }
 
+    pub fn nine_segment(value: &str) -> Self {
+        Self::new(DisplayKind::NineSegment).push_string(value)
+    }
+
     pub fn sixteen_segment(value: &str) -> Self {
         Self::new(DisplayKind::SixteenSegment).push_string(value)
     }
