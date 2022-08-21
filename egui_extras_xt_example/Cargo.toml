@@ -15,6 +15,6 @@ egui_extras_xt = { path = "../egui_extras_xt/" }
 
 chrono = "0.4.22"
 chrono-tz = "0.6.3"
-eframe = "0.18.0"
+eframe = "0.19.0"
 itertools = "0.10.3"
 lazy_static = "1.4.0"
