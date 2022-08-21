@@ -510,6 +510,11 @@ impl eframe::App for EguiExtrasXtExampleApp {
                     );
                     ui.selectable_value(
                         &mut self.segmented_display_display_kind,
+                        DisplayKind::NineSegment,
+                        "9-segment",
+                    );
+                    ui.selectable_value(
+                        &mut self.segmented_display_display_kind,
                         DisplayKind::SixteenSegment,
                         "16-segment",
                     );

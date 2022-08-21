@@ -1,6 +1,7 @@
 mod display_metrics;
 mod widget;
 
+pub mod nine_segment;
 pub mod seven_segment;
 pub mod sixteen_segment;
 
@@ -27,6 +28,7 @@ pub struct DisplayDigit {
 #[derive(Eq, PartialEq, Copy, Clone)]
 pub enum DisplayKind {
     SevenSegment,
+    NineSegment,
     SixteenSegment,
 }
 
@@ -34,6 +36,7 @@ impl DisplayKind {
     pub fn display_impl(&self) -> Box<dyn DisplayImpl> {
         match *self {
             DisplayKind::SevenSegment => Box::new(seven_segment::SevenSegment),
+            DisplayKind::NineSegment => Box::new(nine_segment::NineSegment),
             DisplayKind::SixteenSegment => Box::new(sixteen_segment::SixteenSegment),
         }
     }
