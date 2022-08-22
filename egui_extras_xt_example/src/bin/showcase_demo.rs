@@ -74,6 +74,12 @@ struct EguiExtrasXtExampleApp {
     // BarcodeWidget
     barcode_widget_value: String,
     barcode_widget_barcode_kind: BarcodeKind,
+    barcode_widget_bar_width: usize,
+    barcode_widget_bar_height: f32,
+    barcode_widget_padding: f32,
+    barcode_widget_label: String,
+    barcode_widget_label_height: f32,
+    barcode_widget_label_top_margin: f32,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -136,8 +142,14 @@ impl Default for EguiExtrasXtExampleApp {
             led_display_value: 1.0,
 
             // BarcodeWidget
-            barcode_widget_value: String::from("123456"),
-            barcode_widget_barcode_kind: BarcodeKind::Code39,
+            barcode_widget_value: String::from("123456789012"),
+            barcode_widget_barcode_kind: BarcodeKind::EAN13,
+            barcode_widget_bar_width: 2,
+            barcode_widget_bar_height: 64.0,
+            barcode_widget_padding: 10.0,
+            barcode_widget_label: String::from("Test"),
+            barcode_widget_label_height: 20.0,
+            barcode_widget_label_top_margin: 4.0,
         }
     }
 }
@@ -285,6 +297,14 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
+                    ui.add(DragValue::new(&mut self.barcode_widget_bar_width));
+                    ui.add(DragValue::new(&mut self.barcode_widget_bar_height));
+                    ui.add(DragValue::new(&mut self.barcode_widget_padding));
+                    ui.add(DragValue::new(&mut self.barcode_widget_label_height));
+                    ui.add(DragValue::new(&mut self.barcode_widget_label_top_margin));
+                });
+
+                ui.horizontal(|ui| {
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
                         BarcodeKind::Codabar,
@@ -343,11 +363,19 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 });
 
                 ui.text_edit_singleline(&mut self.barcode_widget_value);
+                ui.text_edit_singleline(&mut self.barcode_widget_label);
+
                 ui.add_space(8.0);
 
                 ui.add(
                     BarcodeWidget::new(&self.barcode_widget_value)
-                        .barcode_kind(self.barcode_widget_barcode_kind),
+                        .barcode_kind(self.barcode_widget_barcode_kind)
+                        .label(&self.barcode_widget_label)
+                        .bar_width(self.barcode_widget_bar_width)
+                        .bar_height(self.barcode_widget_bar_height)
+                        .padding(self.barcode_widget_padding)
+                        .label_height(self.barcode_widget_label_height)
+                        .label_top_margin(self.barcode_widget_label_top_margin)
                 );
 
                 ui.add_space(8.0);

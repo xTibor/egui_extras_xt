@@ -1,4 +1,4 @@
-use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget};
+use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget, Align2, FontId, FontFamily};
 
 use crate::barcodes::BarcodeKind;
 
@@ -9,6 +9,9 @@ pub struct BarcodeWidget {
     padding: f32,
     bar_width: usize,
     bar_height: f32,
+    label: Option<String>,
+    label_height: f32,
+    label_top_margin: f32,
 }
 
 impl BarcodeWidget {
@@ -18,7 +21,10 @@ impl BarcodeWidget {
             barcode_kind: BarcodeKind::Code39,
             bar_width: 2,
             bar_height: 64.0,
-            padding: 12.0,
+            padding: 10.0,
+            label: None,
+            label_height: 20.0,
+            label_top_margin: 4.0,
         }
     }
 
@@ -26,16 +32,53 @@ impl BarcodeWidget {
         self.barcode_kind = barcode_kind;
         self
     }
+
+    pub fn bar_width(mut self, bar_width: impl Into<usize>) -> Self {
+        self.bar_width = bar_width.into();
+        self
+    }
+
+    pub fn bar_height(mut self, bar_height: impl Into<f32>) -> Self {
+        self.bar_height = bar_height.into();
+        self
+    }
+
+    pub fn padding(mut self, padding: impl Into<f32>) -> Self {
+        self.padding = padding.into();
+        self
+    }
+
+    pub fn label(mut self, label: &str) -> Self {
+        self.label = Some(label.to_owned());
+        self
+    }
+
+    pub fn label_height(mut self, label_height: impl Into<f32>) -> Self {
+        self.label_height = label_height.into();
+        self
+    }
+
+    pub fn label_top_margin(mut self, label_top_margin: impl Into<f32>) -> Self {
+        self.label_top_margin = label_top_margin.into();
+        self
+    }
 }
 
 impl Widget for BarcodeWidget {
     fn ui(self, ui: &mut Ui) -> Response {
         let barcode = self.barcode_kind.encode(&self.value).unwrap_or_default();
-
         let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
 
-        let desired_size = vec2(bar_width * barcode.len() as f32, self.bar_height)
-            + Vec2::splat(self.padding) * 2.0;
+        let desired_size = {
+            let mut size = vec2(bar_width * barcode.len() as f32, self.bar_height)
+                + Vec2::splat(self.padding) * 2.0;
+
+            if self.label.is_some() {
+                size += vec2(0.0, self.label_height + self.label_top_margin)
+            }
+
+            size
+        };
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
@@ -50,13 +93,13 @@ impl Widget for BarcodeWidget {
             barcode
                 .into_iter()
                 .enumerate()
-                .filter(|&(i, b)| b == 1)
-                .for_each(|(i, b)| {
+                .filter(|&(_bar_index, bar_value)| bar_value == 1)
+                .for_each(|(bar_index, _bar_value)| {
                     ui.painter().rect(
                         Rect::from_min_size(
                             ui.painter()
                                 .round_pos_to_pixels(rect.left_top() + Vec2::splat(self.padding))
-                                + vec2(bar_width * i as f32, 0.0),
+                                + vec2(bar_width * bar_index as f32, 0.0),
                             vec2(bar_width, self.bar_height),
                         ),
                         0.0,
@@ -64,6 +107,16 @@ impl Widget for BarcodeWidget {
                         Stroke::none(),
                     );
                 });
+
+            if let Some(label) = self.label {
+                ui.painter().text(
+                    rect.center_bottom() - vec2(0.0, self.padding),
+                    Align2::CENTER_BOTTOM,
+                    label,
+                    FontId::new(self.label_height, FontFamily::Proportional),
+                    Color32::BLACK
+                );
+            }
         }
 
         response
