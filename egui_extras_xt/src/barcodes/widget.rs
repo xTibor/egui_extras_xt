@@ -1,8 +1,11 @@
 use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget};
 
+use crate::barcodes::BarcodeKind;
+
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct BarcodeWidget {
     value: String,
+    barcode_kind: BarcodeKind,
     padding: f32,
     bar_width: usize,
     bar_height: f32,
@@ -12,19 +15,22 @@ impl BarcodeWidget {
     pub fn new(value: &str) -> Self {
         Self {
             value: value.to_owned(),
+            barcode_kind: BarcodeKind::Code39,
             bar_width: 2,
             bar_height: 64.0,
             padding: 12.0,
         }
     }
+
+    pub fn barcode_kind(mut self, barcode_kind: BarcodeKind) -> Self {
+        self.barcode_kind = barcode_kind;
+        self
+    }
 }
 
 impl Widget for BarcodeWidget {
     fn ui(self, ui: &mut Ui) -> Response {
-        let barcode = match barcoders::sym::code39::Code39::new(&self.value) {
-            Ok(code39) => code39.encode(),
-            _ => Vec::new(),
-        };
+        let barcode = self.barcode_kind.encode(&self.value);
 
         let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
 

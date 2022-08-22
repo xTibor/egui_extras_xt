@@ -3,7 +3,7 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
-use egui_extras_xt::barcodes::BarcodeWidget;
+use egui_extras_xt::barcodes::{BarcodeKind, BarcodeWidget};
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::compasses::{
     CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass, PolarCompassOverflow,
@@ -73,6 +73,7 @@ struct EguiExtrasXtExampleApp {
 
     // BarcodeWidget
     barcode_widget_value: String,
+    barcode_widget_barcode_kind: BarcodeKind,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -136,6 +137,7 @@ impl Default for EguiExtrasXtExampleApp {
 
             // BarcodeWidget
             barcode_widget_value: String::from("123456"),
+            barcode_widget_barcode_kind: BarcodeKind::Code39,
         }
     }
 }
@@ -282,10 +284,71 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.heading("BarcodeWidget");
                 ui.add_space(8.0);
 
+                ui.horizontal(|ui| {
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::Codabar,
+                        "Codabar",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::Code11,
+                        "Code11",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::Code39,
+                        "Code39",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::Code39Checksum,
+                        "Code39Checksum",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::Code93,
+                        "Code93",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::Code128,
+                        "Code128",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::EAN8,
+                        "EAN8",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::EAN13,
+                        "EAN13",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::EANSUPP,
+                        "EANSUPP",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::ITF,
+                        "ITF",
+                    );
+                    ui.selectable_value(
+                        &mut self.barcode_widget_barcode_kind,
+                        BarcodeKind::STF,
+                        "STF",
+                    );
+                });
+
                 ui.text_edit_singleline(&mut self.barcode_widget_value);
                 ui.add_space(8.0);
 
-                ui.add(BarcodeWidget::new(&self.barcode_widget_value));
+                ui.add(
+                    BarcodeWidget::new(&self.barcode_widget_value)
+                        .barcode_kind(self.barcode_widget_barcode_kind),
+                );
 
                 ui.add_space(8.0);
                 ui.separator();
