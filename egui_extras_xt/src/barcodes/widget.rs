@@ -1,4 +1,6 @@
-use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget, Align2, FontId, FontFamily};
+use egui::{
+    vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Vec2, Widget,
+};
 
 use crate::barcodes::BarcodeKind;
 
@@ -6,7 +8,8 @@ use crate::barcodes::BarcodeKind;
 pub struct BarcodeWidget {
     value: String,
     barcode_kind: BarcodeKind,
-    padding: f32,
+    horizontal_padding: f32,
+    vertical_padding: f32,
     bar_width: usize,
     bar_height: f32,
     label: Option<String>,
@@ -21,7 +24,8 @@ impl BarcodeWidget {
             barcode_kind: BarcodeKind::Code39,
             bar_width: 2,
             bar_height: 64.0,
-            padding: 10.0,
+            horizontal_padding: 50.0,
+            vertical_padding: 10.0,
             label: None,
             label_height: 20.0,
             label_top_margin: 4.0,
@@ -43,8 +47,13 @@ impl BarcodeWidget {
         self
     }
 
-    pub fn padding(mut self, padding: impl Into<f32>) -> Self {
-        self.padding = padding.into();
+    pub fn horizontal_padding(mut self, horizontal_padding: impl Into<f32>) -> Self {
+        self.horizontal_padding = horizontal_padding.into();
+        self
+    }
+
+    pub fn vertical_padding(mut self, vertical_padding: impl Into<f32>) -> Self {
+        self.vertical_padding = vertical_padding.into();
         self
     }
 
@@ -71,7 +80,7 @@ impl Widget for BarcodeWidget {
 
         let desired_size = {
             let mut size = vec2(bar_width * barcode.len() as f32, self.bar_height)
-                + Vec2::splat(self.padding) * 2.0;
+                + vec2(self.horizontal_padding, self.vertical_padding) * 2.0;
 
             if self.label.is_some() {
                 size += vec2(0.0, self.label_height + self.label_top_margin)
@@ -97,9 +106,10 @@ impl Widget for BarcodeWidget {
                 .for_each(|(bar_index, _bar_value)| {
                     ui.painter().rect(
                         Rect::from_min_size(
-                            ui.painter()
-                                .round_pos_to_pixels(rect.left_top() + Vec2::splat(self.padding))
-                                + vec2(bar_width * bar_index as f32, 0.0),
+                            ui.painter().round_pos_to_pixels(
+                                rect.left_top()
+                                    + vec2(self.horizontal_padding, self.vertical_padding),
+                            ) + vec2(bar_width * bar_index as f32, 0.0),
                             vec2(bar_width, self.bar_height),
                         ),
                         0.0,
@@ -110,11 +120,11 @@ impl Widget for BarcodeWidget {
 
             if let Some(label) = self.label {
                 ui.painter().text(
-                    rect.center_bottom() - vec2(0.0, self.padding),
+                    rect.center_bottom() - vec2(0.0, self.vertical_padding),
                     Align2::CENTER_BOTTOM,
                     label,
                     FontId::new(self.label_height, FontFamily::Proportional),
-                    Color32::BLACK
+                    Color32::BLACK,
                 );
             }
         }

@@ -76,7 +76,8 @@ struct EguiExtrasXtExampleApp {
     barcode_widget_barcode_kind: BarcodeKind,
     barcode_widget_bar_width: usize,
     barcode_widget_bar_height: f32,
-    barcode_widget_padding: f32,
+    barcode_widget_horizontal_padding: f32,
+    barcode_widget_vertical_padding: f32,
     barcode_widget_label: String,
     barcode_widget_label_height: f32,
     barcode_widget_label_top_margin: f32,
@@ -146,7 +147,8 @@ impl Default for EguiExtrasXtExampleApp {
             barcode_widget_barcode_kind: BarcodeKind::EAN13,
             barcode_widget_bar_width: 2,
             barcode_widget_bar_height: 64.0,
-            barcode_widget_padding: 10.0,
+            barcode_widget_horizontal_padding: 50.0,
+            barcode_widget_vertical_padding: 10.0,
             barcode_widget_label: String::from("Test"),
             barcode_widget_label_height: 20.0,
             barcode_widget_label_top_margin: 4.0,
@@ -299,7 +301,8 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.horizontal(|ui| {
                     ui.add(DragValue::new(&mut self.barcode_widget_bar_width));
                     ui.add(DragValue::new(&mut self.barcode_widget_bar_height));
-                    ui.add(DragValue::new(&mut self.barcode_widget_padding));
+                    ui.add(DragValue::new(&mut self.barcode_widget_horizontal_padding));
+                    ui.add(DragValue::new(&mut self.barcode_widget_vertical_padding));
                     ui.add(DragValue::new(&mut self.barcode_widget_label_height));
                     ui.add(DragValue::new(&mut self.barcode_widget_label_top_margin));
                 });
@@ -373,9 +376,10 @@ impl eframe::App for EguiExtrasXtExampleApp {
                         .label(&self.barcode_widget_label)
                         .bar_width(self.barcode_widget_bar_width)
                         .bar_height(self.barcode_widget_bar_height)
-                        .padding(self.barcode_widget_padding)
+                        .horizontal_padding(self.barcode_widget_horizontal_padding)
+                        .vertical_padding(self.barcode_widget_vertical_padding)
                         .label_height(self.barcode_widget_label_height)
-                        .label_top_margin(self.barcode_widget_label_top_margin)
+                        .label_top_margin(self.barcode_widget_label_top_margin),
                 );
 
                 ui.add_space(8.0);
