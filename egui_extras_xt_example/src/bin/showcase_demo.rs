@@ -3,6 +3,7 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
+use egui_extras_xt::barcodes::BarcodeWidget;
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::compasses::{
     CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass, PolarCompassOverflow,
@@ -69,6 +70,9 @@ struct EguiExtrasXtExampleApp {
 
     // LedDisplay
     led_display_value: f32,
+
+    // BarcodeWidget
+    barcode_widget_value: String,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -129,6 +133,9 @@ impl Default for EguiExtrasXtExampleApp {
 
             // LedDisplay
             led_display_value: 1.0,
+
+            // BarcodeWidget
+            barcode_widget_value: String::from("123456"),
         }
     }
 }
@@ -272,6 +279,17 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("BarcodeWidget");
+                ui.add_space(8.0);
+
+                ui.text_edit_singleline(&mut self.barcode_widget_value);
+                ui.add_space(8.0);
+
+                ui.add(BarcodeWidget::new(&self.barcode_widget_value));
+
+                ui.add_space(8.0);
+                ui.separator();
+
                 ui.heading("LedDisplay");
                 ui.add_space(8.0);
 

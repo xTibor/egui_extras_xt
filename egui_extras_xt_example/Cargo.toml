@@ -11,7 +11,7 @@ default-run = "showcase_demo"
 maintenance = { status = "as-is" }
 
 [dependencies]
-egui_extras_xt = { path = "../egui_extras_xt/", features = ["knobs", "compasses", "displays"] }
+egui_extras_xt = { path = "../egui_extras_xt/", features = ["barcodes", "knobs", "compasses", "displays"] }
 
 chrono = "0.4.22"
 chrono-tz = "0.6.3"
