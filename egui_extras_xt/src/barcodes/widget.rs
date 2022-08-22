@@ -5,22 +5,22 @@ use egui::{
 use crate::barcodes::BarcodeKind;
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct BarcodeWidget {
-    value: String,
+pub struct BarcodeWidget<'a> {
+    value: &'a str,
     barcode_kind: BarcodeKind,
     horizontal_padding: f32,
     vertical_padding: f32,
     bar_width: usize,
     bar_height: f32,
-    label: Option<String>,
+    label: Option<&'a str>,
     label_height: f32,
     label_top_margin: f32,
 }
 
-impl BarcodeWidget {
-    pub fn new(value: &str) -> Self {
+impl<'a> BarcodeWidget<'a> {
+    pub fn new(value: &'a str) -> Self {
         Self {
-            value: value.to_owned(),
+            value,
             barcode_kind: BarcodeKind::Code39,
             bar_width: 2,
             bar_height: 64.0,
@@ -57,8 +57,8 @@ impl BarcodeWidget {
         self
     }
 
-    pub fn label(mut self, label: &str) -> Self {
-        self.label = Some(label.to_owned());
+    pub fn label(mut self, label: &'a str) -> Self {
+        self.label = Some(label);
         self
     }
 
@@ -73,9 +73,9 @@ impl BarcodeWidget {
     }
 }
 
-impl Widget for BarcodeWidget {
+impl<'a> Widget for BarcodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let barcode = self.barcode_kind.encode(&self.value).unwrap_or_default();
+        let barcode = self.barcode_kind.encode(self.value).unwrap_or_default();
         let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
 
         let desired_size = {
