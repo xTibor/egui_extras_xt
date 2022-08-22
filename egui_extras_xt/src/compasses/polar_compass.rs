@@ -7,7 +7,9 @@ use egui::{
 use emath::normalized_angle;
 
 use crate::common::{snap_wrap_constrain_angle, Orientation, SymLog, Winding, WrapMode};
-use crate::compass::{CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor};
+use crate::compasses::{
+    CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor,
+};
 
 // ----------------------------------------------------------------------------
 

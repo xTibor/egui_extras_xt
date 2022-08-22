@@ -4,7 +4,7 @@ use egui::{self, remap_clamp, Response, Sense, Ui, Widget};
 use emath::Vec2;
 use epaint::Stroke;
 
-use crate::display::{DisplayStyle, DisplayStylePreset};
+use crate::displays::{DisplayStyle, DisplayStylePreset};
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct LedDisplay {

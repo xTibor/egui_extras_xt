@@ -6,7 +6,9 @@ use epaint::color::tint_color_towards;
 use epaint::{Color32, FontFamily, FontId, Stroke};
 
 use crate::common::{normalized_angle_unsigned_incl, Winding, WrapMode};
-use crate::compass::{CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor};
+use crate::compasses::{
+    CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor,
+};
 
 // ----------------------------------------------------------------------------
 

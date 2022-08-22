@@ -1,6 +1,6 @@
 use eframe::egui::{self, Style, Visuals};
 use eframe::emath::vec2;
-use egui_extras_xt::display::{DisplayStylePreset, LedDisplay, SegmentedDisplayWidget};
+use egui_extras_xt::displays::{DisplayStylePreset, LedDisplay, SegmentedDisplayWidget};
 
 use chrono::{DateTime, TimeZone, Timelike};
 use chrono_tz::Tz;

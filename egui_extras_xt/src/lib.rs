@@ -1,6 +1,15 @@
 mod hash;
 
 pub mod common;
-pub mod compass;
-pub mod display;
-pub mod knob;
+
+#[cfg(feature = "barcodes")]
+pub mod barcodes;
+
+#[cfg(feature = "compasses")]
+pub mod compasses;
+
+#[cfg(feature = "displays")]
+pub mod displays;
+
+#[cfg(feature = "knobs")]
+pub mod knobs;

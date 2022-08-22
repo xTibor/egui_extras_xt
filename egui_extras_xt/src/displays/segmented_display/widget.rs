@@ -1,10 +1,10 @@
 use egui::{vec2, Pos2, Response, Sense, Shape, Stroke, Ui, Widget};
 use itertools::Itertools;
 
-use crate::display::segmented_display::{
+use crate::displays::segmented_display::{
     DisplayDigit, DisplayKind, DisplayMetrics, DisplayMetricsPreset,
 };
-use crate::display::{DisplayStyle, DisplayStylePreset};
+use crate::displays::{DisplayStyle, DisplayStylePreset};
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct SegmentedDisplayWidget {
