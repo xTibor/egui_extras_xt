@@ -4,7 +4,7 @@ use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget};
 pub struct BarcodeWidget {
     value: String,
     padding: f32,
-    bar_width: f32,
+    bar_width: usize,
     bar_height: f32,
 }
 
@@ -12,7 +12,7 @@ impl BarcodeWidget {
     pub fn new(value: &str) -> Self {
         Self {
             value: value.to_owned(),
-            bar_width: 2.0,
+            bar_width: 2,
             bar_height: 64.0,
             padding: 12.0,
         }
@@ -26,12 +26,10 @@ impl Widget for BarcodeWidget {
             _ => Vec::new(),
         };
 
-        let bar_width = self.bar_width / ui.ctx().pixels_per_point();
-        let bar_height = self.bar_height / ui.ctx().pixels_per_point();
-        let padding = self.padding / ui.ctx().pixels_per_point();
+        let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
 
-        let desired_size =
-            vec2(bar_width * barcode.len() as f32, bar_height) + Vec2::splat(padding) * 2.0;
+        let desired_size = vec2(bar_width * barcode.len() as f32, self.bar_height)
+            + Vec2::splat(self.padding) * 2.0;
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
@@ -50,10 +48,10 @@ impl Widget for BarcodeWidget {
                 .for_each(|(i, b)| {
                     ui.painter().rect(
                         Rect::from_min_size(
-                            ui.painter().round_pos_to_pixels(rect.left_top())
-                                + Vec2::splat(padding)
+                            ui.painter()
+                                .round_pos_to_pixels(rect.left_top() + Vec2::splat(self.padding))
                                 + vec2(bar_width * i as f32, 0.0),
-                            vec2(bar_width, bar_height),
+                            vec2(bar_width, self.bar_height),
                         ),
                         0.0,
                         Color32::BLACK,
