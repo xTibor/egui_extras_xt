@@ -29,19 +29,19 @@ pub enum BarcodeKind {
 }
 
 impl BarcodeKind {
-    fn encode<T: AsRef<str>>(&self, data: T) -> Vec<u8> {
+    fn encode<T: AsRef<str>>(&self, data: T) -> Option<Vec<u8>> {
         match *self {
-            BarcodeKind::Codabar => Codabar::new(data).unwrap().encode(),
-            BarcodeKind::Code11 => Code11::new(data).unwrap().encode(),
-            BarcodeKind::Code39 => Code39::new(data).unwrap().encode(),
-            BarcodeKind::Code39Checksum => Code39::with_checksum(data).unwrap().encode(),
-            BarcodeKind::Code93 => Code93::new(data).unwrap().encode(),
-            BarcodeKind::Code128 => Code128::new(data).unwrap().encode(),
-            BarcodeKind::EAN8 => EAN8::new(data).unwrap().encode(),
-            BarcodeKind::EAN13 => EAN13::new(data).unwrap().encode(),
-            BarcodeKind::EANSUPP => EANSUPP::new(data).unwrap().encode(),
-            BarcodeKind::ITF => TF::interleaved(data).unwrap().encode(),
-            BarcodeKind::STF => TF::standard(data).unwrap().encode(),
+            BarcodeKind::Codabar => Some(Codabar::new(data).ok()?.encode()),
+            BarcodeKind::Code11 => Some(Code11::new(data).ok()?.encode()),
+            BarcodeKind::Code39 => Some(Code39::new(data).ok()?.encode()),
+            BarcodeKind::Code39Checksum => Some(Code39::with_checksum(data).ok()?.encode()),
+            BarcodeKind::Code93 => Some(Code93::new(data).ok()?.encode()),
+            BarcodeKind::Code128 => Some(Code128::new(data).ok()?.encode()),
+            BarcodeKind::EAN8 => Some(EAN8::new(data).ok()?.encode()),
+            BarcodeKind::EAN13 => Some(EAN13::new(data).ok()?.encode()),
+            BarcodeKind::EANSUPP => Some(EANSUPP::new(data).ok()?.encode()),
+            BarcodeKind::ITF => Some(TF::interleaved(data).ok()?.encode()),
+            BarcodeKind::STF => Some(TF::standard(data).ok()?.encode()),
         }
     }
 }

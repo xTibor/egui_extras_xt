@@ -30,7 +30,7 @@ impl BarcodeWidget {
 
 impl Widget for BarcodeWidget {
     fn ui(self, ui: &mut Ui) -> Response {
-        let barcode = self.barcode_kind.encode(&self.value);
+        let barcode = self.barcode_kind.encode(&self.value).unwrap_or_default();
 
         let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
 
