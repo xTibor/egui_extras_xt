@@ -26,8 +26,12 @@ impl Widget for BarcodeWidget {
             _ => Vec::new(),
         };
 
-        let desired_size = vec2(self.bar_width * barcode.len() as f32, self.bar_height)
-            + Vec2::splat(self.padding) * 2.0;
+        let bar_width = self.bar_width / ui.ctx().pixels_per_point();
+        let bar_height = self.bar_height / ui.ctx().pixels_per_point();
+        let padding = self.padding / ui.ctx().pixels_per_point();
+
+        let desired_size =
+            vec2(bar_width * barcode.len() as f32, bar_height) + Vec2::splat(padding) * 2.0;
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
@@ -39,22 +43,23 @@ impl Widget for BarcodeWidget {
                 Stroke::none(),
             );
 
-            for (i, b) in barcode.into_iter().enumerate() {
-                match b {
-                    0 => {}
-                    1 => ui.painter().rect(
+            barcode
+                .into_iter()
+                .enumerate()
+                .filter(|&(i, b)| b == 1)
+                .for_each(|(i, b)| {
+                    ui.painter().rect(
                         Rect::from_min_size(
-                            rect.left_top()
-                                + vec2(self.padding + self.bar_width * i as f32, self.padding),
-                            vec2(self.bar_width, self.bar_height),
+                            ui.painter().round_pos_to_pixels(rect.left_top())
+                                + Vec2::splat(padding)
+                                + vec2(bar_width * i as f32, 0.0),
+                            vec2(bar_width, bar_height),
                         ),
                         0.0,
                         Color32::BLACK,
                         Stroke::none(),
-                    ),
-                    _ => unreachable!(),
-                }
-            }
+                    );
+                });
         }
 
         response
