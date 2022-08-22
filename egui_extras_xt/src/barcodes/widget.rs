@@ -1,6 +1,4 @@
-use egui::{
-    vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Vec2, Widget,
-};
+use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
 
 use crate::barcodes::BarcodeKind;
 
