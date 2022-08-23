@@ -85,6 +85,7 @@ struct EguiExtrasXtExampleApp {
     // QrBarcodeWidget
     qr_barcode_widget_value: String,
     qr_barcode_widget_module_size: usize,
+    qr_barcode_widget_quiet_zone: usize,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -160,6 +161,7 @@ impl Default for EguiExtrasXtExampleApp {
             // QrBarcodeWidget
             qr_barcode_widget_value: String::from("123456789012"),
             qr_barcode_widget_module_size: 6,
+            qr_barcode_widget_quiet_zone: 4,
         }
     }
 }
@@ -306,13 +308,18 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.heading("QrBarcodeWidget");
                 ui.add_space(8.0);
 
-                ui.add(DragValue::new(&mut self.qr_barcode_widget_module_size));
+                ui.horizontal(|ui| {
+                    ui.add(DragValue::new(&mut self.qr_barcode_widget_module_size));
+                    ui.add(DragValue::new(&mut self.qr_barcode_widget_quiet_zone));
+                });
+
                 ui.text_edit_singleline(&mut self.qr_barcode_widget_value);
                 ui.add_space(8.0);
 
                 ui.add(
                     QrBarcodeWidget::new(&self.qr_barcode_widget_value)
-                        .module_size(self.qr_barcode_widget_module_size),
+                        .module_size(self.qr_barcode_widget_module_size)
+                        .quiet_zone(self.qr_barcode_widget_quiet_zone),
                 );
 
                 ui.add_space(8.0);

@@ -8,6 +8,7 @@ use qrcode::{Color, QrCode};
 pub struct QrBarcodeWidget<'a> {
     value: &'a str,
     module_size: usize,
+    quiet_zone: usize,
 }
 
 impl<'a> QrBarcodeWidget<'a> {
@@ -15,11 +16,17 @@ impl<'a> QrBarcodeWidget<'a> {
         Self {
             value,
             module_size: 6,
+            quiet_zone: 4,
         }
     }
 
     pub fn module_size(mut self, module_size: impl Into<usize>) -> Self {
         self.module_size = module_size.into();
+        self
+    }
+
+    pub fn quiet_zone(mut self, quiet_zone: impl Into<usize>) -> Self {
+        self.quiet_zone = quiet_zone.into();
         self
     }
 }
@@ -29,10 +36,9 @@ impl<'a> Widget for QrBarcodeWidget<'a> {
         let qr_code = QrCode::new(self.value).unwrap(); // TODO: Cache
 
         let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();
-        let quiet_zone_modules = 4;
 
         let desired_size =
-            Vec2::splat((qr_code.width() + quiet_zone_modules * 2) as f32 * module_size);
+            Vec2::splat((qr_code.width() + self.quiet_zone * 2) as f32 * module_size);
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
@@ -54,8 +60,7 @@ impl<'a> Widget for QrBarcodeWidget<'a> {
                     ui.painter().rect(
                         Rect::from_min_size(
                             ui.painter().round_pos_to_pixels(
-                                rect.left_top()
-                                    + Vec2::splat(quiet_zone_modules as f32 * module_size),
+                                rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size),
                             ) + vec2(x as f32, y as f32) * module_size,
                             Vec2::splat(module_size),
                         ),
