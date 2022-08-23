@@ -9,6 +9,8 @@ pub struct QrBarcodeWidget<'a> {
     value: &'a str,
     module_size: usize,
     quiet_zone: usize,
+    foreground_color: Color32,
+    background_color: Color32,
 }
 
 impl<'a> QrBarcodeWidget<'a> {
@@ -17,6 +19,8 @@ impl<'a> QrBarcodeWidget<'a> {
             value,
             module_size: 6,
             quiet_zone: 4,
+            foreground_color: Color32::BLACK,
+            background_color: Color32::WHITE,
         }
     }
 
@@ -27,6 +31,16 @@ impl<'a> QrBarcodeWidget<'a> {
 
     pub fn quiet_zone(mut self, quiet_zone: impl Into<usize>) -> Self {
         self.quiet_zone = quiet_zone.into();
+        self
+    }
+
+    pub fn foreground_color(mut self, foreground_color: impl Into<Color32>) -> Self {
+        self.foreground_color = foreground_color.into();
+        self
+    }
+
+    pub fn background_color(mut self, background_color: impl Into<Color32>) -> Self {
+        self.background_color = background_color.into();
         self
     }
 }
@@ -46,7 +60,7 @@ impl<'a> Widget for QrBarcodeWidget<'a> {
             ui.painter().rect(
                 rect,
                 ui.style().visuals.noninteractive().rounding,
-                Color32::WHITE,
+                self.background_color,
                 Stroke::none(),
             );
 
@@ -65,7 +79,7 @@ impl<'a> Widget for QrBarcodeWidget<'a> {
                             Vec2::splat(module_size),
                         ),
                         0.0,
-                        Color32::BLACK,
+                        self.foreground_color,
                         Stroke::none(),
                     )
                 });

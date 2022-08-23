@@ -59,6 +59,8 @@ pub struct LinearBarcodeWidget<'a> {
     label: Option<&'a str>,
     label_height: f32,
     label_top_margin: f32,
+    foreground_color: Color32,
+    background_color: Color32,
 }
 
 impl<'a> LinearBarcodeWidget<'a> {
@@ -73,6 +75,8 @@ impl<'a> LinearBarcodeWidget<'a> {
             label: None,
             label_height: 20.0,
             label_top_margin: 4.0,
+            foreground_color: Color32::BLACK,
+            background_color: Color32::WHITE,
         }
     }
 
@@ -115,6 +119,16 @@ impl<'a> LinearBarcodeWidget<'a> {
         self.label_top_margin = label_top_margin.into();
         self
     }
+
+    pub fn foreground_color(mut self, foreground_color: impl Into<Color32>) -> Self {
+        self.foreground_color = foreground_color.into();
+        self
+    }
+
+    pub fn background_color(mut self, background_color: impl Into<Color32>) -> Self {
+        self.background_color = background_color.into();
+        self
+    }
 }
 
 impl<'a> Widget for LinearBarcodeWidget<'a> {
@@ -139,7 +153,7 @@ impl<'a> Widget for LinearBarcodeWidget<'a> {
             ui.painter().rect(
                 rect,
                 ui.style().visuals.noninteractive().rounding,
-                Color32::WHITE,
+                self.background_color,
                 Stroke::none(),
             );
 
@@ -157,7 +171,7 @@ impl<'a> Widget for LinearBarcodeWidget<'a> {
                             vec2(bar_width, self.bar_height),
                         ),
                         0.0,
-                        Color32::BLACK,
+                        self.foreground_color,
                         Stroke::none(),
                     );
                 });
@@ -168,7 +182,7 @@ impl<'a> Widget for LinearBarcodeWidget<'a> {
                     Align2::CENTER_BOTTOM,
                     label,
                     FontId::new(self.label_height, FontFamily::Proportional),
-                    Color32::BLACK,
+                    self.foreground_color,
                 );
             }
         }
