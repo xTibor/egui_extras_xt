@@ -2,38 +2,35 @@ use eframe::egui::{self, Style, Visuals};
 use eframe::emath::vec2;
 use egui_extras_xt::displays::{DisplayStylePreset, LedDisplay, SegmentedDisplayWidget};
 
-use chrono::{DateTime, TimeZone, Timelike};
-use chrono_tz::Tz;
+struct DeloreanDateTime<'a>(&'a str, usize, usize, bool, usize, usize);
 
-struct TimeCircuitSegment {
+struct TimeCircuitSegment<'a> {
     label: String,
-    datetime: DateTime<Tz>,
+    datetime: DeloreanDateTime<'a>,
     style_preset: DisplayStylePreset,
 }
 
-struct DeLoreanDemoApp {
-    time_circuit_segments: Vec<TimeCircuitSegment>,
+struct DeLoreanDemoApp<'a> {
+    time_circuit_segments: Vec<TimeCircuitSegment<'a>>,
 }
 
-impl Default for DeLoreanDemoApp {
+impl<'a> Default for DeLoreanDemoApp<'a> {
     fn default() -> Self {
-        use chrono_tz::US::Pacific;
-
         Self {
             time_circuit_segments: vec![
                 TimeCircuitSegment {
                     label: "DESTINATION TIME".to_owned(),
-                    datetime: Pacific.ymd(1885, 1, 1).and_hms(12, 0, 0),
+                    datetime: DeloreanDateTime("JAN", 1, 1885, true, 12, 0),
                     style_preset: DisplayStylePreset::DeLoreanRed,
                 },
                 TimeCircuitSegment {
                     label: "PRESENT TIME".to_owned(),
-                    datetime: Pacific.ymd(1955, 11, 12).and_hms(9, 28, 0),
+                    datetime: DeloreanDateTime("NOV", 12, 1955, false, 9, 28),
                     style_preset: DisplayStylePreset::DeLoreanGreen,
                 },
                 TimeCircuitSegment {
                     label: "LAST TIME DEPARTED".to_owned(),
-                    datetime: Pacific.ymd(1985, 10, 27).and_hms(14, 42, 0),
+                    datetime: DeloreanDateTime("OCT", 27, 1985, true, 2, 42),
                     style_preset: DisplayStylePreset::DeLoreanAmber,
                 },
             ],
@@ -41,23 +38,15 @@ impl Default for DeLoreanDemoApp {
     }
 }
 
-impl eframe::App for DeLoreanDemoApp {
+impl<'a> eframe::App for DeLoreanDemoApp<'a> {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             for TimeCircuitSegment {
                 label,
-                datetime,
+                datetime: DeloreanDateTime(month, day, year, ampm, hour, minute),
                 style_preset,
             } in &self.time_circuit_segments
             {
-                let str_month = datetime.format("%b").to_string().to_uppercase();
-                let str_day = datetime.format("%d").to_string();
-                let str_year = datetime.format("%Y").to_string();
-                let (ampm, _) = datetime.hour12();
-                let str_hour = datetime.format("%I").to_string();
-                let str_min = datetime.format("%M").to_string();
-                let tick = datetime.time().nanosecond() < 500_000_000;
-
                 ui.group(|ui| {
                     egui::Grid::new(label).min_col_width(20.0).show(ui, |ui| {
                         ui.vertical_centered(|ui| ui.label("MONTH"));
@@ -70,7 +59,7 @@ impl eframe::App for DeLoreanDemoApp {
                         ui.end_row();
 
                         ui.add(
-                            SegmentedDisplayWidget::sixteen_segment(&str_month)
+                            SegmentedDisplayWidget::sixteen_segment(month)
                                 .style_preset(*style_preset)
                                 .show_dots(false)
                                 .show_colons(false)
@@ -78,7 +67,7 @@ impl eframe::App for DeLoreanDemoApp {
                                 .digit_height(64.0),
                         );
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(&str_day)
+                            SegmentedDisplayWidget::seven_segment(&format!("{:02}", day))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -86,7 +75,7 @@ impl eframe::App for DeLoreanDemoApp {
                                 .digit_height(64.0),
                         );
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(&str_year)
+                            SegmentedDisplayWidget::seven_segment(&format!("{:04}", year))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -103,14 +92,14 @@ impl eframe::App for DeLoreanDemoApp {
                             );
                             ui.label("PM");
                             ui.add(
-                                LedDisplay::from_bool(ampm)
+                                LedDisplay::from_bool(*ampm)
                                     .style_preset(*style_preset)
                                     .diameter(12.0),
                             );
                         });
 
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(&str_hour)
+                            SegmentedDisplayWidget::seven_segment(&format!("{:02}", hour))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -121,20 +110,20 @@ impl eframe::App for DeLoreanDemoApp {
                         ui.vertical_centered(|ui| {
                             ui.add_space(15.0);
                             ui.add(
-                                LedDisplay::from_bool(tick)
+                                LedDisplay::from_bool(true)
                                     .style_preset(*style_preset)
                                     .diameter(12.0),
                             );
                             ui.add_space(10.0);
                             ui.add(
-                                LedDisplay::from_bool(tick)
+                                LedDisplay::from_bool(true)
                                     .style_preset(*style_preset)
                                     .diameter(12.0),
                             );
                         });
 
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(&str_min)
+                            SegmentedDisplayWidget::seven_segment(&format!("{:02}", minute))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
