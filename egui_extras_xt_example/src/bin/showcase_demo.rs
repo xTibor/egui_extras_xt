@@ -3,7 +3,7 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
-use egui_extras_xt::barcodes::{LinearBarcodeKind, LinearBarcodeWidget};
+use egui_extras_xt::barcodes::{LinearBarcodeKind, LinearBarcodeWidget, QrBarcodeWidget};
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::compasses::{
     CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass, PolarCompassOverflow,
@@ -72,15 +72,20 @@ struct EguiExtrasXtExampleApp {
     led_display_value: f32,
 
     // LinearBarcodeWidget
-    barcode_widget_value: String,
-    barcode_widget_barcode_kind: LinearBarcodeKind,
-    barcode_widget_bar_width: usize,
-    barcode_widget_bar_height: f32,
-    barcode_widget_horizontal_padding: f32,
-    barcode_widget_vertical_padding: f32,
-    barcode_widget_label: String,
-    barcode_widget_label_height: f32,
-    barcode_widget_label_top_margin: f32,
+    linear_barcode_widget_value: String,
+    linear_barcode_widget_barcode_kind: LinearBarcodeKind,
+    linear_barcode_widget_bar_width: usize,
+    linear_barcode_widget_bar_height: f32,
+    linear_barcode_widget_horizontal_padding: f32,
+    linear_barcode_widget_vertical_padding: f32,
+    linear_barcode_widget_label: String,
+    linear_barcode_widget_label_height: f32,
+    linear_barcode_widget_label_top_margin: f32,
+
+    // QrBarcodeWidget
+    qr_barcode_widget_value: String,
+    qr_barcode_widget_cell_size: usize,
+    qr_barcode_widget_padding: f32,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -143,15 +148,20 @@ impl Default for EguiExtrasXtExampleApp {
             led_display_value: 1.0,
 
             // LinearBarcodeWidget
-            barcode_widget_value: String::from("123456789012"),
-            barcode_widget_barcode_kind: LinearBarcodeKind::EAN13,
-            barcode_widget_bar_width: 2,
-            barcode_widget_bar_height: 64.0,
-            barcode_widget_horizontal_padding: 50.0,
-            barcode_widget_vertical_padding: 10.0,
-            barcode_widget_label: String::from("Test"),
-            barcode_widget_label_height: 20.0,
-            barcode_widget_label_top_margin: 4.0,
+            linear_barcode_widget_value: String::from("123456789012"),
+            linear_barcode_widget_barcode_kind: LinearBarcodeKind::EAN13,
+            linear_barcode_widget_bar_width: 2,
+            linear_barcode_widget_bar_height: 64.0,
+            linear_barcode_widget_horizontal_padding: 50.0,
+            linear_barcode_widget_vertical_padding: 10.0,
+            linear_barcode_widget_label: String::from("Test"),
+            linear_barcode_widget_label_height: 20.0,
+            linear_barcode_widget_label_top_margin: 4.0,
+
+            // QrBarcodeWidget
+            qr_barcode_widget_value: String::from("123456789012"),
+            qr_barcode_widget_cell_size: 2,
+            qr_barcode_widget_padding: 20.0,
         }
     }
 }
@@ -295,91 +305,118 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("QrBarcodeWidget");
+                ui.add_space(8.0);
+
+                ui.horizontal(|ui| {
+                    ui.add(DragValue::new(&mut self.qr_barcode_widget_cell_size));
+                    ui.add(DragValue::new(&mut self.qr_barcode_widget_padding));
+                });
+
+                ui.text_edit_singleline(&mut self.qr_barcode_widget_value);
+                ui.add_space(8.0);
+
+                ui.add(
+                    QrBarcodeWidget::new(&self.qr_barcode_widget_value)
+                        .cell_size(self.qr_barcode_widget_cell_size)
+                        .padding(self.qr_barcode_widget_padding)
+                );
+
+
+                ui.add_space(8.0);
+                ui.separator();
+
                 ui.heading("LinearBarcodeWidget");
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
-                    ui.add(DragValue::new(&mut self.barcode_widget_bar_width));
-                    ui.add(DragValue::new(&mut self.barcode_widget_bar_height));
-                    ui.add(DragValue::new(&mut self.barcode_widget_horizontal_padding));
-                    ui.add(DragValue::new(&mut self.barcode_widget_vertical_padding));
-                    ui.add(DragValue::new(&mut self.barcode_widget_label_height));
-                    ui.add(DragValue::new(&mut self.barcode_widget_label_top_margin));
+                    ui.add(DragValue::new(&mut self.linear_barcode_widget_bar_width));
+                    ui.add(DragValue::new(&mut self.linear_barcode_widget_bar_height));
+                    ui.add(DragValue::new(
+                        &mut self.linear_barcode_widget_horizontal_padding,
+                    ));
+                    ui.add(DragValue::new(
+                        &mut self.linear_barcode_widget_vertical_padding,
+                    ));
+                    ui.add(DragValue::new(&mut self.linear_barcode_widget_label_height));
+                    ui.add(DragValue::new(
+                        &mut self.linear_barcode_widget_label_top_margin,
+                    ));
                 });
 
                 ui.horizontal(|ui| {
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::Codabar,
                         "Codabar",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::Code11,
                         "Code11",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::Code39,
                         "Code39",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::Code39Checksum,
                         "Code39Checksum",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::Code93,
                         "Code93",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::Code128,
                         "Code128",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::EAN8,
                         "EAN8",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::EAN13,
                         "EAN13",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::EANSUPP,
                         "EANSUPP",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::ITF,
                         "ITF",
                     );
                     ui.selectable_value(
-                        &mut self.barcode_widget_barcode_kind,
+                        &mut self.linear_barcode_widget_barcode_kind,
                         LinearBarcodeKind::STF,
                         "STF",
                     );
                 });
 
-                ui.text_edit_singleline(&mut self.barcode_widget_value);
-                ui.text_edit_singleline(&mut self.barcode_widget_label);
+                ui.text_edit_singleline(&mut self.linear_barcode_widget_value);
+                ui.text_edit_singleline(&mut self.linear_barcode_widget_label);
 
                 ui.add_space(8.0);
 
                 ui.add(
-                    LinearBarcodeWidget::new(&self.barcode_widget_value)
-                        .barcode_kind(self.barcode_widget_barcode_kind)
-                        .label(&self.barcode_widget_label)
-                        .bar_width(self.barcode_widget_bar_width)
-                        .bar_height(self.barcode_widget_bar_height)
-                        .horizontal_padding(self.barcode_widget_horizontal_padding)
-                        .vertical_padding(self.barcode_widget_vertical_padding)
-                        .label_height(self.barcode_widget_label_height)
-                        .label_top_margin(self.barcode_widget_label_top_margin),
+                    LinearBarcodeWidget::new(&self.linear_barcode_widget_value)
+                        .barcode_kind(self.linear_barcode_widget_barcode_kind)
+                        .label(&self.linear_barcode_widget_label)
+                        .bar_width(self.linear_barcode_widget_bar_width)
+                        .bar_height(self.linear_barcode_widget_bar_height)
+                        .horizontal_padding(self.linear_barcode_widget_horizontal_padding)
+                        .vertical_padding(self.linear_barcode_widget_vertical_padding)
+                        .label_height(self.linear_barcode_widget_label_height)
+                        .label_top_margin(self.linear_barcode_widget_label_top_margin),
                 );
 
                 ui.add_space(8.0);

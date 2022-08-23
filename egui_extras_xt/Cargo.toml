@@ -15,9 +15,10 @@ epaint = "0.19.0"
 itertools = "0.10.3"
 
 barcoders = { version = "1.0.2", optional = true }
+qrcode = { version = "0.11.2", optional = true, default-features = false }
 
 [features]
-barcodes = ["dep:barcoders"]
+barcodes = ["dep:barcoders", "dep:qrcode"]
 compasses = []
 displays = []
 knobs = []
