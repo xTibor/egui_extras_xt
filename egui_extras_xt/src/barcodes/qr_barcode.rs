@@ -68,20 +68,24 @@ impl<'a> Widget for QrBarcodeWidget<'a> {
                 .to_colors()
                 .into_iter()
                 .enumerate()
-                .filter(|&(_index, value)| value == Color::Dark)
-                .map(|(index, _value)| (index % qr_code.width(), index / qr_code.width()))
-                .for_each(|(x, y)| {
-                    ui.painter().rect(
-                        Rect::from_min_size(
-                            ui.painter().round_pos_to_pixels(
-                                rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size),
-                            ) + vec2(x as f32, y as f32) * module_size,
-                            Vec2::splat(module_size),
-                        ),
-                        0.0,
-                        self.foreground_color,
-                        Stroke::none(),
+                .filter(|&(_module_index, module_value)| module_value == Color::Dark)
+                .map(|(module_index, _module_value)| {
+                    (
+                        module_index % qr_code.width(),
+                        module_index / qr_code.width(),
                     )
+                })
+                .map(|(x, y)| {
+                    Rect::from_min_size(
+                        ui.painter().round_pos_to_pixels(
+                            rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size),
+                        ) + vec2(x as f32, y as f32) * module_size,
+                        Vec2::splat(module_size),
+                    )
+                })
+                .for_each(|module_rect| {
+                    ui.painter()
+                        .rect(module_rect, 0.0, self.foreground_color, Stroke::none())
                 });
         }
 

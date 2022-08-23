@@ -161,19 +161,17 @@ impl<'a> Widget for LinearBarcodeWidget<'a> {
                 .into_iter()
                 .enumerate()
                 .filter(|&(_bar_index, bar_value)| bar_value == 1)
-                .for_each(|(bar_index, _bar_value)| {
-                    ui.painter().rect(
-                        Rect::from_min_size(
-                            ui.painter().round_pos_to_pixels(
-                                rect.left_top()
-                                    + vec2(self.horizontal_padding, self.vertical_padding),
-                            ) + vec2(bar_width * bar_index as f32, 0.0),
-                            vec2(bar_width, self.bar_height),
-                        ),
-                        0.0,
-                        self.foreground_color,
-                        Stroke::none(),
-                    );
+                .map(|(bar_index, _bar_value)| {
+                    Rect::from_min_size(
+                        ui.painter().round_pos_to_pixels(
+                            rect.left_top() + vec2(self.horizontal_padding, self.vertical_padding),
+                        ) + vec2(bar_width * bar_index as f32, 0.0),
+                        vec2(bar_width, self.bar_height),
+                    )
+                })
+                .for_each(|bar_rect| {
+                    ui.painter()
+                        .rect(bar_rect, 0.0, self.foreground_color, Stroke::none());
                 });
 
             if let Some(label) = self.label {
