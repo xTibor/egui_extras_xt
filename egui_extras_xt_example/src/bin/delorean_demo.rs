@@ -2,11 +2,11 @@ use eframe::egui::{self, Style, Visuals};
 use eframe::emath::vec2;
 use egui_extras_xt::displays::{DisplayStylePreset, LedDisplay, SegmentedDisplayWidget};
 
-struct DeloreanDateTime<'a>(&'a str, usize, usize, bool, usize, usize);
+struct DeLoreanDateTime<'a>(&'a str, usize, usize, bool, usize, usize);
 
 struct TimeCircuitSegment<'a> {
     label: String,
-    datetime: DeloreanDateTime<'a>,
+    datetime: DeLoreanDateTime<'a>,
     style_preset: DisplayStylePreset,
 }
 
@@ -20,17 +20,17 @@ impl<'a> Default for DeLoreanDemoApp<'a> {
             time_circuit_segments: vec![
                 TimeCircuitSegment {
                     label: "DESTINATION TIME".to_owned(),
-                    datetime: DeloreanDateTime("JAN", 1, 1885, true, 12, 0),
+                    datetime: DeLoreanDateTime("JAN", 1, 1885, true, 12, 0),
                     style_preset: DisplayStylePreset::DeLoreanRed,
                 },
                 TimeCircuitSegment {
                     label: "PRESENT TIME".to_owned(),
-                    datetime: DeloreanDateTime("NOV", 12, 1955, false, 9, 28),
+                    datetime: DeLoreanDateTime("NOV", 12, 1955, false, 9, 28),
                     style_preset: DisplayStylePreset::DeLoreanGreen,
                 },
                 TimeCircuitSegment {
                     label: "LAST TIME DEPARTED".to_owned(),
-                    datetime: DeloreanDateTime("OCT", 27, 1985, true, 2, 42),
+                    datetime: DeLoreanDateTime("OCT", 27, 1985, true, 2, 42),
                     style_preset: DisplayStylePreset::DeLoreanAmber,
                 },
             ],
@@ -43,7 +43,7 @@ impl<'a> eframe::App for DeLoreanDemoApp<'a> {
         egui::CentralPanel::default().show(ctx, |ui| {
             for TimeCircuitSegment {
                 label,
-                datetime: DeloreanDateTime(month, day, year, ampm, hour, minute),
+                datetime: DeLoreanDateTime(month, day, year, ampm, hour, minute),
                 style_preset,
             } in &self.time_circuit_segments
             {
