@@ -67,7 +67,7 @@ impl<'a> eframe::App for DeLoreanDemoApp<'a> {
                                 .digit_height(64.0),
                         );
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(&format!("{:02}", day))
+                            SegmentedDisplayWidget::seven_segment(format!("{:02}", day))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -75,7 +75,7 @@ impl<'a> eframe::App for DeLoreanDemoApp<'a> {
                                 .digit_height(64.0),
                         );
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(&format!("{:04}", year))
+                            SegmentedDisplayWidget::seven_segment(format!("{:04}", year))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -99,7 +99,7 @@ impl<'a> eframe::App for DeLoreanDemoApp<'a> {
                         });
 
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(&format!("{:02}", hour))
+                            SegmentedDisplayWidget::seven_segment(format!("{:02}", hour))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -123,7 +123,7 @@ impl<'a> eframe::App for DeLoreanDemoApp<'a> {
                         });
 
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(&format!("{:02}", minute))
+                            SegmentedDisplayWidget::seven_segment(format!("{:02}", minute))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)

@@ -32,25 +32,25 @@ impl SegmentedDisplayWidget {
         }
     }
 
-    pub fn seven_segment(value: &str) -> Self {
-        Self::new(DisplayKind::SevenSegment).push_string(value)
+    pub fn seven_segment<T: AsRef<str>>(value: T) -> Self {
+        Self::new(DisplayKind::SevenSegment).push_string(value.as_ref())
     }
 
-    pub fn nine_segment(value: &str) -> Self {
-        Self::new(DisplayKind::NineSegment).push_string(value)
+    pub fn nine_segment<T: AsRef<str>>(value: T) -> Self {
+        Self::new(DisplayKind::NineSegment).push_string(value.as_ref())
     }
 
-    pub fn sixteen_segment(value: &str) -> Self {
-        Self::new(DisplayKind::SixteenSegment).push_string(value)
+    pub fn sixteen_segment<T: AsRef<str>>(value: T) -> Self {
+        Self::new(DisplayKind::SixteenSegment).push_string(value.as_ref())
     }
 
-    pub fn push_string(mut self, value: &str) -> Self {
+    pub fn push_string<T: AsRef<str>>(mut self, value: T) -> Self {
         let display_impl = self.display_kind.display_impl();
 
         self.digits.extend(
             [None]
                 .into_iter()
-                .chain(value.chars().map(Some))
+                .chain(value.as_ref().chars().map(Some))
                 .chain([None])
                 .tuple_windows()
                 .flat_map(|(prev, curr, next)| match curr {
