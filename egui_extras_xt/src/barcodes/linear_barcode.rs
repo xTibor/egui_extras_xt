@@ -1,11 +1,57 @@
 use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
 
-use crate::barcodes::BarcodeKind;
+use barcoders::sym::codabar::Codabar;
+use barcoders::sym::code11::Code11;
+use barcoders::sym::code128::Code128;
+use barcoders::sym::code39::Code39;
+use barcoders::sym::code93::Code93;
+use barcoders::sym::ean13::EAN13;
+use barcoders::sym::ean8::EAN8;
+use barcoders::sym::ean_supp::EANSUPP;
+use barcoders::sym::tf::TF;
+
+// ----------------------------------------------------------------------------
+
+#[non_exhaustive]
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub enum LinearBarcodeKind {
+    Codabar,
+    Code11,
+    Code39,
+    Code39Checksum,
+    Code93,
+    Code128,
+    EAN8,
+    EAN13,
+    EANSUPP,
+    ITF,
+    STF,
+}
+
+impl LinearBarcodeKind {
+    fn encode<T: AsRef<str>>(&self, data: T) -> Option<Vec<u8>> {
+        match *self {
+            LinearBarcodeKind::Codabar => Some(Codabar::new(data).ok()?.encode()),
+            LinearBarcodeKind::Code11 => Some(Code11::new(data).ok()?.encode()),
+            LinearBarcodeKind::Code39 => Some(Code39::new(data).ok()?.encode()),
+            LinearBarcodeKind::Code39Checksum => Some(Code39::with_checksum(data).ok()?.encode()),
+            LinearBarcodeKind::Code93 => Some(Code93::new(data).ok()?.encode()),
+            LinearBarcodeKind::Code128 => Some(Code128::new(data).ok()?.encode()),
+            LinearBarcodeKind::EAN8 => Some(EAN8::new(data).ok()?.encode()),
+            LinearBarcodeKind::EAN13 => Some(EAN13::new(data).ok()?.encode()),
+            LinearBarcodeKind::EANSUPP => Some(EANSUPP::new(data).ok()?.encode()),
+            LinearBarcodeKind::ITF => Some(TF::interleaved(data).ok()?.encode()),
+            LinearBarcodeKind::STF => Some(TF::standard(data).ok()?.encode()),
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct BarcodeWidget<'a> {
+pub struct LinearBarcodeWidget<'a> {
     value: &'a str,
-    barcode_kind: BarcodeKind,
+    barcode_kind: LinearBarcodeKind,
     horizontal_padding: f32,
     vertical_padding: f32,
     bar_width: usize,
@@ -15,11 +61,11 @@ pub struct BarcodeWidget<'a> {
     label_top_margin: f32,
 }
 
-impl<'a> BarcodeWidget<'a> {
+impl<'a> LinearBarcodeWidget<'a> {
     pub fn new(value: &'a str) -> Self {
         Self {
             value,
-            barcode_kind: BarcodeKind::Code39,
+            barcode_kind: LinearBarcodeKind::Code39,
             bar_width: 2,
             bar_height: 64.0,
             horizontal_padding: 50.0,
@@ -30,7 +76,7 @@ impl<'a> BarcodeWidget<'a> {
         }
     }
 
-    pub fn barcode_kind(mut self, barcode_kind: BarcodeKind) -> Self {
+    pub fn barcode_kind(mut self, barcode_kind: LinearBarcodeKind) -> Self {
         self.barcode_kind = barcode_kind;
         self
     }
@@ -71,7 +117,7 @@ impl<'a> BarcodeWidget<'a> {
     }
 }
 
-impl<'a> Widget for BarcodeWidget<'a> {
+impl<'a> Widget for LinearBarcodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
         let barcode = self.barcode_kind.encode(self.value).unwrap_or_default();
         let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();

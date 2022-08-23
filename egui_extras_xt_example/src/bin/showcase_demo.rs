@@ -3,7 +3,7 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
-use egui_extras_xt::barcodes::{BarcodeKind, BarcodeWidget};
+use egui_extras_xt::barcodes::{LinearBarcodeKind, LinearBarcodeWidget};
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::compasses::{
     CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass, PolarCompassOverflow,
@@ -71,9 +71,9 @@ struct EguiExtrasXtExampleApp {
     // LedDisplay
     led_display_value: f32,
 
-    // BarcodeWidget
+    // LinearBarcodeWidget
     barcode_widget_value: String,
-    barcode_widget_barcode_kind: BarcodeKind,
+    barcode_widget_barcode_kind: LinearBarcodeKind,
     barcode_widget_bar_width: usize,
     barcode_widget_bar_height: f32,
     barcode_widget_horizontal_padding: f32,
@@ -142,9 +142,9 @@ impl Default for EguiExtrasXtExampleApp {
             // LedDisplay
             led_display_value: 1.0,
 
-            // BarcodeWidget
+            // LinearBarcodeWidget
             barcode_widget_value: String::from("123456789012"),
-            barcode_widget_barcode_kind: BarcodeKind::EAN13,
+            barcode_widget_barcode_kind: LinearBarcodeKind::EAN13,
             barcode_widget_bar_width: 2,
             barcode_widget_bar_height: 64.0,
             barcode_widget_horizontal_padding: 50.0,
@@ -295,7 +295,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.heading("BarcodeWidget");
+                ui.heading("LinearBarcodeWidget");
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
@@ -310,57 +310,57 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.horizontal(|ui| {
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::Codabar,
+                        LinearBarcodeKind::Codabar,
                         "Codabar",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::Code11,
+                        LinearBarcodeKind::Code11,
                         "Code11",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::Code39,
+                        LinearBarcodeKind::Code39,
                         "Code39",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::Code39Checksum,
+                        LinearBarcodeKind::Code39Checksum,
                         "Code39Checksum",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::Code93,
+                        LinearBarcodeKind::Code93,
                         "Code93",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::Code128,
+                        LinearBarcodeKind::Code128,
                         "Code128",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::EAN8,
+                        LinearBarcodeKind::EAN8,
                         "EAN8",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::EAN13,
+                        LinearBarcodeKind::EAN13,
                         "EAN13",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::EANSUPP,
+                        LinearBarcodeKind::EANSUPP,
                         "EANSUPP",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::ITF,
+                        LinearBarcodeKind::ITF,
                         "ITF",
                     );
                     ui.selectable_value(
                         &mut self.barcode_widget_barcode_kind,
-                        BarcodeKind::STF,
+                        LinearBarcodeKind::STF,
                         "STF",
                     );
                 });
@@ -371,7 +371,7 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.add_space(8.0);
 
                 ui.add(
-                    BarcodeWidget::new(&self.barcode_widget_value)
+                    LinearBarcodeWidget::new(&self.barcode_widget_value)
                         .barcode_kind(self.barcode_widget_barcode_kind)
                         .label(&self.barcode_widget_label)
                         .bar_width(self.barcode_widget_bar_width)
