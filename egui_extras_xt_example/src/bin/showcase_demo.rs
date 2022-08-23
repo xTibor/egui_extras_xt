@@ -84,8 +84,7 @@ struct EguiExtrasXtExampleApp {
 
     // QrBarcodeWidget
     qr_barcode_widget_value: String,
-    qr_barcode_widget_cell_size: usize,
-    qr_barcode_widget_padding: f32,
+    qr_barcode_widget_module_size: usize,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -160,8 +159,7 @@ impl Default for EguiExtrasXtExampleApp {
 
             // QrBarcodeWidget
             qr_barcode_widget_value: String::from("123456789012"),
-            qr_barcode_widget_cell_size: 2,
-            qr_barcode_widget_padding: 20.0,
+            qr_barcode_widget_module_size: 6,
         }
     }
 }
@@ -308,20 +306,14 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.heading("QrBarcodeWidget");
                 ui.add_space(8.0);
 
-                ui.horizontal(|ui| {
-                    ui.add(DragValue::new(&mut self.qr_barcode_widget_cell_size));
-                    ui.add(DragValue::new(&mut self.qr_barcode_widget_padding));
-                });
-
+                ui.add(DragValue::new(&mut self.qr_barcode_widget_module_size));
                 ui.text_edit_singleline(&mut self.qr_barcode_widget_value);
                 ui.add_space(8.0);
 
                 ui.add(
                     QrBarcodeWidget::new(&self.qr_barcode_widget_value)
-                        .cell_size(self.qr_barcode_widget_cell_size)
-                        .padding(self.qr_barcode_widget_padding)
+                        .module_size(self.qr_barcode_widget_module_size),
                 );
-
 
                 ui.add_space(8.0);
                 ui.separator();

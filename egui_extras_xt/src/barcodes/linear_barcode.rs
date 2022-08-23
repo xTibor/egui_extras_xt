@@ -119,7 +119,7 @@ impl<'a> LinearBarcodeWidget<'a> {
 
 impl<'a> Widget for LinearBarcodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let barcode = self.barcode_kind.encode(self.value).unwrap_or_default();
+        let barcode = self.barcode_kind.encode(self.value).unwrap_or_default(); // TODO: Cache
         let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
 
         let desired_size = {
