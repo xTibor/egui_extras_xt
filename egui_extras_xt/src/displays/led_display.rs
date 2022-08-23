@@ -13,7 +13,6 @@ pub struct LedDisplay {
     padding: f32,
     range: RangeInclusive<f32>,
     style: DisplayStyle,
-    show_background: bool,
     animated: bool,
 }
 
@@ -25,7 +24,6 @@ impl LedDisplay {
             padding: 0.25,
             range: 0.0..=1.0,
             style: DisplayStylePreset::Default.style(),
-            show_background: true,
             animated: false,
         }
     }
@@ -83,14 +81,12 @@ impl Widget for LedDisplay {
                 0.0..=1.0,
             );
 
-            if self.show_background {
-                ui.painter().rect(
-                    rect,
-                    ui.style().visuals.noninteractive().rounding,
-                    self.style.background_color,
-                    Stroke::none(),
-                );
-            }
+            ui.painter().rect(
+                rect,
+                ui.style().visuals.noninteractive().rounding,
+                self.style.background_color,
+                Stroke::none(),
+            );
 
             ui.painter().circle(
                 rect.center(),
