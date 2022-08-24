@@ -1,6 +1,25 @@
+use std::sync::Arc;
+
+use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget};
 
 use qrcode::{Color, QrCode};
+
+// ----------------------------------------------------------------------------
+
+type QrBarcodeCacheKey<'a> = &'a str;
+type QrBarcodeCacheValue = Arc<QrCode>;
+
+#[derive(Default)]
+struct QrBarcodeComputer;
+
+impl<'a> ComputerMut<QrBarcodeCacheKey<'a>, QrBarcodeCacheValue> for QrBarcodeComputer {
+    fn compute(&mut self, key: QrBarcodeCacheKey) -> QrBarcodeCacheValue {
+        Arc::new(QrCode::new(key).unwrap())
+    }
+}
+
+type QrBarcodeCache<'a> = FrameCache<QrBarcodeCacheValue, QrBarcodeComputer>;
 
 // ----------------------------------------------------------------------------
 
@@ -47,7 +66,11 @@ impl<'a> QrBarcodeWidget<'a> {
 
 impl<'a> Widget for QrBarcodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let qr_code = QrCode::new(self.value).unwrap(); // TODO: Cache
+        let qr_code = {
+            let mut memory = ui.memory();
+            let cache = memory.caches.cache::<QrBarcodeCache<'_>>();
+            cache.get(self.value)
+        };
 
         let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();
 
