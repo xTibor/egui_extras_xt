@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
 
@@ -50,7 +52,7 @@ impl LinearBarcodeKind {
 // ----------------------------------------------------------------------------
 
 type LinearBarcodeCacheKey<'a> = (LinearBarcodeKind, &'a str);
-type LinearBarcodeCacheValue = Vec<u8>;
+type LinearBarcodeCacheValue = Arc<Vec<u8>>;
 
 #[derive(Default)]
 struct LinearBarcodeComputer;
@@ -58,7 +60,7 @@ struct LinearBarcodeComputer;
 impl<'a> ComputerMut<LinearBarcodeCacheKey<'a>, LinearBarcodeCacheValue> for LinearBarcodeComputer {
     fn compute(&mut self, key: LinearBarcodeCacheKey) -> LinearBarcodeCacheValue {
         let (barcode_kind, value) = key;
-        barcode_kind.encode(value).unwrap_or_default()
+        Arc::new(barcode_kind.encode(value).unwrap_or_default())
     }
 }
 
@@ -181,9 +183,9 @@ impl<'a> Widget for LinearBarcodeWidget<'a> {
             );
 
             barcode
-                .into_iter()
+                .iter()
                 .enumerate()
-                .filter(|&(_bar_index, bar_value)| bar_value == 1)
+                .filter(|&(_bar_index, bar_value)| *bar_value == 1)
                 .map(|(bar_index, _bar_value)| {
                     Rect::from_min_size(
                         ui.painter().round_pos_to_pixels(
