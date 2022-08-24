@@ -1,3 +1,4 @@
+use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
 
 use barcoders::sym::codabar::Codabar;
@@ -13,7 +14,7 @@ use barcoders::sym::tf::TF;
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
 pub enum LinearBarcodeKind {
     Codabar,
     Code11,
@@ -45,6 +46,23 @@ impl LinearBarcodeKind {
         }
     }
 }
+
+// ----------------------------------------------------------------------------
+
+type LinearBarcodeCacheKey<'a> = (LinearBarcodeKind, &'a str);
+type LinearBarcodeCacheValue = Vec<u8>;
+
+#[derive(Default)]
+struct LinearBarcodeComputer;
+
+impl<'a> ComputerMut<LinearBarcodeCacheKey<'a>, LinearBarcodeCacheValue> for LinearBarcodeComputer {
+    fn compute(&mut self, key: LinearBarcodeCacheKey) -> LinearBarcodeCacheValue {
+        let (barcode_kind, value) = key;
+        barcode_kind.encode(value).unwrap_or_default()
+    }
+}
+
+type LinearBarcodeCache<'a> = FrameCache<LinearBarcodeCacheValue, LinearBarcodeComputer>;
 
 // ----------------------------------------------------------------------------
 
@@ -133,7 +151,12 @@ impl<'a> LinearBarcodeWidget<'a> {
 
 impl<'a> Widget for LinearBarcodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let barcode = self.barcode_kind.encode(self.value).unwrap_or_default(); // TODO: Cache
+        let barcode = {
+            let mut memory = ui.memory();
+            let cache = memory.caches.cache::<LinearBarcodeCache<'_>>();
+            cache.get((self.barcode_kind, self.value))
+        };
+
         let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
 
         let desired_size = {
