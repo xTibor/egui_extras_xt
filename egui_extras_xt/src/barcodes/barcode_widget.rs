@@ -17,7 +17,7 @@ use barcoders::sym::tf::TF;
 
 #[non_exhaustive]
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
-pub enum LinearBarcodeKind {
+pub enum BarcodeKind {
     Codabar,
     Code11,
     Code39,
@@ -31,47 +31,47 @@ pub enum LinearBarcodeKind {
     STF,
 }
 
-impl LinearBarcodeKind {
+impl BarcodeKind {
     fn encode<T: AsRef<str>>(&self, data: T) -> Option<Vec<u8>> {
         match *self {
-            LinearBarcodeKind::Codabar => Some(Codabar::new(data).ok()?.encode()),
-            LinearBarcodeKind::Code11 => Some(Code11::new(data).ok()?.encode()),
-            LinearBarcodeKind::Code39 => Some(Code39::new(data).ok()?.encode()),
-            LinearBarcodeKind::Code39Checksum => Some(Code39::with_checksum(data).ok()?.encode()),
-            LinearBarcodeKind::Code93 => Some(Code93::new(data).ok()?.encode()),
-            LinearBarcodeKind::Code128 => Some(Code128::new(data).ok()?.encode()),
-            LinearBarcodeKind::EAN8 => Some(EAN8::new(data).ok()?.encode()),
-            LinearBarcodeKind::EAN13 => Some(EAN13::new(data).ok()?.encode()),
-            LinearBarcodeKind::EANSUPP => Some(EANSUPP::new(data).ok()?.encode()),
-            LinearBarcodeKind::ITF => Some(TF::interleaved(data).ok()?.encode()),
-            LinearBarcodeKind::STF => Some(TF::standard(data).ok()?.encode()),
+            BarcodeKind::Codabar => Some(Codabar::new(data).ok()?.encode()),
+            BarcodeKind::Code11 => Some(Code11::new(data).ok()?.encode()),
+            BarcodeKind::Code39 => Some(Code39::new(data).ok()?.encode()),
+            BarcodeKind::Code39Checksum => Some(Code39::with_checksum(data).ok()?.encode()),
+            BarcodeKind::Code93 => Some(Code93::new(data).ok()?.encode()),
+            BarcodeKind::Code128 => Some(Code128::new(data).ok()?.encode()),
+            BarcodeKind::EAN8 => Some(EAN8::new(data).ok()?.encode()),
+            BarcodeKind::EAN13 => Some(EAN13::new(data).ok()?.encode()),
+            BarcodeKind::EANSUPP => Some(EANSUPP::new(data).ok()?.encode()),
+            BarcodeKind::ITF => Some(TF::interleaved(data).ok()?.encode()),
+            BarcodeKind::STF => Some(TF::standard(data).ok()?.encode()),
         }
     }
 }
 
 // ----------------------------------------------------------------------------
 
-type LinearBarcodeCacheKey<'a> = (LinearBarcodeKind, &'a str);
-type LinearBarcodeCacheValue = Arc<Vec<u8>>;
+type BarcodeCacheKey<'a> = (BarcodeKind, &'a str);
+type BarcodeCacheValue = Arc<Vec<u8>>;
 
 #[derive(Default)]
-struct LinearBarcodeComputer;
+struct BarcodeComputer;
 
-impl<'a> ComputerMut<LinearBarcodeCacheKey<'a>, LinearBarcodeCacheValue> for LinearBarcodeComputer {
-    fn compute(&mut self, key: LinearBarcodeCacheKey) -> LinearBarcodeCacheValue {
+impl<'a> ComputerMut<BarcodeCacheKey<'a>, BarcodeCacheValue> for BarcodeComputer {
+    fn compute(&mut self, key: BarcodeCacheKey) -> BarcodeCacheValue {
         let (barcode_kind, value) = key;
         Arc::new(barcode_kind.encode(value).unwrap_or_default())
     }
 }
 
-type LinearBarcodeCache<'a> = FrameCache<LinearBarcodeCacheValue, LinearBarcodeComputer>;
+type BarcodeCache<'a> = FrameCache<BarcodeCacheValue, BarcodeComputer>;
 
 // ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct LinearBarcodeWidget<'a> {
+pub struct BarcodeWidget<'a> {
     value: &'a str,
-    barcode_kind: LinearBarcodeKind,
+    barcode_kind: BarcodeKind,
     horizontal_padding: f32,
     vertical_padding: f32,
     bar_width: usize,
@@ -83,11 +83,11 @@ pub struct LinearBarcodeWidget<'a> {
     background_color: Color32,
 }
 
-impl<'a> LinearBarcodeWidget<'a> {
+impl<'a> BarcodeWidget<'a> {
     pub fn new(value: &'a str) -> Self {
         Self {
             value,
-            barcode_kind: LinearBarcodeKind::Code39,
+            barcode_kind: BarcodeKind::Code39,
             bar_width: 2,
             bar_height: 64.0,
             horizontal_padding: 50.0,
@@ -100,7 +100,7 @@ impl<'a> LinearBarcodeWidget<'a> {
         }
     }
 
-    pub fn barcode_kind(mut self, barcode_kind: LinearBarcodeKind) -> Self {
+    pub fn barcode_kind(mut self, barcode_kind: BarcodeKind) -> Self {
         self.barcode_kind = barcode_kind;
         self
     }
@@ -151,11 +151,11 @@ impl<'a> LinearBarcodeWidget<'a> {
     }
 }
 
-impl<'a> Widget for LinearBarcodeWidget<'a> {
+impl<'a> Widget for BarcodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
         let barcode = {
             let mut memory = ui.memory();
-            let cache = memory.caches.cache::<LinearBarcodeCache<'_>>();
+            let cache = memory.caches.cache::<BarcodeCache<'_>>();
             cache.get((self.barcode_kind, self.value))
         };
 
