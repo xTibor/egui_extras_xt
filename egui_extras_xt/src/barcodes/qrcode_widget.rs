@@ -3,36 +3,28 @@ use std::sync::Arc;
 use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget};
 
-use datamatrix::placement::Bitmap;
-use datamatrix::{DataMatrix, SymbolList};
+use qrcode::{Color, QrCode};
 
 // ----------------------------------------------------------------------------
 
-type DataMatrixBarcodeCacheKey<'a> = &'a str;
-type DataMatrixBarcodeCacheValue = Arc<Bitmap<bool>>;
+type QrCodeCacheKey<'a> = &'a str;
+type QrCodeCacheValue = Arc<QrCode>;
 
 #[derive(Default)]
-struct DataMatrixBarcodeComputer;
+struct QrCodeComputer;
 
-impl<'a> ComputerMut<DataMatrixBarcodeCacheKey<'a>, DataMatrixBarcodeCacheValue>
-    for DataMatrixBarcodeComputer
-{
-    fn compute(&mut self, key: DataMatrixBarcodeCacheKey) -> DataMatrixBarcodeCacheValue {
-        Arc::new(
-            DataMatrix::encode_str(key, SymbolList::default())
-                .unwrap()
-                .bitmap(),
-        )
+impl<'a> ComputerMut<QrCodeCacheKey<'a>, QrCodeCacheValue> for QrCodeComputer {
+    fn compute(&mut self, key: QrCodeCacheKey) -> QrCodeCacheValue {
+        Arc::new(QrCode::new(key).unwrap())
     }
 }
 
-type DataMatrixBarcodeCache<'a> =
-    FrameCache<DataMatrixBarcodeCacheValue, DataMatrixBarcodeComputer>;
+type QrCodeCache<'a> = FrameCache<QrCodeCacheValue, QrCodeComputer>;
 
 // ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct DataMatrixBarcodeWidget<'a> {
+pub struct QrCodeWidget<'a> {
     value: &'a str,
     module_size: usize,
     quiet_zone: usize,
@@ -40,12 +32,12 @@ pub struct DataMatrixBarcodeWidget<'a> {
     background_color: Color32,
 }
 
-impl<'a> DataMatrixBarcodeWidget<'a> {
+impl<'a> QrCodeWidget<'a> {
     pub fn new(value: &'a str) -> Self {
         Self {
             value,
             module_size: 6,
-            quiet_zone: 1,
+            quiet_zone: 4,
             foreground_color: Color32::BLACK,
             background_color: Color32::WHITE,
         }
@@ -72,20 +64,18 @@ impl<'a> DataMatrixBarcodeWidget<'a> {
     }
 }
 
-impl<'a> Widget for DataMatrixBarcodeWidget<'a> {
+impl<'a> Widget for QrCodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let datamatrix = {
+        let qr_code = {
             let mut memory = ui.memory();
-            let cache = memory.caches.cache::<DataMatrixBarcodeCache<'_>>();
+            let cache = memory.caches.cache::<QrCodeCache<'_>>();
             cache.get(self.value)
         };
 
         let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();
 
-        let desired_size = vec2(
-            (datamatrix.width() + self.quiet_zone * 2) as f32,
-            (datamatrix.height() + self.quiet_zone * 2) as f32,
-        ) * module_size;
+        let desired_size =
+            Vec2::splat((qr_code.width() + self.quiet_zone * 2) as f32 * module_size);
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
@@ -97,8 +87,17 @@ impl<'a> Widget for DataMatrixBarcodeWidget<'a> {
                 Stroke::none(),
             );
 
-            datamatrix
-                .pixels()
+            qr_code
+                .to_colors()
+                .into_iter()
+                .enumerate()
+                .filter(|&(_module_index, module_value)| module_value == Color::Dark)
+                .map(|(module_index, _module_value)| {
+                    (
+                        module_index % qr_code.width(),
+                        module_index / qr_code.width(),
+                    )
+                })
                 .map(|(x, y)| {
                     Rect::from_min_size(
                         ui.painter().round_pos_to_pixels(

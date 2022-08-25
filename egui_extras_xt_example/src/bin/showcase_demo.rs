@@ -4,7 +4,7 @@ use eframe::epaint::Color32;
 use itertools::Itertools;
 
 use egui_extras_xt::barcodes::{
-    DataMatrixBarcodeWidget, LinearBarcodeKind, LinearBarcodeWidget, QrBarcodeWidget,
+    DataMatrixWidget, LinearBarcodeKind, LinearBarcodeWidget, QrCodeWidget,
 };
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::compasses::{
@@ -84,15 +84,15 @@ struct EguiExtrasXtExampleApp {
     linear_barcode_widget_label_height: f32,
     linear_barcode_widget_label_top_margin: f32,
 
-    // QrBarcodeWidget
-    qr_barcode_widget_value: String,
-    qr_barcode_widget_module_size: usize,
-    qr_barcode_widget_quiet_zone: usize,
+    // QrCodeWidget
+    qrcode_widget_value: String,
+    qrcode_widget_module_size: usize,
+    qrcode_widget_quiet_zone: usize,
 
-    // DataMatrixBarcodeWidget
-    datamatrix_barcode_widget_value: String,
-    datamatrix_barcode_widget_module_size: usize,
-    datamatrix_barcode_widget_quiet_zone: usize,
+    // DataMatrixWidget
+    datamatrix_widget_value: String,
+    datamatrix_widget_module_size: usize,
+    datamatrix_widget_quiet_zone: usize,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -165,15 +165,15 @@ impl Default for EguiExtrasXtExampleApp {
             linear_barcode_widget_label_height: 20.0,
             linear_barcode_widget_label_top_margin: 4.0,
 
-            // QrBarcodeWidget
-            qr_barcode_widget_value: String::from("123456789012"),
-            qr_barcode_widget_module_size: 6,
-            qr_barcode_widget_quiet_zone: 4,
+            // QrCodeWidget
+            qrcode_widget_value: String::from("123456789012"),
+            qrcode_widget_module_size: 6,
+            qrcode_widget_quiet_zone: 4,
 
-            // DataMatrixBarcodeWidget
-            datamatrix_barcode_widget_value: String::from("123456789012"),
-            datamatrix_barcode_widget_module_size: 6,
-            datamatrix_barcode_widget_quiet_zone: 4,
+            // DataMatrixWidget
+            datamatrix_widget_value: String::from("123456789012"),
+            datamatrix_widget_module_size: 6,
+            datamatrix_widget_quiet_zone: 4,
         }
     }
 }
@@ -317,45 +317,41 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.heading("DataMatrixBarcodeWidget");
+                ui.heading("DataMatrixWidget");
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
-                    ui.add(DragValue::new(
-                        &mut self.datamatrix_barcode_widget_module_size,
-                    ));
-                    ui.add(DragValue::new(
-                        &mut self.datamatrix_barcode_widget_quiet_zone,
-                    ));
+                    ui.add(DragValue::new(&mut self.datamatrix_widget_module_size));
+                    ui.add(DragValue::new(&mut self.datamatrix_widget_quiet_zone));
                 });
 
-                ui.text_edit_singleline(&mut self.datamatrix_barcode_widget_value);
+                ui.text_edit_singleline(&mut self.datamatrix_widget_value);
                 ui.add_space(8.0);
 
                 ui.add(
-                    DataMatrixBarcodeWidget::new(&self.datamatrix_barcode_widget_value)
-                        .module_size(self.datamatrix_barcode_widget_module_size)
-                        .quiet_zone(self.datamatrix_barcode_widget_quiet_zone),
+                    DataMatrixWidget::new(&self.datamatrix_widget_value)
+                        .module_size(self.datamatrix_widget_module_size)
+                        .quiet_zone(self.datamatrix_widget_quiet_zone),
                 );
 
                 ui.add_space(8.0);
                 ui.separator();
 
-                ui.heading("QrBarcodeWidget");
+                ui.heading("QrCodeWidget");
                 ui.add_space(8.0);
 
                 ui.horizontal(|ui| {
-                    ui.add(DragValue::new(&mut self.qr_barcode_widget_module_size));
-                    ui.add(DragValue::new(&mut self.qr_barcode_widget_quiet_zone));
+                    ui.add(DragValue::new(&mut self.qrcode_widget_module_size));
+                    ui.add(DragValue::new(&mut self.qrcode_widget_quiet_zone));
                 });
 
-                ui.text_edit_singleline(&mut self.qr_barcode_widget_value);
+                ui.text_edit_singleline(&mut self.qrcode_widget_value);
                 ui.add_space(8.0);
 
                 ui.add(
-                    QrBarcodeWidget::new(&self.qr_barcode_widget_value)
-                        .module_size(self.qr_barcode_widget_module_size)
-                        .quiet_zone(self.qr_barcode_widget_quiet_zone),
+                    QrCodeWidget::new(&self.qrcode_widget_value)
+                        .module_size(self.qrcode_widget_module_size)
+                        .quiet_zone(self.qrcode_widget_quiet_zone),
                 );
 
                 ui.add_space(8.0);

@@ -1,7 +1,7 @@
-mod datamatrix_barcode;
-mod linear_barcode;
-mod qr_barcode;
+mod datamatrix_widget;
+mod linear_barcode_widget;
+mod qrcode_widget;
 
-pub use datamatrix_barcode::DataMatrixBarcodeWidget;
-pub use linear_barcode::{LinearBarcodeKind, LinearBarcodeWidget};
-pub use qr_barcode::QrBarcodeWidget;
+pub use datamatrix_widget::DataMatrixWidget;
+pub use linear_barcode_widget::{LinearBarcodeKind, LinearBarcodeWidget};
+pub use qrcode_widget::QrCodeWidget;
