@@ -3,7 +3,9 @@ use eframe::epaint::Color32;
 
 use itertools::Itertools;
 
-use egui_extras_xt::barcodes::{LinearBarcodeKind, LinearBarcodeWidget, QrBarcodeWidget};
+use egui_extras_xt::barcodes::{
+    DataMatrixBarcodeWidget, LinearBarcodeKind, LinearBarcodeWidget, QrBarcodeWidget,
+};
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::compasses::{
     CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass, PolarCompassOverflow,
@@ -86,6 +88,11 @@ struct EguiExtrasXtExampleApp {
     qr_barcode_widget_value: String,
     qr_barcode_widget_module_size: usize,
     qr_barcode_widget_quiet_zone: usize,
+
+    // DataMatrixBarcodeWidget
+    datamatrix_barcode_widget_value: String,
+    datamatrix_barcode_widget_module_size: usize,
+    datamatrix_barcode_widget_quiet_zone: usize,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -162,6 +169,11 @@ impl Default for EguiExtrasXtExampleApp {
             qr_barcode_widget_value: String::from("123456789012"),
             qr_barcode_widget_module_size: 6,
             qr_barcode_widget_quiet_zone: 4,
+
+            // DataMatrixBarcodeWidget
+            datamatrix_barcode_widget_value: String::from("123456789012"),
+            datamatrix_barcode_widget_module_size: 6,
+            datamatrix_barcode_widget_quiet_zone: 4,
         }
     }
 }
@@ -305,6 +317,30 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("DataMatrixBarcodeWidget");
+                ui.add_space(8.0);
+
+                ui.horizontal(|ui| {
+                    ui.add(DragValue::new(
+                        &mut self.datamatrix_barcode_widget_module_size,
+                    ));
+                    ui.add(DragValue::new(
+                        &mut self.datamatrix_barcode_widget_quiet_zone,
+                    ));
+                });
+
+                ui.text_edit_singleline(&mut self.datamatrix_barcode_widget_value);
+                ui.add_space(8.0);
+
+                ui.add(
+                    DataMatrixBarcodeWidget::new(&self.datamatrix_barcode_widget_value)
+                        .module_size(self.datamatrix_barcode_widget_module_size)
+                        .quiet_zone(self.datamatrix_barcode_widget_quiet_zone),
+                );
+
+                ui.add_space(8.0);
+                ui.separator();
+
                 ui.heading("QrBarcodeWidget");
                 ui.add_space(8.0);
 
