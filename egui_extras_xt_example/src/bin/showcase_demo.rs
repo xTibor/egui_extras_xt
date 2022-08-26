@@ -13,6 +13,7 @@ use egui_extras_xt::displays::{
     SegmentedDisplayWidget,
 };
 use egui_extras_xt::knobs::{AngleKnob, AudioKnob, ThumbstickKnob};
+use egui_extras_xt::ui::hyperlink_with_icon::HyperlinkWithIcon;
 
 struct EguiExtrasXtExampleApp {
     // Common properties
@@ -91,6 +92,9 @@ struct EguiExtrasXtExampleApp {
     datamatrix_widget_value: String,
     datamatrix_widget_module_size: usize,
     datamatrix_widget_quiet_zone: usize,
+
+    // HyperlinkWithIcon
+    hyperlink_with_icon_url: String,
 }
 
 impl Default for EguiExtrasXtExampleApp {
@@ -172,6 +176,9 @@ impl Default for EguiExtrasXtExampleApp {
             datamatrix_widget_value: String::from("123456789012"),
             datamatrix_widget_module_size: 6,
             datamatrix_widget_quiet_zone: 1,
+
+            // HyperlinkWithIcon
+            hyperlink_with_icon_url: String::from("https://github.com/xTibor/egui_extras_xt"),
         }
     }
 }
@@ -315,6 +322,15 @@ impl eframe::App for EguiExtrasXtExampleApp {
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.heading("HyperlinkWithIcon");
+                ui.add_space(8.0);
+
+                ui.text_edit_singleline(&mut self.hyperlink_with_icon_url);
+                ui.hyperlink_with_icon(&self.hyperlink_with_icon_url);
+
+                ui.add_space(8.0);
+                ui.separator();
+
                 ui.heading("DataMatrixWidget");
                 ui.add_space(8.0);
 

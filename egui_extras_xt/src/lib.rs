@@ -13,3 +13,6 @@ pub mod displays;
 
 #[cfg(feature = "knobs")]
 pub mod knobs;
+
+#[cfg(feature = "ui")]
+pub mod ui;
