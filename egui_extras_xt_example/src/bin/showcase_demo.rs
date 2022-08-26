@@ -171,7 +171,7 @@ impl Default for EguiExtrasXtExampleApp {
             // DataMatrixWidget
             datamatrix_widget_value: String::from("123456789012"),
             datamatrix_widget_module_size: 6,
-            datamatrix_widget_quiet_zone: 4,
+            datamatrix_widget_quiet_zone: 1,
         }
     }
 }
