@@ -5,62 +5,68 @@ pub trait HyperlinkWithIcon {
     fn hyperlink_with_icon_to(&mut self, label: impl ToString, url: impl ToString) -> Response;
 }
 
+#[rustfmt::skip]
 fn hyperlink_icon(url: &str) -> char {
     for &(u, icon) in &[
         // Warnings
-        ("ftp:", '\u{26A0}'),
-        ("http:", '\u{26A0}'),
+        ("ftp:",       '\u{26A0}' ),
+        ("http:",      '\u{26A0}' ),
+
         // URI schemes
-        ("fb:", '\u{E604}'),
-        ("file:", '\u{1F5C1}'),
-        ("geo:", '\u{1F5FA}'),
-        ("git:", '\u{E625}'),
-        ("irc:", '\u{1F4AC}'),
-        ("irc6:", '\u{1F4AC}'),
-        ("ircs:", '\u{1F4AC}'),
-        ("itms-apps:", '\u{F8FF}'),
-        ("mailto:", '\u{1F4E7}'),
-        ("maps:", '\u{1F5FA}'),
-        ("market:", '\u{E618}'),
-        ("message:", '\u{1F4E7}'),
-        ("ms-", '\u{E61F}'), // Not a typo.
-        ("nfs:", '\u{1F5C1}'),
-        ("sftp:", '\u{1F5C1}'),
-        ("skype:", '\u{E613}'),
-        ("sms:", '\u{2709}'),
-        ("ssh:", '\u{1F5A5}'),
-        ("steam:", '\u{E623}'),
-        ("tel:", '\u{1F4DE}'),
+        ("fb:",        '\u{E604}' ),
+        ("file:",      '\u{1F5C1}'),
+        ("geo:",       '\u{1F5FA}'),
+        ("git:",       '\u{E625}' ),
+        ("irc:",       '\u{1F4AC}'),
+        ("irc6:",      '\u{1F4AC}'),
+        ("ircs:",      '\u{1F4AC}'),
+        ("itms-apps:", '\u{F8FF}' ),
+        ("mailto:",    '\u{1F4E7}'),
+        ("maps:",      '\u{1F5FA}'),
+        ("market:",    '\u{E618}' ),
+        ("message:",   '\u{1F4E7}'),
+        ("ms-",        '\u{E61F}' ), // Not a typo.
+        ("nfs:",       '\u{1F5C1}'),
+        ("sftp:",      '\u{1F5C1}'),
+        ("skype:",     '\u{E613}' ),
+        ("sms:",       '\u{2709}' ),
+        ("ssh:",       '\u{1F5A5}'),
+        ("steam:",     '\u{E623}' ),
+        ("tel:",       '\u{1F4DE}'),
+
         // Websites
-        ("https://apps.apple.com/", '\u{F8FF}'),
-        ("https://crates.io/", '\u{1F4E6}'),
-        ("https://drive.google.com/", '\u{E62F}'),
-        ("https://play.google.com/store/apps/", '\u{E618}'),
-        ("https://soundcloud.com/", '\u{E627}'),
-        ("https://stackoverflow.com/", '\u{E601}'),
-        ("https://steamcommunity.com/", '\u{E623}'),
-        ("https://store.steampowered.com/", '\u{E623}'),
-        ("https://twitter.com/", '\u{E603}'),
-        ("https://vimeo.com/", '\u{E602}'),
-        ("https://www.dropbox.com/", '\u{E610}'),
-        ("https://www.facebook.com/", '\u{E604}'),
-        ("https://www.instagram.com/", '\u{E60F}'),
-        ("https://www.paypal.com/", '\u{E616}'),
-        ("https://www.youtube.com/", '\u{E636}'),
-        ("https://youtu.be/", '\u{E636}'),
+        ("https://apps.apple.com/",             '\u{F8FF}' ),
+        ("https://crates.io/",                  '\u{1F4E6}'),
+        ("https://drive.google.com/",           '\u{E62F}' ),
+        ("https://play.google.com/store/apps/", '\u{E618}' ),
+        ("https://soundcloud.com/",             '\u{E627}' ),
+        ("https://stackoverflow.com/",          '\u{E601}' ),
+        ("https://steamcommunity.com/",         '\u{E623}' ),
+        ("https://store.steampowered.com/",     '\u{E623}' ),
+        ("https://twitter.com/",                '\u{E603}' ),
+        ("https://vimeo.com/",                  '\u{E602}' ),
+        ("https://www.dropbox.com/",            '\u{E610}' ),
+        ("https://www.facebook.com/",           '\u{E604}' ),
+        ("https://www.instagram.com/",          '\u{E60F}' ),
+        ("https://www.paypal.com/",             '\u{E616}' ),
+        ("https://www.youtube.com/",            '\u{E636}' ),
+        ("https://youtu.be/",                   '\u{E636}' ),
+
         // Generic git rules
-        ("https://git.", '\u{E625}'),
-        ("https://cgit.", '\u{E625}'),
-        ("https://gitlab.", '\u{E625}'),
+        ("https://git.",                        '\u{E625}' ),
+        ("https://cgit.",                       '\u{E625}' ),
+        ("https://gitlab.",                     '\u{E625}' ),
+
         // Non-exhaustive list of some git instances not covered by the generic rules
-        ("https://bitbucket.org/", '\u{E625}'),
-        ("https://code.qt.io/", '\u{E625}'),
-        ("https://code.videolan.org/", '\u{E625}'),
-        ("https://framagit.org/", '\u{E625}'),
-        ("https://gitee.com/", '\u{E625}'),
-        ("https://github.com/", '\u{E624}'),
-        ("https://invent.kde.org/", '\u{E625}'),
-        ("https://salsa.debian.org/", '\u{E625}'),
+        ("https://bitbucket.org/",              '\u{E625}' ),
+        ("https://code.qt.io/",                 '\u{E625}' ),
+        ("https://code.videolan.org/",          '\u{E625}' ),
+        ("https://framagit.org/",               '\u{E625}' ),
+        ("https://gitee.com/",                  '\u{E625}' ),
+        ("https://github.com/",                 '\u{E624}' ),
+        ("https://invent.kde.org/",             '\u{E625}' ),
+        ("https://salsa.debian.org/",           '\u{E625}' ),
+
         // Discord and friends have no symbols in the default emoji font.
     ] {
         if url.starts_with(u) {
@@ -70,8 +76,8 @@ fn hyperlink_icon(url: &str) -> char {
 
     if url.starts_with("https://") {
         for &(u, icon) in &[
-            (".github.io/", '\u{E624}'),
-            (".gitlab.io/", '\u{E625}'),
+            (".github.io/",  '\u{E624}'),
+            (".gitlab.io/",  '\u{E625}'),
             (".reddit.com/", '\u{E628}'),
         ] {
             if url.contains(u) {
