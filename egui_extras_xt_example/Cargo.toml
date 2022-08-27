@@ -2,8 +2,12 @@
 name = "egui_extras_xt_example"
 version = "0.1.0"
 authors = ["Nagy Tibor <xnagytibor@protonmail.com>"]
+description = "Demo applications for egui_extras_xt"
 license = "MIT"
 edition = "2021"
+repository = "https://github.com/xTibor/egui_extras_xt"
+homepage = "https://github.com/xTibor/egui_extras_xt"
+publish = false
 
 default-run = "showcase_demo"
 

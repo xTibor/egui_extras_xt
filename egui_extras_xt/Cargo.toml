@@ -2,8 +2,14 @@
 name = "egui_extras_xt"
 version = "0.1.0"
 authors = ["Nagy Tibor <xnagytibor@protonmail.com>"]
+description = "Widget library for egui"
 license = "MIT"
 edition = "2021"
+repository = "https://github.com/xTibor/egui_extras_xt"
+homepage = "https://github.com/xTibor/egui_extras_xt"
+categories = ["gui"]
+keywords = ["ui", "gui", "egui", "widgets", "interface"]
+publish = false
 
 [badges]
 maintenance = { status = "as-is" }
