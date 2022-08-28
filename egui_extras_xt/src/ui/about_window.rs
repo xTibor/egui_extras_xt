@@ -12,6 +12,7 @@ pub struct PackageInfo {
     pub homepage: Option<&'static str>,
     pub repository: Option<&'static str>,
     pub license: Option<&'static str>,
+    pub license_file: Option<&'static str>,
 }
 
 #[macro_export]
@@ -31,9 +32,10 @@ macro_rules! package_info {
             version: env!("CARGO_PKG_VERSION"),
             authors: env!("CARGO_PKG_AUTHORS"),
             description: option_env_some!("CARGO_PKG_DESCRIPTION"),
-            license: option_env_some!("CARGO_PKG_LICENSE"),
             homepage: option_env_some!("CARGO_PKG_HOMEPAGE"),
             repository: option_env_some!("CARGO_PKG_REPOSITORY"),
+            license: option_env_some!("CARGO_PKG_LICENSE"),
+            license_file: option_env_some!("CARGO_PKG_LICENSE_FILE"),
         }
     }};
 }
@@ -116,6 +118,13 @@ pub fn show_about_window_impl(ctx: &Context, open: &mut bool, package_info: Pack
                 if let Some(license) = package_info.license {
                     ui.separator();
                     ui.label(format!("License: {license:}"));
+                };
+
+                if let Some(license_file) = package_info.license_file {
+                    ui.separator();
+                    ui.label(format!(
+                        "License: See the {license_file:} file for details."
+                    ));
                 };
             });
         });
