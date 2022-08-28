@@ -1,4 +1,4 @@
-use egui::{Context, Window};
+use egui::{Context, Vec2, Window};
 
 use crate::ui::hyperlink_with_icon::HyperlinkWithIcon;
 
@@ -117,7 +117,22 @@ pub fn show_about_window_impl(ctx: &Context, open: &mut bool, package_info: Pack
                 // Always do `cargo clean` + full rebuild when changing Cargo.toml metadata.
                 if let Some(license) = package_info.license {
                     ui.separator();
-                    ui.label(format!("License: {license:}"));
+                    ui.horizontal(|ui| {
+                        ui.spacing_mut().item_spacing = Vec2::splat(0.0);
+                        ui.label("License: ");
+
+                        license.split_whitespace().for_each(|s| match s {
+                            operator @ ("OR" | "AND" | "WITH") => {
+                                ui.label(format!(" {} ", operator.to_lowercase()));
+                            }
+                            license => {
+                                ui.hyperlink_with_icon_to(
+                                    license,
+                                    format!("https://spdx.org/licenses/{license:}.html"),
+                                );
+                            }
+                        });
+                    });
                 };
 
                 if let Some(license_file) = package_info.license_file {
