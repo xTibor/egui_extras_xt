@@ -3,21 +3,16 @@ use eframe::emath::vec2;
 
 use egui_extras_xt::show_about_window;
 
+#[derive(Default)]
 struct AboutDemoApp {
     about_open: bool,
-}
-
-impl Default for AboutDemoApp {
-    fn default() -> Self {
-        Self { about_open: false }
-    }
 }
 
 impl eframe::App for AboutDemoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             if ui.button("About").clicked() {
-                self.about_open = true;
+                self.about_open = !self.about_open;
             }
         });
 
