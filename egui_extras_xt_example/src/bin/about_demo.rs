@@ -2,7 +2,7 @@ use eframe::egui::{self, Style, Visuals};
 use eframe::emath::vec2;
 use egui_extras_xt::ui::hyperlink_with_icon::HyperlinkWithIcon;
 
-struct CargoPkgInfo {
+struct PackageInfo {
     name: &'static str,
     version: &'static str,
     authors: &'static str,
@@ -21,9 +21,9 @@ macro_rules! option_env_some {
     };
 }
 
-macro_rules! cargo_pkg_info {
+macro_rules! package_info {
     ( ) => {
-        CargoPkgInfo {
+        PackageInfo {
             name: env!("CARGO_PKG_NAME"),
             version: env!("CARGO_PKG_VERSION"),
             authors: env!("CARGO_PKG_AUTHORS"),
@@ -35,7 +35,7 @@ macro_rules! cargo_pkg_info {
     };
 }
 
-impl CargoPkgInfo {
+impl PackageInfo {
     fn authors(&self) -> impl Iterator<Item = (&'static str, Option<&'static str>)> {
         self.authors.split(':').map(|author_line| {
             let author_parts = author_line
@@ -48,76 +48,84 @@ impl CargoPkgInfo {
 }
 
 struct AboutDemoApp {
-    pkg_info: CargoPkgInfo,
+    package_info: PackageInfo,
+    about_open: bool,
 }
 
 impl Default for AboutDemoApp {
     fn default() -> Self {
         Self {
-            pkg_info: cargo_pkg_info!(),
+            package_info: package_info!(),
+            about_open: false,
         }
     }
 }
 
 impl eframe::App for AboutDemoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {});
-
-        egui::Window::new("About").show(ctx, |ui| {
-            ui.heading(self.pkg_info.name);
-            ui.label(format!("Version {}", self.pkg_info.version));
-
-            ui.separator();
-
-            if let Some(description) = self.pkg_info.description {
-                ui.label(description);
-                ui.separator();
+        egui::CentralPanel::default().show(ctx, |ui| {
+            if ui.button("About").clicked() {
+                self.about_open = true;
             }
+        });
 
-            ui.horizontal(|ui| {
-                if let Some(homepage) = self.pkg_info.homepage {
-                    ui.hyperlink_with_icon_to("Home page", homepage);
+        egui::Window::new("About")
+            .open(&mut self.about_open)
+            .show(ctx, |ui| {
+                ui.heading(self.package_info.name);
+                ui.label(format!("Version {}", self.package_info.version));
+
+                ui.separator();
+
+                if let Some(description) = self.package_info.description {
+                    ui.label(description);
+                    ui.separator();
                 }
 
-                if let Some(repository) = self.pkg_info.repository {
-                    ui.hyperlink_with_icon_to("Repository", repository);
-                }
-            });
-
-            ui.separator();
-
-            ui.collapsing("Authors", |ui| {
                 ui.horizontal(|ui| {
-                    for (author_name, author_email) in self.pkg_info.authors() {
-                        if let Some(author_email) = author_email {
-                            if !["noreply@", "no-reply@", "@users.noreply."]
-                                .iter()
-                                .any(|no_reply| author_email.contains(no_reply))
-                            {
-                                ui.hyperlink_with_icon_to(
-                                    author_name,
-                                    format!("mailto:{author_email:}"),
-                                );
-                            } else {
-                                ui.label(author_name);
-                            }
-                        } else {
-                            ui.label(author_name);
-                        }
+                    if let Some(homepage) = self.package_info.homepage {
+                        ui.hyperlink_with_icon_to("Home page", homepage);
+                    }
+
+                    if let Some(repository) = self.package_info.repository {
+                        ui.hyperlink_with_icon_to("Repository", repository);
                     }
                 });
 
-                // (!) Rust incremental compilation bug:
-                // When the 'license' field is changed in the crate's Cargo.toml,
-                // source files that include that field through `env!()` macros
-                // are not picked up for recompilation.
-                // Always do `cargo clean` + full rebuild when changing Cargo.toml metadata.
-                if let Some(license) = &self.pkg_info.license {
-                    ui.separator();
-                    ui.label(format!("License: {license:}"));
-                };
+                ui.separator();
+
+                ui.collapsing("Authors", |ui| {
+                    ui.horizontal(|ui| {
+                        for (author_name, author_email) in self.package_info.authors() {
+                            if let Some(author_email) = author_email {
+                                if !["noreply@", "no-reply@", "@users.noreply."]
+                                    .iter()
+                                    .any(|no_reply| author_email.contains(no_reply))
+                                {
+                                    ui.hyperlink_with_icon_to(
+                                        author_name,
+                                        format!("mailto:{author_email:}"),
+                                    );
+                                } else {
+                                    ui.label(author_name);
+                                }
+                            } else {
+                                ui.label(author_name);
+                            }
+                        }
+                    });
+
+                    // (!) Rust incremental compilation bug:
+                    // When the 'license' field is changed in the crate's Cargo.toml,
+                    // source files that include that field through `env!()` macros
+                    // are not picked up for recompilation.
+                    // Always do `cargo clean` + full rebuild when changing Cargo.toml metadata.
+                    if let Some(license) = &self.package_info.license {
+                        ui.separator();
+                        ui.label(format!("License: {license:}"));
+                    };
+                });
             });
-        });
     }
 }
 
