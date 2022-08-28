@@ -1,9 +1,9 @@
 mod display_metrics;
 mod widget;
 
-pub mod nine_segment;
-pub mod seven_segment;
-pub mod sixteen_segment;
+mod nine_segment;
+mod seven_segment;
+mod sixteen_segment;
 
 pub use display_metrics::{DisplayMetrics, DisplayMetricsPreset};
 pub use widget::SegmentedDisplayWidget;
@@ -33,7 +33,7 @@ pub enum DisplayKind {
 }
 
 impl DisplayKind {
-    pub fn display_impl(&self) -> Box<dyn DisplayImpl> {
+    pub(crate) fn display_impl(&self) -> Box<dyn DisplayImpl> {
         match *self {
             DisplayKind::SevenSegment => Box::new(seven_segment::SevenSegment),
             DisplayKind::NineSegment => Box::new(nine_segment::NineSegment),
@@ -44,9 +44,9 @@ impl DisplayKind {
 
 // ----------------------------------------------------------------------------
 
-pub type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
+pub(crate) type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
 
-pub trait DisplayImpl {
+pub(crate) trait DisplayImpl {
     fn glyph(&self, c: char) -> Option<DisplayGlyph>;
 
     fn geometry(

@@ -4,6 +4,7 @@ use crate::ui::hyperlink_with_icon::HyperlinkWithIcon;
 
 // ----------------------------------------------------------------------------
 
+#[doc(hidden)]
 pub struct PackageInfo {
     pub name: &'static str,
     pub version: &'static str,
@@ -15,6 +16,7 @@ pub struct PackageInfo {
     pub license_file: Option<&'static str>,
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! package_info {
     () => {{
@@ -61,6 +63,7 @@ macro_rules! show_about_window {
     }};
 }
 
+#[doc(hidden)]
 pub fn show_about_window_impl(ctx: &Context, open: &mut bool, package_info: PackageInfo) {
     Window::new("About")
         .open(open)

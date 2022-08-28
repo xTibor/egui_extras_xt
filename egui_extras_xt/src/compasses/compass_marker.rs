@@ -9,6 +9,7 @@ use crate::hash::PearsonHash;
 
 // ----------------------------------------------------------------------------
 
+#[non_exhaustive]
 pub enum DefaultCompassMarkerColor {
     System,
     Fixed(Color32),
@@ -17,7 +18,7 @@ pub enum DefaultCompassMarkerColor {
 }
 
 impl DefaultCompassMarkerColor {
-    pub fn color(&self, ui: &Ui, marker: &CompassMarker) -> Color32 {
+    pub(crate) fn color(&self, ui: &Ui, marker: &CompassMarker) -> Color32 {
         match *self {
             DefaultCompassMarkerColor::System => ui.style().visuals.text_color(),
             DefaultCompassMarkerColor::Fixed(color) => color,
@@ -37,11 +38,11 @@ impl DefaultCompassMarkerColor {
 // ----------------------------------------------------------------------------
 
 pub struct CompassMarker<'a> {
-    pub angle: f32,
-    pub distance: Option<f32>,
-    pub shape: Option<CompassMarkerShape>,
-    pub label: Option<&'a str>,
-    pub color: Option<Color32>,
+    pub(crate) angle: f32,
+    pub(crate) distance: Option<f32>,
+    pub(crate) shape: Option<CompassMarkerShape>,
+    pub(crate) label: Option<&'a str>,
+    pub(crate) color: Option<Color32>,
 }
 
 impl<'a> CompassMarker<'a> {
@@ -93,7 +94,7 @@ pub enum CompassMarkerShape {
 }
 
 impl CompassMarkerShape {
-    pub fn paint(&self, ui: &mut Ui, rect: Rect, fill: Color32, stroke: Stroke) {
+    pub(crate) fn paint(&self, ui: &mut Ui, rect: Rect, fill: Color32, stroke: Stroke) {
         match *self {
             CompassMarkerShape::Square => {
                 ui.painter().rect(rect, 0.0, fill, stroke);

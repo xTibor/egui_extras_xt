@@ -219,7 +219,7 @@ impl WidgetShape<'_> {
 
 // ----------------------------------------------------------------------------
 
-pub fn paint_ellipse(
+pub(crate) fn paint_ellipse(
     ui: &mut Ui,
     center: Pos2,
     size: Vec2,
@@ -240,7 +240,7 @@ pub fn paint_ellipse(
 
 // ----------------------------------------------------------------------------
 
-pub fn snap_wrap_constrain_angle(
+pub(crate) fn snap_wrap_constrain_angle(
     prev_value: f32,
     mut new_value: f32,
     snap: Option<f32>,
@@ -285,12 +285,12 @@ pub fn snap_wrap_constrain_angle(
 // ----------------------------------------------------------------------------
 
 /// Wrap angle to `(0..TAU)` range.
-pub fn normalized_angle_unsigned_excl(angle: f32) -> f32 {
+pub(crate) fn normalized_angle_unsigned_excl(angle: f32) -> f32 {
     ((angle % TAU) + TAU) % TAU
 }
 
 /// Wrap angle to `(0..=TAU)` range.
-pub fn normalized_angle_unsigned_incl(angle: f32) -> f32 {
+pub(crate) fn normalized_angle_unsigned_incl(angle: f32) -> f32 {
     if angle < 0.0 {
         ((angle % TAU) + TAU) % TAU
     } else if angle > TAU {
@@ -302,7 +302,7 @@ pub fn normalized_angle_unsigned_incl(angle: f32) -> f32 {
 
 // ----------------------------------------------------------------------------
 
-pub trait SymLog {
+pub(crate) trait SymLog {
     fn symlog(&self, base: Self) -> Self;
 }
 
