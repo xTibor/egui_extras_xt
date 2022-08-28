@@ -105,10 +105,10 @@ pub fn show_about_window_impl(ctx: &Context, open: &mut bool, package_info: Pack
                                     format!("mailto:{author_email:}"),
                                 );
                             } else {
-                                ui.label(author_name);
+                                ui.label(format!("\u{1F464} {author_name:}"));
                             }
                         } else {
-                            ui.label(author_name);
+                            ui.label(format!("\u{1F464} {author_name:}"));
                         }
                     }
                 });
