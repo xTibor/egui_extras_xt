@@ -11,9 +11,7 @@ struct AboutDemoApp {
 impl eframe::App for AboutDemoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            if ui.button("About").clicked() {
-                self.about_open = !self.about_open;
-            }
+            ui.toggle_value(&mut self.about_open, "About");
         });
 
         show_about_window!(ctx, &mut self.about_open);
