@@ -1,4 +1,4 @@
-use eframe::egui::{self, global_dark_light_mode_switch, DragValue, Style, Visuals};
+use eframe::egui::{self, global_dark_light_mode_switch, DragValue};
 use eframe::epaint::Color32;
 
 use itertools::Itertools;
@@ -890,13 +890,6 @@ fn main() {
     eframe::run_native(
         "Knobs",
         options,
-        Box::new(|cc| {
-            cc.egui_ctx.set_style(Style {
-                visuals: Visuals::dark(),
-                ..Style::default()
-            });
-
-            Box::new(EguiExtrasXtExampleApp::default())
-        }),
+        Box::new(|_| Box::new(EguiExtrasXtExampleApp::default())),
     );
 }

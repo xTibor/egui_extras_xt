@@ -1,4 +1,4 @@
-use eframe::egui::{self, Style, Visuals};
+use eframe::egui;
 use eframe::emath::vec2;
 use egui_extras_xt::displays::{DisplayStylePreset, LedDisplay, SegmentedDisplayWidget};
 
@@ -152,13 +152,6 @@ fn main() {
     eframe::run_native(
         "DeLorean Time Machine",
         options,
-        Box::new(|cc| {
-            cc.egui_ctx.set_style(Style {
-                visuals: Visuals::dark(),
-                ..Style::default()
-            });
-
-            Box::new(DeLoreanDemoApp::default())
-        }),
+        Box::new(|_| Box::new(DeLoreanDemoApp::default())),
     );
 }

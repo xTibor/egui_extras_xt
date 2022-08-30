@@ -1,4 +1,4 @@
-use eframe::egui::{self, Style, Visuals};
+use eframe::egui::{self};
 use eframe::emath::vec2;
 use eframe::epaint::Vec2;
 
@@ -114,13 +114,6 @@ fn main() {
     eframe::run_native(
         "SegmentedDisplay Glyph Editor",
         options,
-        Box::new(|cc| {
-            cc.egui_ctx.set_style(Style {
-                visuals: Visuals::dark(),
-                ..Style::default()
-            });
-
-            Box::new(GlyphEditorApp::default())
-        }),
+        Box::new(|_| Box::new(GlyphEditorApp::default())),
     );
 }

@@ -1,4 +1,4 @@
-use eframe::egui::{self, Style, Visuals};
+use eframe::egui;
 use eframe::emath::vec2;
 
 use egui_extras_xt::show_about_window;
@@ -27,13 +27,6 @@ fn main() {
     eframe::run_native(
         "About demo",
         options,
-        Box::new(|cc| {
-            cc.egui_ctx.set_style(Style {
-                visuals: Visuals::dark(),
-                ..Style::default()
-            });
-
-            Box::new(AboutDemoApp::default())
-        }),
+        Box::new(|_| Box::new(AboutDemoApp::default())),
     );
 }
