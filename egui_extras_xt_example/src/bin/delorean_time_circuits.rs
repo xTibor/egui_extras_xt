@@ -1,36 +1,37 @@
 use eframe::egui;
 use eframe::emath::vec2;
+
 use egui_extras_xt::displays::{DisplayStylePreset, LedDisplay, SegmentedDisplayWidget};
 
-struct DeLoreanDateTime<'a>(&'a str, usize, usize, bool, usize, usize);
+struct DateTime(String, usize, usize, bool, usize, usize);
 
-struct TimeCircuitSegment<'a> {
+struct TimeCircuitSegment {
     label: String,
-    datetime: DeLoreanDateTime<'a>,
+    datetime: DateTime,
     style_preset: DisplayStylePreset,
 }
 
-struct DeLoreanDemoApp<'a> {
-    time_circuit_segments: Vec<TimeCircuitSegment<'a>>,
+struct TimeCircuitsExample {
+    time_circuit_segments: Vec<TimeCircuitSegment>,
 }
 
-impl<'a> Default for DeLoreanDemoApp<'a> {
+impl<'a> Default for TimeCircuitsExample {
     fn default() -> Self {
         Self {
             time_circuit_segments: vec![
                 TimeCircuitSegment {
                     label: "DESTINATION TIME".to_owned(),
-                    datetime: DeLoreanDateTime("JAN", 1, 1885, true, 12, 0),
+                    datetime: DateTime("JAN".to_owned(), 1, 1885, true, 12, 0),
                     style_preset: DisplayStylePreset::DeLoreanRed,
                 },
                 TimeCircuitSegment {
                     label: "PRESENT TIME".to_owned(),
-                    datetime: DeLoreanDateTime("NOV", 12, 1955, false, 9, 28),
+                    datetime: DateTime("NOV".to_owned(), 12, 1955, false, 9, 28),
                     style_preset: DisplayStylePreset::DeLoreanGreen,
                 },
                 TimeCircuitSegment {
                     label: "LAST TIME DEPARTED".to_owned(),
-                    datetime: DeLoreanDateTime("OCT", 27, 1985, true, 2, 42),
+                    datetime: DateTime("OCT".to_owned(), 27, 1985, true, 2, 42),
                     style_preset: DisplayStylePreset::DeLoreanAmber,
                 },
             ],
@@ -38,12 +39,12 @@ impl<'a> Default for DeLoreanDemoApp<'a> {
     }
 }
 
-impl<'a> eframe::App for DeLoreanDemoApp<'a> {
+impl eframe::App for TimeCircuitsExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             for TimeCircuitSegment {
                 label,
-                datetime: DeLoreanDateTime(month, day, year, ampm, hour, minute),
+                datetime: DateTime(month, day, year, ampm, hour, minute),
                 style_preset,
             } in &self.time_circuit_segments
             {
@@ -145,13 +146,13 @@ impl<'a> eframe::App for DeLoreanDemoApp<'a> {
 
 fn main() {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(1000.0, 500.0)),
+        initial_window_size: Some(vec2(878.0, 422.0)),
         ..Default::default()
     };
 
     eframe::run_native(
-        "DeLorean Time Machine",
+        "DeLorean Time Circuits",
         options,
-        Box::new(|_| Box::new(DeLoreanDemoApp::default())),
+        Box::new(|_| Box::new(TimeCircuitsExample::default())),
     );
 }
