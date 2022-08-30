@@ -4,17 +4,17 @@ use eframe::emath::vec2;
 use egui_extras_xt::show_about_window;
 
 #[derive(Default)]
-struct AboutDemoApp {
-    about_open: bool,
+struct AboutWindowExample {
+    about_window_open: bool,
 }
 
-impl eframe::App for AboutDemoApp {
+impl eframe::App for AboutWindowExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.toggle_value(&mut self.about_open, "About");
+            ui.toggle_value(&mut self.about_window_open, "About");
         });
 
-        show_about_window!(ctx, &mut self.about_open);
+        show_about_window!(ctx, &mut self.about_window_open);
     }
 }
 
@@ -25,8 +25,8 @@ fn main() {
     };
 
     eframe::run_native(
-        "About demo",
+        "About Window Example",
         options,
-        Box::new(|_| Box::new(AboutDemoApp::default())),
+        Box::new(|_| Box::new(AboutWindowExample::default())),
     );
 }
