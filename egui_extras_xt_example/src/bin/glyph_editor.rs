@@ -23,12 +23,6 @@ impl eframe::App for GlyphEditorApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.heading("SegmentedDisplay Glyph Editor");
-            });
-
-            ui.separator();
-
-            ui.horizontal(|ui| {
                 ui.add(
                     SegmentedDisplayWidget::new(self.display_kind)
                         .digit_height(192.0)
@@ -107,12 +101,12 @@ impl eframe::App for GlyphEditorApp {
 
 fn main() {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(570.0, 450.0)),
+        initial_window_size: Some(vec2(570.0, 410.0)),
         ..Default::default()
     };
 
     eframe::run_native(
-        "SegmentedDisplay Glyph Editor",
+        "Glyph Editor",
         options,
         Box::new(|_| Box::new(GlyphEditorApp::default())),
     );
