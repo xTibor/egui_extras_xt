@@ -19,4 +19,3 @@ egui_extras_xt = { path = "../egui_extras_xt/", features = ["barcodes", "knobs",
 
 eframe = "0.19.0"
 itertools = "0.10.3"
-lazy_static = "1.4.0"
