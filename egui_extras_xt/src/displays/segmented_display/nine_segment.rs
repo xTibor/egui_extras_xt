@@ -9,6 +9,10 @@ use crate::displays::segmented_display::{DisplayGlyph, DisplayImpl, SegmentGeome
 pub struct NineSegment;
 
 impl DisplayImpl for NineSegment {
+    fn segment_count(&self) -> usize {
+        9
+    }
+
     fn glyph(&self, c: char) -> Option<DisplayGlyph> {
         #[rustfmt::skip]
         const GLYPH_DATA: &[(char, DisplayGlyph)] = &[

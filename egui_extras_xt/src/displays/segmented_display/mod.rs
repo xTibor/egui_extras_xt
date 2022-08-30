@@ -40,6 +40,10 @@ impl DisplayKind {
             DisplayKind::SixteenSegment => Box::new(sixteen_segment::SixteenSegment),
         }
     }
+
+    pub fn segment_count(&self) -> usize {
+        self.display_impl().segment_count()
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -47,6 +51,8 @@ impl DisplayKind {
 pub(crate) type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
 
 pub(crate) trait DisplayImpl {
+    fn segment_count(&self) -> usize;
+
     fn glyph(&self, c: char) -> Option<DisplayGlyph>;
 
     fn geometry(

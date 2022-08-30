@@ -140,7 +140,7 @@ impl Widget for SegmentedDisplayWidget {
             digit_height + (2.0 * margin_vertical),
         );
 
-        let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
+        let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
         if ui.is_rect_visible(rect) {
             ui.painter().rect(
@@ -164,6 +164,7 @@ impl Widget for SegmentedDisplayWidget {
                     segment_spacing,
                     digit_median,
                 );
+                assert_eq!(segment_points.len(), display_impl.segment_count());
 
                 #[rustfmt::skip]
                 let apostrophe_points: Vec<Pos2> = vec![
