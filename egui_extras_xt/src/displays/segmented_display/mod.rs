@@ -5,6 +5,8 @@ mod nine_segment;
 mod seven_segment;
 mod sixteen_segment;
 
+use strum::{Display, EnumIter};
+
 pub use display_metrics::{DisplayMetrics, DisplayMetricsPreset};
 pub use widget::SegmentedDisplayWidget;
 
@@ -25,7 +27,7 @@ pub struct DisplayDigit {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Eq, PartialEq, Copy, Clone)]
+#[derive(Eq, PartialEq, Copy, Clone, EnumIter, Display)]
 pub enum DisplayKind {
     SevenSegment,
     NineSegment,

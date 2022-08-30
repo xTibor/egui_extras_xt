@@ -2,8 +2,11 @@ use eframe::egui::{self};
 use eframe::emath::vec2;
 use eframe::epaint::Vec2;
 
+use strum::IntoEnumIterator;
+
 use egui_extras_xt::displays::segmented_display::{DisplayDigit, DisplayGlyph};
 use egui_extras_xt::displays::{DisplayKind, SegmentedDisplayWidget};
+use egui_extras_xt::ui::add_from_iterator::AddFromIterator;
 
 struct GlyphEditorApp {
     display_kind: DisplayKind,
@@ -33,21 +36,7 @@ impl eframe::App for GlyphEditorApp {
 
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
-                        ui.selectable_value(
-                            &mut self.display_kind,
-                            DisplayKind::SevenSegment,
-                            "7-segment",
-                        );
-                        ui.selectable_value(
-                            &mut self.display_kind,
-                            DisplayKind::NineSegment,
-                            "9-segment",
-                        );
-                        ui.selectable_value(
-                            &mut self.display_kind,
-                            DisplayKind::SixteenSegment,
-                            "16-segment",
-                        );
+                        ui.selectable_value_from_iter(&mut self.display_kind, DisplayKind::iter());
                     });
 
                     ui.horizontal(|ui| {
