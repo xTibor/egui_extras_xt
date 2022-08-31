@@ -37,6 +37,7 @@ fn hyperlink_icon(url: &str) -> char {
         // Websites
         ("https://apps.apple.com/",             '\u{F8FF}' ),
         ("https://crates.io/",                  '\u{1F4E6}'),
+        ("https://docs.rs/",                    '\u{1F4DA}'),
         ("https://drive.google.com/",           '\u{E62F}' ),
         ("https://play.google.com/store/apps/", '\u{E618}' ),
         ("https://soundcloud.com/",             '\u{E627}' ),
