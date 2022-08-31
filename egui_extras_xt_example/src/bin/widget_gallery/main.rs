@@ -67,6 +67,13 @@ impl eframe::App for WidgetGallery {
                 .get_mut(&self.current_page)
                 .expect("failed to get page")
                 .ui(ui);
+
+            ui.separator();
+
+            if ui.button("Reset").clicked() {
+                self.pages
+                    .insert(self.current_page, self.current_page.create_page());
+            }
         });
 
         egui::Window::new("\u{1F527} Settings")
