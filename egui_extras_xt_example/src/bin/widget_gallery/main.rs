@@ -63,6 +63,9 @@ impl eframe::App for WidgetGallery {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading(self.current_page.to_string());
+            ui.separator();
+
             self.pages
                 .get_mut(&self.current_page)
                 .expect("failed to get page")
@@ -70,7 +73,7 @@ impl eframe::App for WidgetGallery {
 
             ui.separator();
 
-            if ui.button("Reset").clicked() {
+            if ui.button("\u{1F504} Reset").clicked() {
                 self.pages
                     .insert(self.current_page, self.current_page.create_page());
             }
