@@ -5,15 +5,24 @@ use emath::{almost_equal, lerp, Pos2, Rot2, Vec2};
 use epaint::{Color32, Shape, Stroke};
 
 use itertools::Itertools;
+use strum::{Display, EnumIter};
 
 // ----------------------------------------------------------------------------
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Display)]
 pub enum Orientation {
-    Right,
-    Bottom,
-    Left,
+    #[strum(to_string = "top")]
     Top,
+
+    #[strum(to_string = "bottom")]
+    Bottom,
+
+    #[strum(to_string = "left")]
+    Left,
+
+    #[strum(to_string = "right")]
+    Right,
+
     Custom(f32),
 }
 
@@ -31,9 +40,12 @@ impl Orientation {
 
 // ----------------------------------------------------------------------------
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum Winding {
+    #[strum(to_string = "clockwise")]
     Clockwise,
+
+    #[strum(to_string = "counter-clockwise")]
     Counterclockwise,
 }
 
@@ -48,10 +60,15 @@ impl Winding {
 
 // ----------------------------------------------------------------------------
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum WrapMode {
+    #[strum(to_string = "none")]
     None,
+
+    #[strum(to_string = "signed")]
     Signed,
+
+    #[strum(to_string = "unsigned")]
     Unsigned,
 }
 

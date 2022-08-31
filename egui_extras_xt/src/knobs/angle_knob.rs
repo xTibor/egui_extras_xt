@@ -3,6 +3,7 @@ use std::f32::consts::TAU;
 use egui::{self, Response, Sense, Ui, Widget};
 use emath::Vec2;
 use epaint::{Shape, Stroke};
+use strum::{Display, EnumIter};
 
 use crate::common::{snap_wrap_constrain_angle, Orientation, WidgetShape, Winding, WrapMode};
 
@@ -23,14 +24,27 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum AngleKnobPreset {
+    #[strum(to_string = "Adobe Photoshop")]
     AdobePhotoshop,
+
+    #[strum(to_string = "Adobe Premiere Pro")]
     AdobePremierePro,
+
+    #[strum(to_string = "GIMP")]
     Gimp,
+
+    #[strum(to_string = "Google Chrome DevTools")]
     GoogleChromeDevTools,
+
+    #[strum(to_string = "Krita")]
     Krita,
+
+    #[strum(to_string = "LibreOffice")]
     LibreOffice,
+
+    #[strum(to_string = "Qt Widgets")]
     QtWidgets,
     // Software without knob widgets:
     // - Blender (no knobs but transform gizmo suggests Top/Clockwise/None)

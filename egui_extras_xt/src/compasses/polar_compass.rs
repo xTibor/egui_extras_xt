@@ -6,6 +6,8 @@ use egui::{
 };
 use emath::normalized_angle;
 
+use strum::{Display, EnumIter};
+
 use crate::common::{snap_wrap_constrain_angle, Orientation, SymLog, Winding, WrapMode};
 use crate::compasses::{
     CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor,
@@ -27,9 +29,12 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 
 // ----------------------------------------------------------------------------
 
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum PolarCompassOverflow {
+    #[strum(to_string = "clip")]
     Clip,
+
+    #[strum(to_string = "saturate")]
     Saturate,
 }
 

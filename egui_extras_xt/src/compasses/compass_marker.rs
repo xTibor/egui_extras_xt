@@ -10,6 +10,7 @@ use crate::hash::PearsonHash;
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
+#[derive(Clone, Copy, Debug)]
 pub enum DefaultCompassMarkerColor {
     System,
     Fixed(Color32),
@@ -80,7 +81,7 @@ impl<'a> CompassMarker<'a> {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum CompassMarkerShape {
     Square,
     Circle,

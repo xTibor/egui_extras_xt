@@ -16,7 +16,7 @@ use egui::Pos2;
 
 pub type DisplayGlyph = u16;
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct DisplayDigit {
     pub glyph: DisplayGlyph,
     pub dot: bool,
@@ -27,10 +27,15 @@ pub struct DisplayDigit {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Eq, PartialEq, Copy, Clone, EnumIter, Display)]
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum DisplayKind {
+    #[strum(to_string = "7-segment")]
     SevenSegment,
+
+    #[strum(to_string = "9-segment")]
     NineSegment,
+
+    #[strum(to_string = "16-segment")]
     SixteenSegment,
 }
 

@@ -13,21 +13,44 @@ use barcoders::sym::ean8::EAN8;
 use barcoders::sym::ean_supp::EANSUPP;
 use barcoders::sym::tf::TF;
 
+use strum::{Display, EnumIter};
+
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, Hash, PartialEq)]
 pub enum BarcodeKind {
+    #[strum(to_string = "Codabar")]
     Codabar,
+
+    #[strum(to_string = "Code 11")]
     Code11,
+
+    #[strum(to_string = "Code 39")]
     Code39,
+
+    #[strum(to_string = "Code 39 (+checksum)")]
     Code39Checksum,
+
+    #[strum(to_string = "Code 93")]
     Code93,
+
+    #[strum(to_string = "Code 128")]
     Code128,
+
+    #[strum(to_string = "EAN-8")]
     EAN8,
+
+    #[strum(to_string = "EAN-13")]
     EAN13,
+
+    #[strum(to_string = "Supplemental EAN")]
     EANSUPP,
+
+    #[strum(to_string = "Interleaved 2 of 5")]
     ITF,
+
+    #[strum(to_string = "Standard 2 of 5")]
     STF,
 }
 

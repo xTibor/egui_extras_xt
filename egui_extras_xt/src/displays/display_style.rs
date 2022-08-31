@@ -1,8 +1,9 @@
 use egui::{lerp, Color32, Rgba, Stroke, Ui};
+use strum::{Display, EnumIter};
 
 // ----------------------------------------------------------------------------
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct DisplayStyle {
     pub background_color: Color32,
     pub foreground_on_color: Color32,
@@ -69,17 +70,36 @@ impl Default for DisplayStyle {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum DisplayStylePreset {
+    #[strum(to_string = "Default")]
     Default,
+
+    #[strum(to_string = "Calculator")]
     Calculator,
+
+    #[strum(to_string = "Nintendo Game Boy")]
     NintendoGameBoy,
+
+    #[strum(to_string = "Knight Rider")]
     KnightRider,
+
+    #[strum(to_string = "Blue Negative")]
     BlueNegative,
+
+    #[strum(to_string = "Amber")]
     Amber,
+
+    #[strum(to_string = "Light Blue")]
     LightBlue,
+
+    #[strum(to_string = "DeLorean Red")]
     DeLoreanRed,
+
+    #[strum(to_string = "DeLorean Green")]
     DeLoreanGreen,
+
+    #[strum(to_string = "DeLorean Amber")]
     DeLoreanAmber,
 }
 
