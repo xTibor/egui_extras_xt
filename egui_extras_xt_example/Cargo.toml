@@ -9,7 +9,7 @@ repository = "https://github.com/xTibor/egui_extras_xt"
 homepage = "https://github.com/xTibor/egui_extras_xt"
 publish = false
 
-default-run = "showcase_demo"
+default-run = "widget_gallery"
 
 [badges]
 maintenance = { status = "as-is" }
