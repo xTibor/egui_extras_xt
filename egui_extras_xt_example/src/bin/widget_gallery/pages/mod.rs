@@ -1,6 +1,7 @@
 pub mod datamatrix_page;
 pub mod hyperlink_with_icon_page;
 pub mod qrcode_page;
+pub mod thumbstick_knob_page;
 
 use eframe::egui::Ui;
 use strum::{Display, EnumIter};
@@ -16,6 +17,7 @@ pub enum PageId {
     QrCodePage,
     DataMatrixPage,
     HyperlinkWithIconPage,
+    ThumbstickKnobPage,
 }
 
 impl PageId {
@@ -25,6 +27,9 @@ impl PageId {
             PageId::DataMatrixPage => Box::new(datamatrix_page::DataMatrixPage::default()),
             PageId::HyperlinkWithIconPage => {
                 Box::new(hyperlink_with_icon_page::HyperlinkWithIconPage::default())
+            }
+            PageId::ThumbstickKnobPage => {
+                Box::new(thumbstick_knob_page::ThumbstickKnobPage::default())
             }
         }
     }
