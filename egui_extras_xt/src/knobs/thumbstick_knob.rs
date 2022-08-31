@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use egui::{self, remap_clamp, Response, Sense, Ui, Widget};
+use egui::{self, lerp, remap_clamp, Response, Sense, Ui, Widget};
 use emath::{vec2, Rot2, Vec2};
 
 use crate::common::paint_ellipse;
@@ -29,6 +29,7 @@ pub struct ThumbstickKnob<'a> {
     interactive: bool,
     diameter: f32,
     animated: bool,
+    auto_center: bool,
 }
 
 impl<'a> ThumbstickKnob<'a> {
@@ -49,6 +50,7 @@ impl<'a> ThumbstickKnob<'a> {
             interactive: true,
             diameter: 96.0,
             animated: true,
+            auto_center: true,
         }
     }
 
@@ -82,6 +84,11 @@ impl<'a> ThumbstickKnob<'a> {
         self.range_y = range_y;
         self
     }
+
+    pub fn auto_center(mut self, auto_center: bool) -> Self {
+        self.auto_center = auto_center;
+        self
+    }
 }
 
 impl<'a> Widget for ThumbstickKnob<'a> {
@@ -110,6 +117,16 @@ impl<'a> Widget for ThumbstickKnob<'a> {
 
             set(&mut self.get_set_value, v.into());
             response.mark_changed();
+        }
+
+        if response.drag_released() {
+            if self.auto_center {
+                let x_center = lerp(self.range_x.clone(), 0.5);
+                let y_center = lerp(self.range_y.clone(), 0.5);
+
+                set(&mut self.get_set_value, (x_center, y_center));
+                response.mark_changed();
+            }
         }
 
         if ui.is_rect_visible(rect) {

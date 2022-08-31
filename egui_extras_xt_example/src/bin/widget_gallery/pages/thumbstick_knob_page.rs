@@ -13,6 +13,7 @@ pub struct ThumbstickKnobPage {
     interactive: bool,
     diameter: f32,
     animated: bool,
+    auto_center: bool,
 }
 
 impl Default for ThumbstickKnobPage {
@@ -24,6 +25,7 @@ impl Default for ThumbstickKnobPage {
             interactive: true,
             diameter: 96.0,
             animated: true,
+            auto_center: true,
         }
     }
 }
@@ -36,7 +38,8 @@ impl PageImpl for ThumbstickKnobPage {
                 .range_y(self.range_y.clone())
                 .interactive(self.interactive)
                 .diameter(self.diameter)
-                .animated(self.animated),
+                .animated(self.animated)
+                .auto_center(self.auto_center),
         );
         ui.separator();
 
@@ -71,6 +74,10 @@ impl PageImpl for ThumbstickKnobPage {
 
                 ui.label("Animated");
                 ui.checkbox(&mut self.animated, "");
+                ui.end_row();
+
+                ui.label("Auto-center");
+                ui.checkbox(&mut self.auto_center, "");
                 ui.end_row();
             });
     }
