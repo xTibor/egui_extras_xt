@@ -4,7 +4,7 @@ pub mod qrcode_page;
 pub mod thumbstick_knob_page;
 
 use eframe::egui::Ui;
-use strum::{Display, EnumIter};
+use strum::{Display, EnumIter, EnumProperty};
 
 pub trait PageImpl {
     fn ui(&mut self, ui: &mut Ui);
@@ -12,11 +12,22 @@ pub trait PageImpl {
 
 // ----------------------------------------------------------------------------
 
-#[derive(Clone, Copy, EnumIter, Eq, Hash, PartialEq, Display)]
+#[derive(Clone, Copy, Display, EnumIter, EnumProperty, Eq, Hash, PartialEq)]
 pub enum PageId {
+    #[strum(to_string = "QrCodeWidget")]
+    #[strum(props(feature = "barcodes"))]
     QrCodePage,
+
+    #[strum(to_string = "DataMatrixWidget")]
+    #[strum(props(feature = "barcodes"))]
     DataMatrixPage,
+
+    #[strum(to_string = "HyperlinkWithIcon")]
+    #[strum(props(feature = "ui"))]
     HyperlinkWithIconPage,
+
+    #[strum(to_string = "ThumbstickKnob")]
+    #[strum(props(feature = "knobs"))]
     ThumbstickKnobPage,
 }
 
