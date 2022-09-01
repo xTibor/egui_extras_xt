@@ -1,6 +1,7 @@
 pub mod barcode_page;
 pub mod datamatrix_page;
 pub mod hyperlink_with_icon_page;
+pub mod led_display_page;
 pub mod qrcode_page;
 pub mod thumbstick_knob_page;
 
@@ -34,6 +35,10 @@ pub enum PageId {
     #[strum(to_string = "ThumbstickKnob")]
     #[strum(props(feature = "knobs"))]
     ThumbstickKnobPage,
+
+    #[strum(to_string = "LedDisplay")]
+    #[strum(props(feature = "displays"))]
+    LedDisplayPage,
 }
 
 impl PageId {
@@ -48,6 +53,7 @@ impl PageId {
             PageId::ThumbstickKnobPage => {
                 Box::new(thumbstick_knob_page::ThumbstickKnobPage::default())
             }
+            PageId::LedDisplayPage => Box::new(led_display_page::LedDisplayPage::default()),
         }
     }
 }
