@@ -72,17 +72,19 @@ impl eframe::App for WidgetGallery {
             });
             ui.separator();
 
-            self.pages
-                .get_mut(&self.current_page)
-                .expect("failed to get page")
-                .ui(ui);
-
-            ui.separator();
-
-            if ui.button("\u{1F504} Reset").clicked() {
+            egui::ScrollArea::both().show(ui, |ui| {
                 self.pages
-                    .insert(self.current_page, self.current_page.create_page());
-            }
+                    .get_mut(&self.current_page)
+                    .expect("failed to get page")
+                    .ui(ui);
+
+                ui.separator();
+
+                if ui.button("\u{1F504} Reset").clicked() {
+                    self.pages
+                        .insert(self.current_page, self.current_page.create_page());
+                }
+            });
         });
 
         egui::Window::new("\u{1F527} Settings")
