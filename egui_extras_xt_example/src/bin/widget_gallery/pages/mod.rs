@@ -5,6 +5,7 @@ pub mod datamatrix_page;
 pub mod hyperlink_with_icon_page;
 pub mod led_display_page;
 pub mod qrcode_page;
+pub mod segmented_display_page;
 pub mod thumbstick_knob_page;
 
 use eframe::egui::Ui;
@@ -41,6 +42,10 @@ pub enum PageId {
     #[strum(to_string = "LedDisplay")]
     #[strum(props(feature = "displays"))]
     LedDisplayPage,
+
+    #[strum(to_string = "SegmentedDisplayWidget")]
+    #[strum(props(feature = "displays"))]
+    SegmentedDisplayPage,
 }
 
 impl PageId {
@@ -56,6 +61,9 @@ impl PageId {
                 Box::new(thumbstick_knob_page::ThumbstickKnobPage::default())
             }
             PageId::LedDisplayPage => Box::new(led_display_page::LedDisplayPage::default()),
+            PageId::SegmentedDisplayPage => {
+                Box::new(segmented_display_page::SegmentedDisplayPage::default())
+            }
         }
     }
 }
