@@ -30,8 +30,8 @@ pub enum DisplayMetricsPreset {
     #[strum(to_string = "Default")]
     Default,
 
-    #[strum(to_string = "Knight Rider")]
-    KnightRider,
+    #[strum(to_string = "Wide")]
+    Wide,
 }
 
 impl DisplayMetricsPreset {
@@ -48,7 +48,7 @@ impl DisplayMetricsPreset {
                 margin_vertical: 0.1,
                 colon_separation: 0.25,
             },
-            DisplayMetricsPreset::KnightRider => DisplayMetrics {
+            DisplayMetricsPreset::Wide => DisplayMetrics {
                 segment_spacing: 0.02,
                 segment_thickness: 0.12,
                 digit_median: -0.05,
