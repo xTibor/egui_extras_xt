@@ -58,8 +58,14 @@ impl eframe::App for WidgetGallery {
             });
         });
 
+        // egui layout bug: SidePanel width gets progressively fucked when dragging
+        // the main window between screens with different PPI.
+        // SidePanel resizing is also fucked, it's mirroring mouse movements along
+        // along the left edge of the window (SidePanel `.abs()` bug).
         egui::SidePanel::new(Side::Left, "sidepanel").show(ctx, |ui| {
-            ui.selectable_value_from_iter(&mut self.current_page, PageId::iter());
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.selectable_value_from_iter(&mut self.current_page, PageId::iter());
+            });
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
