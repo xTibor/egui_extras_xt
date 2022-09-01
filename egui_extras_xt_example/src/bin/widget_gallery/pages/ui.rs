@@ -16,7 +16,9 @@ pub fn display_style_ui(
         .show(ui, |ui| {
             ui.label("Style preset");
             ui.horizontal(|ui| {
-                ui.combobox_from_iter("", style_preset, DisplayStylePreset::iter());
+                ui.push_id("style_preset_combo", |ui| {
+                    ui.combobox_from_iter("", style_preset, DisplayStylePreset::iter())
+                });
                 // `.changed()` responses of combobox are broken.
                 if ui.button("\u{2714} Apply").clicked() {
                     *style = style_preset.style();
@@ -64,7 +66,9 @@ pub fn display_metrics_ui(
         .show(ui, |ui| {
             ui.label("Metrics preset");
             ui.horizontal(|ui| {
-                ui.combobox_from_iter("", metrics_preset, DisplayMetricsPreset::iter());
+                ui.push_id("metrics_preset_combo", |ui| {
+                    ui.combobox_from_iter("", metrics_preset, DisplayMetricsPreset::iter())
+                });
                 // `.changed()` responses of combobox are broken.
                 if ui.button("\u{2714} Apply").clicked() {
                     *metrics = metrics_preset.metrics();
