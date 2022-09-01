@@ -95,10 +95,10 @@ type BarcodeCache<'a> = FrameCache<BarcodeCacheValue, BarcodeComputer>;
 pub struct BarcodeWidget<'a> {
     value: &'a str,
     barcode_kind: BarcodeKind,
-    horizontal_padding: f32,
-    vertical_padding: f32,
     bar_width: usize,
     bar_height: f32,
+    horizontal_padding: f32,
+    vertical_padding: f32,
     label: Option<&'a str>,
     label_height: f32,
     label_top_margin: f32,
