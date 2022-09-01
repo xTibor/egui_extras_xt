@@ -1,3 +1,5 @@
+use strum::{Display, EnumIter};
+
 #[derive(Clone, Copy)]
 pub struct DisplayMetrics {
     pub segment_spacing: f32,
@@ -23,9 +25,12 @@ impl Default for DisplayMetrics {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Display, EnumIter, Eq, PartialEq)]
 pub enum DisplayMetricsPreset {
+    #[strum(to_string = "Default")]
     Default,
+
+    #[strum(to_string = "Knight Rider")]
     KnightRider,
 }
 

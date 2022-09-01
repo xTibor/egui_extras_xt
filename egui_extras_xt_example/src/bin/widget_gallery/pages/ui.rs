@@ -1,5 +1,6 @@
 use eframe::egui::{DragValue, Grid, Ui};
-use egui_extras_xt::displays::{DisplayStyle, DisplayStylePreset};
+use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
+use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
 use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
 
@@ -13,7 +14,7 @@ pub fn display_style_ui(
         .spacing([20.0, 10.0])
         .striped(true)
         .show(ui, |ui| {
-            ui.label("Preset");
+            ui.label("Style preset");
             ui.horizontal(|ui| {
                 ui.combobox_from_iter("", style_preset, DisplayStylePreset::iter());
                 // `.changed()` responses of combobox are broken.
@@ -47,6 +48,64 @@ pub fn display_style_ui(
                 ui.color_edit_button_srgba(&mut style.active_foreground_stroke.color);
                 ui.add(DragValue::new(&mut style.active_foreground_stroke.width));
             });
+            ui.end_row();
+        });
+}
+
+pub fn display_metrics_ui(
+    ui: &mut Ui,
+    metrics: &mut DisplayMetrics,
+    metrics_preset: &mut DisplayMetricsPreset,
+) {
+    Grid::new("metrics_properties")
+        .num_columns(2)
+        .spacing([20.0, 10.0])
+        .striped(true)
+        .show(ui, |ui| {
+            ui.label("Metrics preset");
+            ui.horizontal(|ui| {
+                ui.combobox_from_iter("", metrics_preset, DisplayMetricsPreset::iter());
+                // `.changed()` responses of combobox are broken.
+                if ui.button("\u{2714} Apply").clicked() {
+                    *metrics = metrics_preset.metrics();
+                }
+            });
+            ui.end_row();
+
+            ui.label("Segment spacing");
+            ui.add(DragValue::new(&mut metrics.segment_spacing));
+            ui.end_row();
+
+            ui.label("Segment thickness");
+            ui.add(DragValue::new(&mut metrics.segment_thickness));
+            ui.end_row();
+
+            ui.label("Digit median");
+            ui.add(DragValue::new(&mut metrics.digit_median));
+            ui.end_row();
+
+            ui.label("Digit ratio");
+            ui.add(DragValue::new(&mut metrics.digit_ratio));
+            ui.end_row();
+
+            ui.label("Digit shearing");
+            ui.add(DragValue::new(&mut metrics.digit_shearing));
+            ui.end_row();
+
+            ui.label("Digit spacing");
+            ui.add(DragValue::new(&mut metrics.digit_spacing));
+            ui.end_row();
+
+            ui.label("Horizontal margin");
+            ui.add(DragValue::new(&mut metrics.margin_horizontal));
+            ui.end_row();
+
+            ui.label("Vertical margin");
+            ui.add(DragValue::new(&mut metrics.margin_vertical));
+            ui.end_row();
+
+            ui.label("Colon separation");
+            ui.add(DragValue::new(&mut metrics.colon_separation));
             ui.end_row();
         });
 }
