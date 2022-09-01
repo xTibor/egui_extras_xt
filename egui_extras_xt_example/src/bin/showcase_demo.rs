@@ -658,30 +658,36 @@ impl eframe::App for EguiExtrasXtExampleApp {
                 ui.horizontal(|ui| {
                     ui.add(
                         DragValue::new(
-                            &mut self.segmented_display_style.foreground_on_stroke.width,
+                            &mut self.segmented_display_style.active_foreground_stroke.width,
                         )
                         .speed(0.1),
                     );
                     ui.color_edit_button_srgba(
-                        &mut self.segmented_display_style.foreground_on_stroke.color,
+                        &mut self.segmented_display_style.active_foreground_stroke.color,
                     );
                     ui.color_edit_button_srgba(
-                        &mut self.segmented_display_style.foreground_on_color,
+                        &mut self.segmented_display_style.active_foreground_color,
                     );
                 });
 
                 ui.horizontal(|ui| {
                     ui.add(
                         DragValue::new(
-                            &mut self.segmented_display_style.foreground_off_stroke.width,
+                            &mut self
+                                .segmented_display_style
+                                .inactive_foreground_stroke
+                                .width,
                         )
                         .speed(0.1),
                     );
                     ui.color_edit_button_srgba(
-                        &mut self.segmented_display_style.foreground_off_stroke.color,
+                        &mut self
+                            .segmented_display_style
+                            .inactive_foreground_stroke
+                            .color,
                     );
                     ui.color_edit_button_srgba(
-                        &mut self.segmented_display_style.foreground_off_color,
+                        &mut self.segmented_display_style.inactive_foreground_color,
                     );
                 });
 

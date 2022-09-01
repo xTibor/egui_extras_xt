@@ -181,14 +181,14 @@ impl Widget for SegmentedDisplayWidget {
                 );
 
                 for (segment_index, segment_points) in segment_points.iter().enumerate() {
-                    let segment_on = ((digit.glyph >> segment_index) & 0x01) != 0x00;
+                    let segment_active = ((digit.glyph >> segment_index) & 0x01) != 0x00;
 
                     // TODO: concave_polygon
                     // https://github.com/emilk/egui/issues/513
                     ui.painter().add(Shape::convex_polygon(
                         segment_points.to_vec(),
-                        self.style.foreground_color(segment_on),
-                        self.style.foreground_stroke(segment_on),
+                        self.style.foreground_color(segment_active),
+                        self.style.foreground_stroke(segment_active),
                     ));
                 }
 
