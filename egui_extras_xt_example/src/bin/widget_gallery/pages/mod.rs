@@ -1,3 +1,5 @@
+pub mod ui;
+
 pub mod barcode_page;
 pub mod datamatrix_page;
 pub mod hyperlink_with_icon_page;

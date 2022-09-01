@@ -4,6 +4,7 @@ use eframe::egui::{DragValue, Grid, Ui};
 use egui_extras_xt::displays::{DisplayStyle, DisplayStylePreset, LedDisplay};
 use egui_extras_xt::ui::drag_rangeinclusive::DragRangeInclusive;
 
+use crate::pages::ui::display_style_ui;
 use crate::pages::PageImpl;
 
 pub struct LedDisplayPage {
@@ -12,6 +13,7 @@ pub struct LedDisplayPage {
     padding: f32,
     range: RangeInclusive<f32>,
     style: DisplayStyle,
+    style_preset: DisplayStylePreset,
     animated: bool,
 }
 
@@ -23,6 +25,7 @@ impl Default for LedDisplayPage {
             padding: 0.25,
             range: 0.0..=1.0,
             style: DisplayStylePreset::Default.style(),
+            style_preset: DisplayStylePreset::Default,
             animated: false,
         }
     }
@@ -61,7 +64,9 @@ impl PageImpl for LedDisplayPage {
                 ui.drag_rangeinclusive(&mut self.range);
                 ui.end_row();
 
-                // TODO: self.style
+                ui.label("Style");
+                display_style_ui(ui, &mut self.style, &mut self.style_preset);
+                ui.end_row();
 
                 ui.label("Animated");
                 ui.checkbox(&mut self.animated, "");
