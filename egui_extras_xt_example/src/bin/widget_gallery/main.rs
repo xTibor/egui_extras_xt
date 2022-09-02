@@ -112,12 +112,10 @@ impl eframe::App for WidgetGallery {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading(self.current_page.to_string());
-            ui.horizontal(|ui| {
-                if let Some(feature) = self.current_page.get_str("feature") {
-                    ui.label(format!("\u{1F4E6} {feature:}"))
-                        .on_hover_text("Cargo feature");
-                }
-            });
+            if let Some(feature) = self.current_page.get_str("feature") {
+                ui.label(format!("\u{1F4E6} {feature:}"))
+                    .on_hover_text("Cargo feature");
+            }
             ui.separator();
 
             egui::ScrollArea::both().show(ui, |ui| {
