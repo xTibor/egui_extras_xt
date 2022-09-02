@@ -3,8 +3,8 @@ use std::ops::RangeInclusive;
 use eframe::egui::{DragValue, Grid, Ui};
 use egui_extras_xt::common::{Orientation, Winding};
 use egui_extras_xt::knobs::AudioKnob;
-use egui_extras_xt::ui::drag_option_value::DragOptionValue;
 use egui_extras_xt::ui::drag_rangeinclusive::DragRangeInclusive;
+use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
 use strum::IntoEnumIterator;
 
@@ -119,11 +119,11 @@ impl PageImpl for AudioKnobPage {
                 ui.end_row();
 
                 ui.label("Snap");
-                ui.drag_option_value(&mut self.snap);
+                ui.optional_value_widget(&mut self.snap, |ui, value| ui.drag_angle(value));
                 ui.end_row();
 
                 ui.label("Shift snap");
-                ui.drag_option_value(&mut self.shift_snap);
+                ui.optional_value_widget(&mut self.shift_snap, |ui, value| ui.drag_angle(value));
                 ui.end_row();
             });
     }

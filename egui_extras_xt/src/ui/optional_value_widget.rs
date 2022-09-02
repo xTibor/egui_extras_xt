@@ -1,12 +1,20 @@
-use egui::{DragValue, Response, Ui};
+use egui::{Response, Ui};
 use emath::Numeric;
 
-pub trait DragOptionValue<T> {
-    fn drag_option_value(&mut self, value: &mut Option<T>) -> Response;
+pub trait OptionalValueWidget<T> {
+    fn optional_value_widget(
+        &mut self,
+        value: &mut Option<T>,
+        add_contents: impl FnOnce(&mut Self, &mut T) -> Response,
+    ) -> Response;
 }
 
-impl<T: Numeric + Default> DragOptionValue<T> for Ui {
-    fn drag_option_value(&mut self, value: &mut Option<T>) -> Response {
+impl<T: Numeric + Default> OptionalValueWidget<T> for Ui {
+    fn optional_value_widget(
+        &mut self,
+        value: &mut Option<T>,
+        add_contents: impl FnOnce(&mut Self, &mut T) -> Response,
+    ) -> Response {
         self.group(|ui| {
             let mut checkbox_state = value.is_some();
             ui.checkbox(&mut checkbox_state, "");
@@ -19,11 +27,11 @@ impl<T: Numeric + Default> DragOptionValue<T> for Ui {
 
             match value {
                 Some(ref mut value) => {
-                    ui.add(DragValue::new(value));
+                    add_contents(ui, value);
                 }
                 None => {
                     let mut dummy_value = T::default();
-                    ui.add_enabled(false, DragValue::new(&mut dummy_value));
+                    ui.add_enabled_ui(false, |ui| add_contents(ui, &mut dummy_value));
                 }
             }
         })
