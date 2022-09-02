@@ -2,8 +2,8 @@ mod pages;
 
 use std::collections::HashMap;
 
-use eframe::egui;
 use eframe::egui::panel::Side;
+use eframe::egui::{self, TextEdit};
 use eframe::emath::vec2;
 
 use egui_extras_xt::show_about_window;
@@ -16,6 +16,7 @@ struct WidgetGallery {
     // Pages
     current_page: PageId,
     pages: HashMap<PageId, Box<dyn PageImpl>>,
+    search_query: String,
 
     // Sub-windows
     settings_window_open: bool,
@@ -32,6 +33,7 @@ impl Default for WidgetGallery {
             pages: HashMap::from_iter(
                 PageId::iter().map(|page_id| (page_id, page_id.create_page())),
             ),
+            search_query: "".to_owned(),
 
             // Sub-windows
             settings_window_open: false,
@@ -64,7 +66,30 @@ impl eframe::App for WidgetGallery {
         // along the left edge of the window (SidePanel `.abs()` bug).
         egui::SidePanel::new(Side::Left, "sidepanel").show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.selectable_value_from_iter(&mut self.current_page, PageId::iter());
+                ui.horizontal(|ui| {
+                    ui.add(
+                        TextEdit::singleline(&mut self.search_query)
+                            .desired_width(150.0)
+                            .hint_text("\u{1F50D} Search..."),
+                    );
+                    ui.add_enabled_ui(!self.search_query.is_empty(), |ui| {
+                        // Default font doesn't have "\u{232B}"
+                        if ui.button("\u{1F5D9}").clicked() {
+                            self.search_query.clear();
+                        }
+                    });
+                });
+                ui.separator();
+
+                ui.selectable_value_from_iter(
+                    &mut self.current_page,
+                    PageId::iter().filter(|page_id| {
+                        page_id
+                            .to_string()
+                            .to_lowercase()
+                            .contains(&self.search_query.to_lowercase())
+                    }),
+                );
             });
         });
 
