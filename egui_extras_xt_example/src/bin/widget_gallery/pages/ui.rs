@@ -1,7 +1,8 @@
 use eframe::egui::{DragValue, Grid, Ui};
+use egui_extras_xt::common::{Orientation, WidgetShape};
 use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
-use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
 use strum::IntoEnumIterator;
 
 pub fn display_style_ui(
@@ -112,4 +113,39 @@ pub fn display_metrics_ui(
             ui.add(DragValue::new(&mut metrics.colon_separation));
             ui.end_row();
         });
+}
+
+pub fn widget_shape_ui(ui: &mut Ui, shape: &mut WidgetShape) {
+    ui.group(|ui| {
+        ui.label("TODO");
+    });
+}
+
+pub fn widget_orientation_ui(ui: &mut Ui, orientation: &mut Orientation) {
+    ui.horizontal_centered(|ui| {
+        ui.selectable_value_from_slice(
+            orientation,
+            &[
+                Orientation::Top,
+                Orientation::Bottom,
+                Orientation::Left,
+                Orientation::Right,
+            ],
+        );
+
+        ui.group(|ui| {
+            let is_custom = matches!(orientation, Orientation::Custom(..));
+
+            if ui.selectable_label(is_custom, "Custom").clicked() {
+                *orientation = Orientation::Custom(0.0);
+            }
+
+            if let Orientation::Custom(angle) = orientation {
+                ui.drag_angle(angle);
+            } else {
+                let mut dummy_value = 0.0;
+                ui.add_enabled_ui(false, |ui| ui.drag_angle(&mut dummy_value));
+            }
+        });
+    });
 }

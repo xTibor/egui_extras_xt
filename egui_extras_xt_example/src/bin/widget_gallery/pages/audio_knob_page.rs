@@ -1,16 +1,17 @@
 use std::ops::RangeInclusive;
 
 use eframe::egui::{DragValue, Grid, Ui};
-use egui_extras_xt::common::{Orientation, Winding};
+use egui_extras_xt::common::{Orientation, WidgetShape, Winding};
 use egui_extras_xt::knobs::AudioKnob;
 use egui_extras_xt::ui::drag_rangeinclusive::DragRangeInclusive;
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
 use strum::IntoEnumIterator;
 
+use crate::pages::ui::{widget_orientation_ui, widget_shape_ui};
 use crate::pages::PageImpl;
 
-pub struct AudioKnobPage {
+pub struct AudioKnobPage<'a> {
     value: f32,
     interactive: bool,
     diameter: f32,
@@ -19,14 +20,14 @@ pub struct AudioKnobPage {
     range: RangeInclusive<f32>,
     spread: f32,
     thickness: f32,
-    //shape: WidgetShape<'_>,
+    shape: WidgetShape<'a>,
     animated: bool,
     snap: Option<f32>,
     shift_snap: Option<f32>,
 }
 
-impl Default for AudioKnobPage {
-    fn default() -> AudioKnobPage {
+impl<'a> Default for AudioKnobPage<'a> {
+    fn default() -> AudioKnobPage<'a> {
         AudioKnobPage {
             value: 0.0,
             interactive: true,
@@ -36,7 +37,7 @@ impl Default for AudioKnobPage {
             range: 0.0..=1.0,
             spread: 1.0,
             thickness: 0.66,
-            //shape: ,
+            shape: WidgetShape::Squircle(4.0),
             animated: true,
             snap: None,
             shift_snap: None,
@@ -44,7 +45,7 @@ impl Default for AudioKnobPage {
     }
 }
 
-impl PageImpl for AudioKnobPage {
+impl<'a> PageImpl for AudioKnobPage<'a> {
     fn ui(&mut self, ui: &mut Ui) {
         ui.add(
             AudioKnob::new(&mut self.value)
@@ -85,19 +86,8 @@ impl PageImpl for AudioKnobPage {
                 });
                 ui.end_row();
 
-                // TODO: Orientation::Custom
                 ui.label("Orientation");
-                ui.horizontal(|ui| {
-                    ui.selectable_value_from_slice(
-                        &mut self.orientation,
-                        &[
-                            Orientation::Top,
-                            Orientation::Bottom,
-                            Orientation::Left,
-                            Orientation::Right,
-                        ],
-                    );
-                });
+                widget_orientation_ui(ui, &mut self.orientation);
                 ui.end_row();
 
                 ui.label("Range");
@@ -112,7 +102,9 @@ impl PageImpl for AudioKnobPage {
                 ui.add(DragValue::new(&mut self.thickness));
                 ui.end_row();
 
-                // TODO: Shape
+                ui.label("Shape");
+                widget_shape_ui(ui, &mut self.shape);
+                ui.end_row();
 
                 ui.label("Animated");
                 ui.checkbox(&mut self.animated, "");
