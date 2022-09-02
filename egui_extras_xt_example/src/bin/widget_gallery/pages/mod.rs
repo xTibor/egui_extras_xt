@@ -1,5 +1,6 @@
 pub mod ui;
 
+pub mod angle_knob_page;
 pub mod audio_knob_page;
 pub mod barcode_page;
 pub mod datamatrix_page;
@@ -37,6 +38,10 @@ pub enum PageId {
     #[strum(props(feature = "ui"))]
     HyperlinkWithIconPage,
 
+    #[strum(to_string = "AngleKnob")]
+    #[strum(props(feature = "knobs"))]
+    AngleKnobPage,
+
     #[strum(to_string = "AudioKnob")]
     #[strum(props(feature = "knobs"))]
     AudioKnobPage,
@@ -63,6 +68,7 @@ impl PageId {
             PageId::HyperlinkWithIconPage => {
                 Box::new(hyperlink_with_icon_page::HyperlinkWithIconPage::default())
             }
+            PageId::AngleKnobPage => Box::new(angle_knob_page::AngleKnobPage::default()),
             PageId::AudioKnobPage => Box::new(audio_knob_page::AudioKnobPage::default()),
             PageId::ThumbstickKnobPage => {
                 Box::new(thumbstick_knob_page::ThumbstickKnobPage::default())
