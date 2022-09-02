@@ -27,7 +27,7 @@ impl Default for SegmentedDisplayPage {
         SegmentedDisplayPage {
             value: "EGUI_EXTRAS_XT".to_owned(),
             display_kind: DisplayKind::SixteenSegment,
-            digit_height: 48.0,
+            digit_height: 80.0,
             metrics: DisplayMetricsPreset::Default.metrics(),
             metrics_preset: DisplayMetricsPreset::Default,
             style: DisplayStylePreset::Default.style(),

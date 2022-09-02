@@ -23,7 +23,7 @@ impl SegmentedDisplayWidget {
         Self {
             display_kind,
             digits: Vec::new(),
-            digit_height: 48.0,
+            digit_height: 80.0,
             metrics: DisplayMetrics::default(),
             style: DisplayStylePreset::Default.style(),
             show_dots: true,
