@@ -32,6 +32,9 @@ pub enum DisplayMetricsPreset {
 
     #[strum(to_string = "Wide")]
     Wide,
+
+    #[strum(to_string = "Calculator")]
+    Calculator,
 }
 
 impl DisplayMetricsPreset {
@@ -55,6 +58,17 @@ impl DisplayMetricsPreset {
                 digit_ratio: 1.0,
                 digit_shearing: 0.1,
                 digit_spacing: 0.20,
+                margin_horizontal: 0.3,
+                margin_vertical: 0.1,
+                colon_separation: 0.25,
+            },
+            DisplayMetricsPreset::Calculator => DisplayMetrics {
+                segment_spacing: 0.01,
+                segment_thickness: 0.11,
+                digit_median: -0.05,
+                digit_ratio: 0.4,
+                digit_shearing: 0.1,
+                digit_spacing: 0.38,
                 margin_horizontal: 0.3,
                 margin_vertical: 0.1,
                 colon_separation: 0.25,
