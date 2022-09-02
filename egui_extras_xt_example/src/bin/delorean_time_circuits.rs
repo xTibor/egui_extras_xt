@@ -15,7 +15,7 @@ struct TimeCircuitsExample {
     time_circuit_segments: Vec<TimeCircuitSegment>,
 }
 
-impl<'a> Default for TimeCircuitsExample {
+impl Default for TimeCircuitsExample {
     fn default() -> Self {
         Self {
             time_circuit_segments: vec![

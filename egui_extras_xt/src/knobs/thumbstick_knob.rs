@@ -119,14 +119,12 @@ impl<'a> Widget for ThumbstickKnob<'a> {
             response.mark_changed();
         }
 
-        if response.drag_released() {
-            if self.auto_center {
-                let x_center = lerp(self.range_x.clone(), 0.5);
-                let y_center = lerp(self.range_y.clone(), 0.5);
+        if response.drag_released() && self.auto_center {
+            let x_center = lerp(self.range_x.clone(), 0.5);
+            let y_center = lerp(self.range_y.clone(), 0.5);
 
-                set(&mut self.get_set_value, (x_center, y_center));
-                response.mark_changed();
-            }
+            set(&mut self.get_set_value, (x_center, y_center));
+            response.mark_changed();
         }
 
         if ui.is_rect_visible(rect) {

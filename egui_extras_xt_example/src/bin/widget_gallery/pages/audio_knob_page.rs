@@ -5,7 +5,7 @@ use egui_extras_xt::common::{Orientation, WidgetShape, Winding};
 use egui_extras_xt::knobs::AudioKnob;
 use egui_extras_xt::ui::drag_rangeinclusive::DragRangeInclusive;
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
-use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
+use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
 
 use crate::pages::ui::{widget_orientation_ui, widget_shape_ui};

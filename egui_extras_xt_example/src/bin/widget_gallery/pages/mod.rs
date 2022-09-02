@@ -18,6 +18,7 @@ pub trait PageImpl {
 
 // ----------------------------------------------------------------------------
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Clone, Copy, Display, EnumIter, EnumProperty, Eq, Hash, PartialEq)]
 pub enum PageId {
     #[strum(to_string = "QrCodeWidget")]
