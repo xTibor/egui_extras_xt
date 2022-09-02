@@ -66,22 +66,22 @@ impl eframe::App for WidgetGallery {
         // SidePanel resizing is also fucked, it's mirroring mouse movements along
         // along the left edge of the window (SidePanel `.abs()` bug).
         egui::SidePanel::new(Side::Left, "sidepanel").show(ctx, |ui| {
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.add(
-                        TextEdit::singleline(&mut self.search_query)
-                            .desired_width(150.0)
-                            .hint_text("\u{1F50D} Search..."),
-                    );
-                    ui.add_enabled_ui(!self.search_query.is_empty(), |ui| {
-                        // Default font doesn't have "\u{232B}"
-                        if ui.button("\u{1F5D9}").clicked() {
-                            self.search_query.clear();
-                        }
-                    });
+            ui.horizontal(|ui| {
+                ui.add(
+                    TextEdit::singleline(&mut self.search_query)
+                        .desired_width(150.0)
+                        .hint_text("\u{1F50D} Search..."),
+                );
+                ui.add_enabled_ui(!self.search_query.is_empty(), |ui| {
+                    // Default font doesn't have "\u{232B}"
+                    if ui.button("\u{1F5D9}").clicked() {
+                        self.search_query.clear();
+                    }
                 });
-                ui.separator();
+            });
+            ui.separator();
 
+            egui::ScrollArea::vertical().show(ui, |ui| {
                 PageId::iter()
                     .map(|page_id| (page_id, page_id.get_str("feature")))
                     .filter(|(page_id, _feature)| {
