@@ -9,6 +9,7 @@ pub mod led_display_page;
 pub mod qrcode_page;
 pub mod segmented_display_page;
 pub mod thumbstick_knob_page;
+pub mod welcome_page;
 
 use eframe::egui::Ui;
 use strum::{Display, EnumIter, EnumProperty};
@@ -22,6 +23,9 @@ pub trait PageImpl {
 #[allow(clippy::enum_variant_names)]
 #[derive(Clone, Copy, Display, EnumIter, EnumProperty, Eq, Hash, PartialEq)]
 pub enum PageId {
+    #[strum(to_string = "Welcome")]
+    WelcomePage,
+
     #[strum(to_string = "QrCodeWidget")]
     #[strum(props(feature = "barcodes"))]
     QrCodePage,
@@ -62,6 +66,7 @@ pub enum PageId {
 impl PageId {
     pub fn create_page(&self) -> Box<dyn PageImpl> {
         match *self {
+            PageId::WelcomePage => Box::new(welcome_page::WelcomePage::default()),
             PageId::QrCodePage => Box::new(qrcode_page::QrCodePage::default()),
             PageId::DataMatrixPage => Box::new(datamatrix_page::DataMatrixPage::default()),
             PageId::BarcodePage => Box::new(barcode_page::BarcodePage::default()),

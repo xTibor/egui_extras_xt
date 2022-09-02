@@ -7,10 +7,11 @@ use eframe::egui::{self, TextEdit};
 use eframe::emath::vec2;
 
 use egui_extras_xt::show_about_window;
-use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+
+use itertools::Itertools;
+use strum::{EnumProperty, IntoEnumIterator};
 
 use pages::{PageId, PageImpl};
-use strum::{EnumProperty, IntoEnumIterator};
 
 struct WidgetGallery {
     // Pages
@@ -29,7 +30,7 @@ impl Default for WidgetGallery {
     fn default() -> Self {
         Self {
             // Pages
-            current_page: PageId::QrCodePage,
+            current_page: PageId::WelcomePage,
             pages: HashMap::from_iter(
                 PageId::iter().map(|page_id| (page_id, page_id.create_page())),
             ),
@@ -81,15 +82,31 @@ impl eframe::App for WidgetGallery {
                 });
                 ui.separator();
 
-                ui.selectable_value_from_iter(
-                    &mut self.current_page,
-                    PageId::iter().filter(|page_id| {
-                        page_id
-                            .to_string()
-                            .to_lowercase()
-                            .contains(&self.search_query.to_lowercase())
-                    }),
-                );
+                PageId::iter()
+                    .map(|page_id| (page_id, page_id.get_str("feature")))
+                    .filter(|(page_id, _feature)| {
+                        let q = self.search_query.to_lowercase();
+                        page_id.to_string().to_lowercase().contains(&q)
+                    })
+                    .sorted_by_key(|(_page_id, feature)| *feature)
+                    .group_by(|(_page_id, feature)| *feature)
+                    .into_iter()
+                    .for_each(|(feature, pages)| {
+                        if let Some(feature) = feature {
+                            ui.label(format!("\u{1F4E6} {feature:}"));
+                        }
+                        pages
+                            .sorted_by_key(|(page_id, _feature)| page_id.to_string())
+                            .for_each(|(page_id, _feature)| {
+                                ui.selectable_value(
+                                    &mut self.current_page,
+                                    page_id,
+                                    page_id.to_string(),
+                                );
+                            });
+
+                        ui.separator();
+                    });
             });
         });
 
