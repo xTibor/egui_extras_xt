@@ -116,8 +116,77 @@ pub fn display_metrics_ui(
 }
 
 pub fn widget_shape_ui(ui: &mut Ui, shape: &mut WidgetShape) {
-    ui.group(|ui| {
-        ui.label("TODO");
+    ui.horizontal_top(|ui| {
+        ui.group(|ui| {
+            ui.vertical(|ui| {
+                let is_circle = matches!(shape, WidgetShape::Circle);
+                if ui.selectable_label(is_circle, "Circle").clicked() {
+                    *shape = WidgetShape::Circle;
+                }
+            })
+        });
+
+        ui.group(|ui| {
+            ui.vertical(|ui| {
+                let is_square = matches!(shape, WidgetShape::Square);
+                if ui.selectable_label(is_square, "Square").clicked() {
+                    *shape = WidgetShape::Square;
+                }
+            })
+        });
+
+        ui.group(|ui| {
+            ui.vertical(|ui| {
+                let is_squircle = matches!(shape, WidgetShape::Squircle(..));
+                if ui.selectable_label(is_squircle, "Squircle").clicked() {
+                    *shape = WidgetShape::Squircle(4.0);
+                }
+
+                if let WidgetShape::Squircle(ref mut factor) = shape {
+                    ui.add(DragValue::new(factor));
+                } else {
+                    let mut dummy_value = 0.0;
+                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                }
+            })
+        });
+
+        ui.group(|ui| {
+            ui.vertical(|ui| {
+                let is_polygon = matches!(shape, WidgetShape::Polygon(..));
+                if ui.selectable_label(is_polygon, "Polygon").clicked() {
+                    *shape = WidgetShape::Polygon(6);
+                }
+
+                if let WidgetShape::Polygon(ref mut n) = shape {
+                    ui.add(DragValue::new(n));
+                } else {
+                    let mut dummy_value = 0;
+                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                }
+            })
+        });
+
+        ui.group(|ui| {
+            ui.vertical(|ui| {
+                let is_super_polygon = matches!(shape, WidgetShape::SuperPolygon(..));
+                if ui
+                    .selectable_label(is_super_polygon, "SuperPolygon")
+                    .clicked()
+                {
+                    *shape = WidgetShape::SuperPolygon(6, 1.5);
+                }
+
+                if let WidgetShape::SuperPolygon(ref mut n, ref mut factor) = shape {
+                    ui.add(DragValue::new(n));
+                    ui.add(DragValue::new(factor));
+                } else {
+                    let mut dummy_value = 0;
+                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                }
+            })
+        });
     });
 }
 

@@ -1,4 +1,5 @@
 use std::f32::consts::TAU;
+use std::sync::Arc;
 
 use egui::Ui;
 use emath::{almost_equal, lerp, Pos2, Rot2, Vec2};
@@ -75,9 +76,10 @@ pub enum WrapMode {
 // ----------------------------------------------------------------------------
 
 /// A polar function defining the shape of a knob widget.
-pub type WidgetShapeFn<'a> = Box<dyn 'a + Fn(f32) -> f32>;
+pub type WidgetShapeFn<'a> = Arc<dyn 'a + Fn(f32) -> f32>;
 
 #[non_exhaustive]
+#[derive(Clone)]
 pub enum WidgetShape<'a> {
     Circle,
     Square,

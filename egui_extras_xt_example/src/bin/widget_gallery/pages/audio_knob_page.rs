@@ -56,7 +56,7 @@ impl<'a> PageImpl for AudioKnobPage<'a> {
                 .range(self.range.clone())
                 .spread(self.spread)
                 .thickness(self.thickness)
-                //.shape(self.shape)
+                .shape(self.shape.clone())
                 .animated(self.animated)
                 .snap(self.snap)
                 .shift_snap(self.shift_snap),
