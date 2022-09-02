@@ -119,11 +119,13 @@ impl PageImpl for AudioKnobPage {
                 ui.end_row();
 
                 ui.label("Snap");
-                ui.optional_value_widget(&mut self.snap, |ui, value| ui.drag_angle(value));
+                ui.optional_value_widget(&mut self.snap, |ui, value| ui.add(DragValue::new(value)));
                 ui.end_row();
 
                 ui.label("Shift snap");
-                ui.optional_value_widget(&mut self.shift_snap, |ui, value| ui.drag_angle(value));
+                ui.optional_value_widget(&mut self.shift_snap, |ui, value| {
+                    ui.add(DragValue::new(value))
+                });
                 ui.end_row();
             });
     }
