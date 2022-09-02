@@ -1,5 +1,6 @@
 pub mod ui;
 
+pub mod audio_knob_page;
 pub mod barcode_page;
 pub mod datamatrix_page;
 pub mod hyperlink_with_icon_page;
@@ -35,6 +36,10 @@ pub enum PageId {
     #[strum(props(feature = "ui"))]
     HyperlinkWithIconPage,
 
+    #[strum(to_string = "AudioKnob")]
+    #[strum(props(feature = "knobs"))]
+    AudioKnobPage,
+
     #[strum(to_string = "ThumbstickKnob")]
     #[strum(props(feature = "knobs"))]
     ThumbstickKnobPage,
@@ -57,6 +62,7 @@ impl PageId {
             PageId::HyperlinkWithIconPage => {
                 Box::new(hyperlink_with_icon_page::HyperlinkWithIconPage::default())
             }
+            PageId::AudioKnobPage => Box::new(audio_knob_page::AudioKnobPage::default()),
             PageId::ThumbstickKnobPage => {
                 Box::new(thumbstick_knob_page::ThumbstickKnobPage::default())
             }
