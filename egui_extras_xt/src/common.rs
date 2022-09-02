@@ -11,16 +11,16 @@ use strum::{Display, EnumIter};
 
 #[derive(Clone, Copy, Debug, PartialEq, Display)]
 pub enum Orientation {
-    #[strum(to_string = "top")]
+    #[strum(to_string = "Top")]
     Top,
 
-    #[strum(to_string = "bottom")]
+    #[strum(to_string = "Bottom")]
     Bottom,
 
-    #[strum(to_string = "left")]
+    #[strum(to_string = "Left")]
     Left,
 
-    #[strum(to_string = "right")]
+    #[strum(to_string = "Right")]
     Right,
 
     Custom(f32),
@@ -42,10 +42,10 @@ impl Orientation {
 
 #[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum Winding {
-    #[strum(to_string = "clockwise")]
+    #[strum(to_string = "Clockwise")]
     Clockwise,
 
-    #[strum(to_string = "counter-clockwise")]
+    #[strum(to_string = "Counter-clockwise")]
     Counterclockwise,
 }
 
@@ -62,13 +62,13 @@ impl Winding {
 
 #[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum WrapMode {
-    #[strum(to_string = "none")]
+    #[strum(to_string = "None")]
     None,
 
-    #[strum(to_string = "signed")]
+    #[strum(to_string = "Signed")]
     Signed,
 
-    #[strum(to_string = "unsigned")]
+    #[strum(to_string = "Unsigned")]
     Unsigned,
 }
 
