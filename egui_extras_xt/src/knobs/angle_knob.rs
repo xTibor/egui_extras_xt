@@ -54,7 +54,7 @@ pub enum AngleKnobPreset {
 }
 
 impl AngleKnobPreset {
-    fn properties(&self) -> (Orientation, Winding, WrapMode) {
+    pub fn properties(&self) -> (Orientation, Winding, WrapMode) {
         match *self {
             AngleKnobPreset::AdobePhotoshop => (
                 Orientation::Right,
@@ -96,8 +96,8 @@ pub struct AngleKnob<'a> {
     diameter: f32,
     orientation: Orientation,
     winding: Winding,
-    shape: WidgetShape<'a>,
     wrap: WrapMode,
+    shape: WidgetShape<'a>,
     min: Option<f32>,
     max: Option<f32>,
     snap: Option<f32>,
@@ -124,8 +124,8 @@ impl<'a> AngleKnob<'a> {
             diameter: 32.0,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
-            shape: WidgetShape::Circle,
             wrap: WrapMode::Unsigned,
+            shape: WidgetShape::Circle,
             min: None,
             max: None,
             snap: None,

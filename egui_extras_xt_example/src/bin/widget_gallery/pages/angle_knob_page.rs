@@ -2,7 +2,7 @@ use std::f32::consts::TAU;
 
 use eframe::egui::{DragValue, Grid, Ui};
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
-use egui_extras_xt::knobs::AngleKnob;
+use egui_extras_xt::knobs::{AngleKnob, AngleKnobPreset};
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
@@ -14,10 +14,11 @@ pub struct AngleKnobPage<'a> {
     value: f32,
     interactive: bool,
     diameter: f32,
+    preset: AngleKnobPreset,
     orientation: Orientation,
     winding: Winding,
-    shape: WidgetShape<'a>,
     wrap: WrapMode,
+    shape: WidgetShape<'a>,
     min: Option<f32>,
     max: Option<f32>,
     snap: Option<f32>,
@@ -31,12 +32,13 @@ impl<'a> Default for AngleKnobPage<'a> {
     fn default() -> AngleKnobPage<'a> {
         AngleKnobPage {
             value: 0.0,
+            preset: AngleKnobPreset::AdobePhotoshop,
             interactive: true,
             diameter: 32.0,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
-            shape: WidgetShape::Circle,
             wrap: WrapMode::Unsigned,
+            shape: WidgetShape::Circle,
             min: None,
             max: None,
             snap: None,
@@ -85,6 +87,15 @@ impl<'a> PageImpl for AngleKnobPage<'a> {
                 ui.add(DragValue::new(&mut self.diameter));
                 ui.end_row();
 
+                ui.label("Preset");
+                ui.horizontal(|ui| {
+                    ui.combobox_from_iter("", &mut self.preset, AngleKnobPreset::iter());
+                    if ui.button("\u{2714} Apply").clicked() {
+                        (self.orientation, self.winding, self.wrap) = self.preset.properties();
+                    }
+                });
+                ui.end_row();
+
                 ui.label("Orientation");
                 widget_orientation_ui(ui, &mut self.orientation);
                 ui.end_row();
@@ -95,14 +106,14 @@ impl<'a> PageImpl for AngleKnobPage<'a> {
                 });
                 ui.end_row();
 
-                ui.label("Shape");
-                widget_shape_ui(ui, &mut self.shape);
-                ui.end_row();
-
                 ui.label("Wrap");
                 ui.horizontal(|ui| {
                     ui.selectable_value_from_iter(&mut self.wrap, WrapMode::iter());
                 });
+                ui.end_row();
+
+                ui.label("Shape");
+                widget_shape_ui(ui, &mut self.shape);
                 ui.end_row();
 
                 ui.label("Minimum");
