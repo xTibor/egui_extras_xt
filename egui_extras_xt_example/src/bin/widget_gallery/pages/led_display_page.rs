@@ -26,7 +26,7 @@ impl Default for LedDisplayPage {
             range: 0.0..=1.0,
             style: DisplayStylePreset::Default.style(),
             style_preset: DisplayStylePreset::Default,
-            animated: false,
+            animated: true,
         }
     }
 }

@@ -24,7 +24,7 @@ impl LedDisplay {
             padding: 0.25,
             range: 0.0..=1.0,
             style: DisplayStylePreset::Default.style(),
-            animated: false,
+            animated: true,
         }
     }
 
