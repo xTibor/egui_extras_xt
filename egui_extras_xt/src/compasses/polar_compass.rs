@@ -84,7 +84,7 @@ impl<'a> PolarCompass<'a> {
     pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<f32>) -> f32) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
-            interactive: false,
+            interactive: true,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
             overflow: PolarCompassOverflow::Saturate,
@@ -105,8 +105,8 @@ impl<'a> PolarCompass<'a> {
             show_axes: true,
             show_rings: true,
             show_cursor: true,
-            show_marker_labels: false,
-            show_marker_lines: false,
+            show_marker_labels: true,
+            show_marker_lines: true,
             markers: &[],
             default_marker_color: DefaultCompassMarkerColor::HsvByAngle {
                 saturation: 1.0,
