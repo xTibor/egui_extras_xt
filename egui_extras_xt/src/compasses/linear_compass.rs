@@ -176,6 +176,8 @@ impl<'a> Widget for LinearCompass<'a> {
             },
         );
 
+        let mut child_ui = ui.child_ui(rect, *ui.layout());
+
         let constrain_value = |mut value| {
             if self.wrap == WrapMode::Signed {
                 // Animations require inclusive normalization bounds (-PI..=PI)
@@ -207,12 +209,15 @@ impl<'a> Widget for LinearCompass<'a> {
 
         if response.drag_released() {
             if self.animated {
-                ui.ctx().clear_animations();
-                ui.ctx()
-                    .animate_value_with_time(response.id, get(&mut self.get_set_value), 0.1);
+                child_ui.ctx().clear_animations();
+                child_ui.ctx().animate_value_with_time(
+                    response.id,
+                    get(&mut self.get_set_value),
+                    0.1,
+                );
             }
 
-            if let Some(snap_angle) = if ui.input().modifiers.shift_only() {
+            if let Some(snap_angle) = if child_ui.input().modifiers.shift_only() {
                 self.shift_snap
             } else {
                 self.snap
@@ -227,14 +232,14 @@ impl<'a> Widget for LinearCompass<'a> {
             }
         }
 
-        if ui.is_rect_visible(rect) {
-            let visuals = *ui.style().interact(&response);
+        if child_ui.is_rect_visible(rect) {
+            let visuals = *child_ui.style().interact(&response);
 
             let value = if self.animated && !response.dragged() {
-                ui.ctx().animate_value_with_time(
+                child_ui.ctx().animate_value_with_time(
                     response.id,
                     get(&mut self.get_set_value),
-                    ui.style().animation_time,
+                    child_ui.style().animation_time,
                 )
             } else {
                 get(&mut self.get_set_value)
@@ -245,18 +250,17 @@ impl<'a> Widget for LinearCompass<'a> {
                     - (value - angle) * (rect.width() / (self.spread * self.winding.to_float()))
             };
 
-            ui.painter().rect(
+            child_ui.painter().rect(
                 rect,
                 visuals.rounding,
-                ui.style().visuals.extreme_bg_color,
-                ui.style().visuals.noninteractive().fg_stroke,
+                child_ui.style().visuals.extreme_bg_color,
+                child_ui.style().visuals.noninteractive().fg_stroke,
             );
 
-            // TODO: Fix clipping
-            //ui.set_clip_rect(rect);
+            child_ui.set_clip_rect(rect);
 
             {
-                let paint_marker = |ui: &mut Ui,
+                let paint_marker = |child_ui: &mut Ui,
                                     angle: f32,
                                     label: Option<&str>,
                                     text_color: Color32,
@@ -282,7 +286,7 @@ impl<'a> Widget for LinearCompass<'a> {
                             Rect::from_center_size(center, Vec2::splat(self.height * 0.25))
                         };
 
-                        shape.paint(ui, marker_rect, fill, stroke)
+                        shape.paint(child_ui, marker_rect, fill, stroke)
                     }
 
                     // Draw marker text label
@@ -291,7 +295,7 @@ impl<'a> Widget for LinearCompass<'a> {
                             pos2(map_angle_to_screen(angle), rect.top() + self.height * 0.125);
 
                         if let Some(label) = label {
-                            ui.painter().text(
+                            child_ui.painter().text(
                                 label_center,
                                 Align2::CENTER_CENTER,
                                 label,
@@ -309,18 +313,20 @@ impl<'a> Widget for LinearCompass<'a> {
                     for marker in self.markers.iter() {
                         let marker_color = marker
                             .color
-                            .unwrap_or_else(|| self.default_marker_color.color(ui, marker));
+                            .unwrap_or_else(|| self.default_marker_color.color(&child_ui, marker));
 
                         let marker_stroke = {
-                            let stroke_color =
-                                tint_color_towards(marker_color, ui.style().visuals.text_color());
+                            let stroke_color = tint_color_towards(
+                                marker_color,
+                                child_ui.style().visuals.text_color(),
+                            );
                             Stroke::new(1.0, stroke_color)
                         };
 
                         let marker_shape = marker.shape.unwrap_or(self.default_marker_shape);
 
                         paint_marker(
-                            ui,
+                            &mut child_ui,
                             (tau as f32 * TAU) + marker.angle,
                             marker.label,
                             marker_color,
@@ -333,7 +339,7 @@ impl<'a> Widget for LinearCompass<'a> {
 
                 if self.show_cursor {
                     paint_marker(
-                        ui,
+                        &mut child_ui,
                         value,
                         Some(&format!("{:.0}°", value.to_degrees())),
                         visuals.text_color(),
@@ -376,18 +382,18 @@ impl<'a> Widget for LinearCompass<'a> {
                         unreachable!()
                     };
 
-                    ui.painter().line_segment(
+                    child_ui.painter().line_segment(
                         [tick_position, tick_position + tick_size * tick_scale],
-                        ui.style().visuals.noninteractive().fg_stroke,
+                        child_ui.style().visuals.noninteractive().fg_stroke,
                     );
 
                     if let Some(tick_label) = tick_label {
-                        ui.painter().text(
+                        child_ui.painter().text(
                             tick_label_center,
                             Align2::CENTER_CENTER,
                             tick_label,
                             FontId::new(self.height / 4.0, FontFamily::Proportional),
-                            ui.style().visuals.text_color(),
+                            child_ui.style().visuals.text_color(),
                         );
                     }
                 }
@@ -397,9 +403,9 @@ impl<'a> Widget for LinearCompass<'a> {
                 let paint_stop = |angle: f32| {
                     let stop_x = map_angle_to_screen(angle);
 
-                    ui.painter().line_segment(
+                    child_ui.painter().line_segment(
                         [pos2(stop_x, rect.top()), pos2(stop_x, rect.bottom())],
-                        ui.style().visuals.noninteractive().fg_stroke,
+                        child_ui.style().visuals.noninteractive().fg_stroke,
                     );
                 };
 
