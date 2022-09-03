@@ -6,6 +6,7 @@ pub mod barcode_page;
 pub mod datamatrix_page;
 pub mod hyperlink_with_icon_page;
 pub mod led_display_page;
+pub mod linear_compass_page;
 pub mod polar_compass_page;
 pub mod qrcode_page;
 pub mod segmented_display_page;
@@ -66,6 +67,10 @@ pub enum PageId {
     #[strum(to_string = "PolarCompass")]
     #[strum(props(feature = "compasses"))]
     PolarCompassPage,
+
+    #[strum(to_string = "LinearCompass")]
+    #[strum(props(feature = "compasses"))]
+    LinearCompassPage,
 }
 
 impl PageId {
@@ -88,6 +93,9 @@ impl PageId {
                 Box::new(segmented_display_page::SegmentedDisplayPage::default())
             }
             PageId::PolarCompassPage => Box::new(polar_compass_page::PolarCompassPage::default()),
+            PageId::LinearCompassPage => {
+                Box::new(linear_compass_page::LinearCompassPage::default())
+            }
         }
     }
 }

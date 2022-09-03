@@ -60,10 +60,10 @@ impl<'a> LinearCompass<'a> {
     pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<f32>) -> f32) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
-            interactive: false,
+            interactive: true,
             wrap: WrapMode::Unsigned,
             winding: Winding::Clockwise,
-            width: 256.0,
+            width: 512.0,
             height: 48.0,
             spread: TAU / 2.0,
             labels: ["N", "E", "S", "W"],
@@ -252,7 +252,8 @@ impl<'a> Widget for LinearCompass<'a> {
                 ui.style().visuals.noninteractive().fg_stroke,
             );
 
-            ui.set_clip_rect(rect);
+            // TODO: Fix clipping
+            //ui.set_clip_rect(rect);
 
             {
                 let paint_marker = |ui: &mut Ui,
