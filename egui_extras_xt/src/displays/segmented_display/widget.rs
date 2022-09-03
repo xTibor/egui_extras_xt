@@ -146,9 +146,10 @@ impl Widget for SegmentedDisplayWidget {
         child_ui.set_clip_rect(child_ui.clip_rect().intersect(rect));
 
         if child_ui.is_rect_visible(rect) {
-            child_ui.painter().rect(
+            // Draw the widget background without clipping
+            ui.painter().rect(
                 rect,
-                child_ui.style().visuals.noninteractive().rounding,
+                ui.style().visuals.noninteractive().rounding,
                 self.style.background_color,
                 Stroke::none(),
             );

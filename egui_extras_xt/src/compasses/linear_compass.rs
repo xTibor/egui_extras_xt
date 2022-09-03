@@ -251,11 +251,12 @@ impl<'a> Widget for LinearCompass<'a> {
                     - (value - angle) * (rect.width() / (self.spread * self.winding.to_float()))
             };
 
-            child_ui.painter().rect(
+            // Draw the widget background without clipping to avoid truncated outline strokes
+            ui.painter().rect(
                 rect,
                 visuals.rounding,
-                child_ui.style().visuals.extreme_bg_color,
-                child_ui.style().visuals.noninteractive().fg_stroke,
+                ui.style().visuals.extreme_bg_color,
+                ui.style().visuals.noninteractive().fg_stroke,
             );
 
             {
