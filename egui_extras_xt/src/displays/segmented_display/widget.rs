@@ -142,10 +142,13 @@ impl Widget for SegmentedDisplayWidget {
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
-        if ui.is_rect_visible(rect) {
-            ui.painter().rect(
+        let mut child_ui = ui.child_ui(rect, *ui.layout());
+        child_ui.set_clip_rect(child_ui.clip_rect().intersect(rect));
+
+        if child_ui.is_rect_visible(rect) {
+            child_ui.painter().rect(
                 rect,
-                ui.style().visuals.noninteractive().rounding,
+                child_ui.style().visuals.noninteractive().rounding,
                 self.style.background_color,
                 Stroke::none(),
             );
@@ -185,7 +188,7 @@ impl Widget for SegmentedDisplayWidget {
 
                     // TODO: concave_polygon
                     // https://github.com/emilk/egui/issues/513
-                    ui.painter().add(Shape::convex_polygon(
+                    child_ui.painter().add(Shape::convex_polygon(
                         segment_points.to_vec(),
                         self.style.foreground_color(segment_active),
                         self.style.foreground_stroke(segment_active),
@@ -193,7 +196,7 @@ impl Widget for SegmentedDisplayWidget {
                 }
 
                 if self.show_dots {
-                    ui.painter().circle(
+                    child_ui.painter().circle(
                         dot_pos,
                         segment_thickness / 2.0,
                         self.style.foreground_color(digit.dot),
@@ -202,14 +205,14 @@ impl Widget for SegmentedDisplayWidget {
                 }
 
                 if self.show_colons {
-                    ui.painter().circle(
+                    child_ui.painter().circle(
                         colon_top_pos,
                         segment_thickness / 2.0,
                         self.style.foreground_color(digit.colon),
                         self.style.foreground_stroke(digit.colon),
                     );
 
-                    ui.painter().circle(
+                    child_ui.painter().circle(
                         colon_bottom_pos,
                         segment_thickness / 2.0,
                         self.style.foreground_color(digit.colon),
@@ -218,7 +221,7 @@ impl Widget for SegmentedDisplayWidget {
                 }
 
                 if self.show_apostrophes {
-                    ui.painter().add(Shape::convex_polygon(
+                    child_ui.painter().add(Shape::convex_polygon(
                         apostrophe_points.to_vec(),
                         self.style.foreground_color(digit.apostrophe),
                         self.style.foreground_stroke(digit.apostrophe),

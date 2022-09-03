@@ -177,6 +177,7 @@ impl<'a> Widget for LinearCompass<'a> {
         );
 
         let mut child_ui = ui.child_ui(rect, *ui.layout());
+        child_ui.set_clip_rect(child_ui.clip_rect().intersect(rect));
 
         let constrain_value = |mut value| {
             if self.wrap == WrapMode::Signed {
@@ -256,8 +257,6 @@ impl<'a> Widget for LinearCompass<'a> {
                 child_ui.style().visuals.extreme_bg_color,
                 child_ui.style().visuals.noninteractive().fg_stroke,
             );
-
-            child_ui.set_clip_rect(rect);
 
             {
                 let paint_marker = |child_ui: &mut Ui,
