@@ -94,7 +94,7 @@ impl<'a> PolarCompass<'a> {
             max: None,
             snap: None,
             animated: false,
-            shift_snap: Some(TAU / 24.0),
+            shift_snap: Some(15.0f32.to_radians()),
             labels: ["N", "E", "S", "W"],
             label_height: 24.0,
             max_distance: 10000.0,

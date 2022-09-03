@@ -129,7 +129,7 @@ impl<'a> AngleKnob<'a> {
             min: None,
             max: None,
             snap: None,
-            shift_snap: Some(TAU / 24.0),
+            shift_snap: Some(15.0f32.to_radians()),
             animated: false,
             show_axes: true,
             axis_count: 4,

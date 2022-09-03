@@ -1,5 +1,3 @@
-use std::f32::consts::TAU;
-
 use eframe::egui::{DragValue, Grid, Ui};
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::knobs::{AngleKnob, AngleKnobPreset};
@@ -42,7 +40,7 @@ impl<'a> Default for AngleKnobPage<'a> {
             min: None,
             max: None,
             snap: None,
-            shift_snap: Some(TAU / 24.0),
+            shift_snap: Some(15.0f32.to_radians()),
             animated: false,
             show_axes: true,
             axis_count: 4,

@@ -1,5 +1,3 @@
-use std::f32::consts::TAU;
-
 use eframe::egui::{DragValue, Grid, Ui};
 use eframe::epaint::Color32;
 use egui_extras_xt::common::{Winding, WrapMode};
@@ -40,10 +38,10 @@ impl Default for LinearCompassPage {
             winding: Winding::Clockwise,
             width: 512.0,
             height: 48.0,
-            spread: TAU / 2.0,
+            spread: 180.0f32.to_radians(),
             //labels: ["N", "E", "S", "W"],
             snap: None,
-            shift_snap: Some(TAU / 36.0),
+            shift_snap: Some(10.0f32.to_radians()),
             min: None,
             max: None,
             animated: false,
