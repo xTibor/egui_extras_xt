@@ -9,7 +9,7 @@ use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
 
-use crate::pages::ui::widget_orientation_ui;
+use crate::pages::ui::{default_compass_marker_color_ui, widget_orientation_ui};
 use crate::pages::PageImpl;
 
 pub struct PolarCompassPage {
@@ -153,6 +153,12 @@ impl PageImpl for PolarCompassPage {
                 });
                 ui.end_row();
 
+                ui.label("Overflow");
+                ui.horizontal(|ui| {
+                    ui.selectable_value_from_iter(&mut self.overflow, PolarCompassOverflow::iter());
+                });
+                ui.end_row();
+
                 ui.label("Diameter");
                 ui.add(DragValue::new(&mut self.diameter));
                 ui.end_row();
@@ -225,7 +231,9 @@ impl PageImpl for PolarCompassPage {
                 ui.checkbox(&mut self.show_marker_lines, "");
                 ui.end_row();
 
-                // TODO: self.default_marker_color
+                ui.label("Default marker color");
+                default_compass_marker_color_ui(ui, &mut self.default_marker_color);
+                ui.end_row();
 
                 // TODO: self.default_marker_shape
             });

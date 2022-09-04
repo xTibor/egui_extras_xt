@@ -8,6 +8,7 @@ use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
 
+use crate::pages::ui::default_compass_marker_color_ui;
 use crate::pages::PageImpl;
 
 pub struct LinearCompassPage {
@@ -74,10 +75,7 @@ impl PageImpl for LinearCompassPage {
                 .default_marker_color(self.default_marker_color)
                 .default_marker_shape(self.default_marker_shape)
                 .markers(&[
-                    CompassMarker::new(0.0f32.to_radians())
-                        .shape(CompassMarkerShape::Star(5, 0.5))
-                        .label("Test")
-                        .color(Color32::from_rgb(0x00, 0xA0, 0x00)),
+                    CompassMarker::new(0.0f32.to_radians()).label("Default"),
                     // Grand Theft Auto style markers
                     CompassMarker::new(70.0f32.to_radians())
                         .shape(CompassMarkerShape::Square)
@@ -101,17 +99,33 @@ impl PageImpl for LinearCompassPage {
                         .label("Dog")
                         .color(Color32::from_rgb(0xC0, 0x8C, 0x85)),
                     // All marker shapes
-                    CompassMarker::new(240.0f32.to_radians()).shape(CompassMarkerShape::Square),
-                    CompassMarker::new(250.0f32.to_radians()).shape(CompassMarkerShape::Circle),
-                    CompassMarker::new(260.0f32.to_radians()).shape(CompassMarkerShape::RightArrow),
-                    CompassMarker::new(270.0f32.to_radians()).shape(CompassMarkerShape::UpArrow),
-                    CompassMarker::new(280.0f32.to_radians()).shape(CompassMarkerShape::LeftArrow),
-                    CompassMarker::new(290.0f32.to_radians()).shape(CompassMarkerShape::DownArrow),
-                    CompassMarker::new(300.0f32.to_radians()).shape(CompassMarkerShape::Diamond),
+                    CompassMarker::new(240.0f32.to_radians())
+                        .shape(CompassMarkerShape::Square)
+                        .label("A"),
+                    CompassMarker::new(250.0f32.to_radians())
+                        .shape(CompassMarkerShape::Circle)
+                        .label("B"),
+                    CompassMarker::new(260.0f32.to_radians())
+                        .shape(CompassMarkerShape::RightArrow)
+                        .label("C"),
+                    CompassMarker::new(270.0f32.to_radians())
+                        .shape(CompassMarkerShape::UpArrow)
+                        .label("D"),
+                    CompassMarker::new(280.0f32.to_radians())
+                        .shape(CompassMarkerShape::LeftArrow)
+                        .label("E"),
+                    CompassMarker::new(290.0f32.to_radians())
+                        .shape(CompassMarkerShape::DownArrow)
+                        .label("F"),
+                    CompassMarker::new(300.0f32.to_radians())
+                        .shape(CompassMarkerShape::Diamond)
+                        .label("G"),
                     CompassMarker::new(310.0f32.to_radians())
-                        .shape(CompassMarkerShape::Star(5, 0.5)),
+                        .shape(CompassMarkerShape::Star(5, 0.5))
+                        .label("H"),
                     CompassMarker::new(320.0f32.to_radians())
-                        .shape(CompassMarkerShape::Emoji('🗿')),
+                        .shape(CompassMarkerShape::Emoji('🗿'))
+                        .label("I"),
                     // Transparent colors
                     CompassMarker::new(30.0f32.to_radians())
                         .shape(CompassMarkerShape::Square)
@@ -192,7 +206,9 @@ impl PageImpl for LinearCompassPage {
                 ui.checkbox(&mut self.show_cursor, "");
                 ui.end_row();
 
-                // TODO: self.default_marker_color
+                ui.label("Default marker color");
+                default_compass_marker_color_ui(ui, &mut self.default_marker_color);
+                ui.end_row();
 
                 // TODO: self.default_marker_shape
             });

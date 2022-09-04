@@ -31,10 +31,10 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: f32) {
 
 #[derive(Clone, Copy, Debug, Display, EnumIter, Eq, PartialEq)]
 pub enum PolarCompassOverflow {
-    #[strum(to_string = "clip")]
+    #[strum(to_string = "Clip")]
     Clip,
 
-    #[strum(to_string = "saturate")]
+    #[strum(to_string = "Saturate")]
     Saturate,
 }
 
