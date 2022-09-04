@@ -27,8 +27,8 @@ pub struct PolarCompassPage {
     snap: Option<f32>,
     shift_snap: Option<f32>,
     animated: bool,
-    //labels: CompassLabels<'a>,
-    label_height: f32,
+    //axis_labels: CompassLabels<'a>,
+    axis_label_height: f32,
     max_distance: f32,
     scale_log_base: f32,
     scale_log_mult: f32,
@@ -59,7 +59,7 @@ impl Default for PolarCompassPage {
             animated: false,
             shift_snap: Some(15.0f32.to_radians()),
             //labels: ["N", "E", "S", "W"],
-            label_height: 24.0,
+            axis_label_height: 24.0,
             max_distance: 10000.0,
             scale_log_base: 10.0,
             scale_log_mult: 1.0,
@@ -94,7 +94,7 @@ impl PageImpl for PolarCompassPage {
                 .snap(self.snap)
                 .shift_snap(self.shift_snap)
                 .animated(self.animated)
-                .label_height(self.label_height)
+                .axis_label_height(self.axis_label_height)
                 .max_distance(self.max_distance)
                 .scale_log_base(self.scale_log_base)
                 .scale_log_mult(self.scale_log_mult)
@@ -187,10 +187,10 @@ impl PageImpl for PolarCompassPage {
                 ui.optional_value_widget(&mut self.shift_snap, |ui, value| ui.drag_angle(value));
                 ui.end_row();
 
-                // TODO: self.labels
+                // TODO: self.axis_labels
 
-                ui.label("Label height");
-                ui.add(DragValue::new(&mut self.label_height));
+                ui.label("Axis label height");
+                ui.add(DragValue::new(&mut self.axis_label_height));
                 ui.end_row();
 
                 ui.label("Maximum distance");

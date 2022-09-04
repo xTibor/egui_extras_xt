@@ -54,8 +54,8 @@ pub struct PolarCompass<'a> {
     snap: Option<f32>,
     shift_snap: Option<f32>,
     animated: bool,
-    labels: CompassLabels<'a>,
-    label_height: f32,
+    axis_labels: CompassLabels<'a>,
+    axis_label_height: f32,
     max_distance: f32,
     scale_log_base: f32,
     scale_log_mult: f32,
@@ -95,8 +95,8 @@ impl<'a> PolarCompass<'a> {
             snap: None,
             animated: false,
             shift_snap: Some(15.0f32.to_radians()),
-            labels: ["N", "E", "S", "W"],
-            label_height: 24.0,
+            axis_labels: ["N", "E", "S", "W"],
+            axis_label_height: 24.0,
             max_distance: 10000.0,
             scale_log_base: 10.0,
             scale_log_mult: 1.0,
@@ -184,14 +184,14 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
-    pub fn labels(mut self, labels: CompassLabels<'a>) -> Self {
-        self.labels = labels;
+    pub fn axis_labels(mut self, axis_labels: CompassLabels<'a>) -> Self {
+        self.axis_labels = axis_labels;
         self
     }
 
-    pub fn label_height(mut self, label_height: f32) -> Self {
-        assert!(label_height > 0.0);
-        self.label_height = label_height;
+    pub fn axis_label_height(mut self, axis_label_height: f32) -> Self {
+        assert!(axis_label_height > 0.0);
+        self.axis_label_height = axis_label_height;
         self
     }
 
@@ -263,7 +263,7 @@ impl<'a> PolarCompass<'a> {
 
 impl<'a> Widget for PolarCompass<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
-        let desired_size = Vec2::splat(self.diameter + self.label_height * 2.0);
+        let desired_size = Vec2::splat(self.diameter + self.axis_label_height * 2.0);
 
         let (rect, mut response) = ui.allocate_exact_size(
             desired_size,
@@ -371,8 +371,8 @@ impl<'a> Widget for PolarCompass<'a> {
             }
 
             if self.show_axes {
-                for (axis_index, axis_label) in self.labels.iter().enumerate() {
-                    let axis_angle = axis_index as f32 * (TAU / (self.labels.len() as f32));
+                for (axis_index, axis_label) in self.axis_labels.iter().enumerate() {
+                    let axis_angle = axis_index as f32 * (TAU / (self.axis_labels.len() as f32));
 
                     ui.painter().add(Shape::line_segment(
                         [
@@ -384,10 +384,11 @@ impl<'a> Widget for PolarCompass<'a> {
 
                     ui.painter().text(
                         rect.center()
-                            + angle_to_direction(axis_angle) * (radius + self.label_height / 2.0),
+                            + angle_to_direction(axis_angle)
+                                * (radius + self.axis_label_height / 2.0),
                         Align2::CENTER_CENTER,
                         axis_label,
-                        FontId::new(self.label_height, FontFamily::Proportional),
+                        FontId::new(self.axis_label_height, FontFamily::Proportional),
                         visuals.text_color(), // TODO: Semantically correct color
                     );
                 }

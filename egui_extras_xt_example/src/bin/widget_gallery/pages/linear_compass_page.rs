@@ -19,7 +19,7 @@ pub struct LinearCompassPage {
     width: f32,
     height: f32,
     spread: f32,
-    //labels: CompassLabels<'a>,
+    //axis_labels: CompassLabels<'a>,
     snap: Option<f32>,
     shift_snap: Option<f32>,
     min: Option<f32>,
@@ -40,7 +40,7 @@ impl Default for LinearCompassPage {
             width: 512.0,
             height: 48.0,
             spread: 180.0f32.to_radians(),
-            //labels: ["N", "E", "S", "W"],
+            //axis_labels: ["N", "E", "S", "W"],
             snap: None,
             shift_snap: Some(10.0f32.to_radians()),
             min: None,
@@ -180,7 +180,7 @@ impl PageImpl for LinearCompassPage {
                 ui.drag_angle(&mut self.spread);
                 ui.end_row();
 
-                // TODO: self.labels
+                // TODO: self.axis_labels
 
                 ui.label("Snap");
                 ui.optional_value_widget(&mut self.snap, |ui, value| ui.drag_angle(value));
