@@ -99,6 +99,7 @@ impl eframe::App for CompassWidgetsExample {
             ui.add(
                 PolarCompass::new(&mut self.heading)
                     .interactive(true)
+                    .axis_labels(["N", "E", "S", "W"].into())
                     .markers(&markers)
                     .diameter(512.0)
                     .show_marker_labels(true)
@@ -110,6 +111,7 @@ impl eframe::App for CompassWidgetsExample {
             ui.add(
                 LinearCompass::new(&mut self.heading)
                     .interactive(true)
+                    .axis_labels(["N", "E", "S", "W"].into())
                     .width(512.0 + 24.0 * 2.0)
                     .default_marker_shape(CompassMarkerShape::Star(5, 0.5))
                     .markers(&markers),
