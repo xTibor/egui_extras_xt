@@ -147,8 +147,10 @@ pub fn widget_shape_ui(ui: &mut Ui, shape: &mut WidgetShape) {
                 if let WidgetShape::Squircle(ref mut factor) = shape {
                     ui.add(DragValue::new(factor));
                 } else {
-                    let mut dummy_value = 0.0;
-                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                    let factor = &mut 4.0;
+                    ui.add_enabled_ui(false, |ui| {
+                        ui.add(DragValue::new(factor));
+                    });
                 }
             })
         });
@@ -163,8 +165,10 @@ pub fn widget_shape_ui(ui: &mut Ui, shape: &mut WidgetShape) {
                 if let WidgetShape::Polygon(ref mut n) = shape {
                     ui.add(DragValue::new(n));
                 } else {
-                    let mut dummy_value = 0;
-                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                    let n = &mut 6;
+                    ui.add_enabled_ui(false, |ui| {
+                        ui.add(DragValue::new(n));
+                    });
                 }
             })
         });
@@ -183,9 +187,11 @@ pub fn widget_shape_ui(ui: &mut Ui, shape: &mut WidgetShape) {
                     ui.add(DragValue::new(n));
                     ui.add(DragValue::new(factor));
                 } else {
-                    let mut dummy_value = 0;
-                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
-                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                    let (n, factor) = (&mut 6, &mut 1.5);
+                    ui.add_enabled_ui(false, |ui| {
+                        ui.add(DragValue::new(n));
+                        ui.add(DragValue::new(factor));
+                    });
                 }
             })
         });
@@ -213,8 +219,10 @@ pub fn widget_orientation_ui(ui: &mut Ui, orientation: &mut Orientation) {
             if let Orientation::Custom(angle) = orientation {
                 ui.drag_angle(angle);
             } else {
-                let mut dummy_value = 0.0;
-                ui.add_enabled_ui(false, |ui| ui.drag_angle(&mut dummy_value));
+                let angle = &mut 0.0;
+                ui.add_enabled_ui(false, |ui| {
+                    ui.drag_angle(angle);
+                });
             }
         });
     });
@@ -238,14 +246,16 @@ pub fn default_compass_marker_color_ui(
             ui.vertical(|ui| {
                 let is_fixed = matches!(default_marker_color, DefaultCompassMarkerColor::Fixed(..));
                 if ui.selectable_label(is_fixed, "Fixed").clicked() {
-                    *default_marker_color = DefaultCompassMarkerColor::Fixed(Color32::GRAY);
+                    *default_marker_color = DefaultCompassMarkerColor::Fixed(Color32::default());
                 }
 
                 if let DefaultCompassMarkerColor::Fixed(color) = default_marker_color {
                     ui.color_edit_button_srgba(color);
                 } else {
-                    let mut dummy_value = Color32::default();
-                    ui.add_enabled_ui(false, |ui| ui.color_edit_button_srgba(&mut dummy_value));
+                    let color = &mut Color32::default();
+                    ui.add_enabled_ui(false, |ui| {
+                        ui.color_edit_button_srgba(color);
+                    });
                 }
             });
         });
@@ -269,9 +279,11 @@ pub fn default_compass_marker_color_ui(
                     ui.add(DragValue::new(saturation));
                     ui.add(DragValue::new(value));
                 } else {
-                    let mut dummy_value = 0.0;
-                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
-                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                    let (saturation, value) = (&mut 1.0, &mut 1.0);
+                    ui.add_enabled_ui(false, |ui| {
+                        ui.add(DragValue::new(saturation));
+                        ui.add(DragValue::new(value));
+                    });
                 }
             });
         });
@@ -295,9 +307,11 @@ pub fn default_compass_marker_color_ui(
                     ui.add(DragValue::new(saturation));
                     ui.add(DragValue::new(value));
                 } else {
-                    let mut dummy_value = 0.0;
-                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
-                    ui.add_enabled_ui(false, |ui| ui.add(DragValue::new(&mut dummy_value)));
+                    let (saturation, value) = (&mut 1.0, &mut 1.0);
+                    ui.add_enabled_ui(false, |ui| {
+                        ui.add(DragValue::new(saturation));
+                        ui.add(DragValue::new(value));
+                    });
                 }
             });
         });
