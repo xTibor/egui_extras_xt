@@ -7,7 +7,7 @@ use epaint::{Color32, FontFamily, FontId, Stroke};
 
 use crate::common::{normalized_angle_unsigned_incl, Winding, WrapMode};
 use crate::compasses::{
-    CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor,
+    CompassAxisLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor,
 };
 
 // ----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ pub struct LinearCompass<'a> {
     width: f32,
     height: f32,
     spread: f32,
-    axis_labels: CompassLabels<'a>,
+    axis_labels: CompassAxisLabels<'a>,
     snap: Option<f32>,
     shift_snap: Option<f32>,
     min: Option<f32>,
@@ -116,7 +116,7 @@ impl<'a> LinearCompass<'a> {
         self
     }
 
-    pub fn axis_labels(mut self, axis_labels: CompassLabels<'a>) -> Self {
+    pub fn axis_labels(mut self, axis_labels: CompassAxisLabels<'a>) -> Self {
         self.axis_labels = axis_labels;
         self
     }

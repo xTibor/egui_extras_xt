@@ -10,7 +10,7 @@ use strum::{Display, EnumIter};
 
 use crate::common::{snap_wrap_constrain_angle, Orientation, SymLog, Winding, WrapMode};
 use crate::compasses::{
-    CompassLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor,
+    CompassAxisLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor,
 };
 
 // ----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ pub struct PolarCompass<'a> {
     snap: Option<f32>,
     shift_snap: Option<f32>,
     animated: bool,
-    axis_labels: CompassLabels<'a>,
+    axis_labels: CompassAxisLabels<'a>,
     axis_label_height: f32,
     max_distance: f32,
     scale_log_base: f32,
@@ -184,7 +184,7 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
-    pub fn axis_labels(mut self, axis_labels: CompassLabels<'a>) -> Self {
+    pub fn axis_labels(mut self, axis_labels: CompassAxisLabels<'a>) -> Self {
         self.axis_labels = axis_labels;
         self
     }

@@ -10,7 +10,8 @@ use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
 
 use crate::pages::ui::{
-    default_compass_marker_color_ui, default_compass_marker_shape_ui, widget_orientation_ui,
+    vec_to_compass_axis_labels, compass_axis_labels_ui, default_compass_marker_color_ui,
+    default_compass_marker_shape_ui, widget_orientation_ui,
 };
 use crate::pages::PageImpl;
 
@@ -27,7 +28,7 @@ pub struct PolarCompassPage {
     snap: Option<f32>,
     shift_snap: Option<f32>,
     animated: bool,
-    //axis_labels: CompassLabels<'a>,
+    axis_labels: Vec<String>,
     axis_label_height: f32,
     max_distance: f32,
     scale_log_base: f32,
@@ -58,7 +59,12 @@ impl Default for PolarCompassPage {
             snap: None,
             animated: false,
             shift_snap: Some(15.0f32.to_radians()),
-            //labels: ["N", "E", "S", "W"],
+            axis_labels: vec![
+                "N".to_owned(),
+                "E".to_owned(),
+                "S".to_owned(),
+                "W".to_owned(),
+            ],
             axis_label_height: 24.0,
             max_distance: 10000.0,
             scale_log_base: 10.0,
@@ -93,6 +99,7 @@ impl PageImpl for PolarCompassPage {
                 .max(self.max)
                 .snap(self.snap)
                 .shift_snap(self.shift_snap)
+                .axis_labels(vec_to_compass_axis_labels(&self.axis_labels))
                 .animated(self.animated)
                 .axis_label_height(self.axis_label_height)
                 .max_distance(self.max_distance)
@@ -187,7 +194,9 @@ impl PageImpl for PolarCompassPage {
                 ui.optional_value_widget(&mut self.shift_snap, |ui, value| ui.drag_angle(value));
                 ui.end_row();
 
-                // TODO: self.axis_labels
+                ui.label("Axis labels");
+                compass_axis_labels_ui(ui, &mut self.axis_labels);
+                ui.end_row();
 
                 ui.label("Axis label height");
                 ui.add(DragValue::new(&mut self.axis_label_height));

@@ -8,4 +8,4 @@ pub use polar_compass::{PolarCompass, PolarCompassOverflow};
 
 // ----------------------------------------------------------------------------
 
-pub type CompassLabels<'a> = [&'a str; 4];
+pub type CompassAxisLabels<'a> = [&'a str; 4];

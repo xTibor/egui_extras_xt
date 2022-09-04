@@ -8,7 +8,10 @@ use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
 
-use crate::pages::ui::{default_compass_marker_color_ui, default_compass_marker_shape_ui};
+use crate::pages::ui::{
+    vec_to_compass_axis_labels, compass_axis_labels_ui, default_compass_marker_color_ui,
+    default_compass_marker_shape_ui,
+};
 use crate::pages::PageImpl;
 
 pub struct LinearCompassPage {
@@ -19,7 +22,7 @@ pub struct LinearCompassPage {
     width: f32,
     height: f32,
     spread: f32,
-    //axis_labels: CompassLabels<'a>,
+    axis_labels: Vec<String>,
     snap: Option<f32>,
     shift_snap: Option<f32>,
     min: Option<f32>,
@@ -42,7 +45,12 @@ impl Default for LinearCompassPage {
             width: 512.0,
             height: 48.0,
             spread: 180.0f32.to_radians(),
-            //axis_labels: ["N", "E", "S", "W"],
+            axis_labels: vec![
+                "N".to_owned(),
+                "E".to_owned(),
+                "S".to_owned(),
+                "W".to_owned(),
+            ],
             snap: None,
             shift_snap: Some(10.0f32.to_radians()),
             min: None,
@@ -71,6 +79,7 @@ impl PageImpl for LinearCompassPage {
                 .height(self.height)
                 .spread(self.spread)
                 .snap(self.snap)
+                .axis_labels(vec_to_compass_axis_labels(&self.axis_labels))
                 .shift_snap(self.shift_snap)
                 .min(self.min)
                 .max(self.max)
@@ -186,7 +195,9 @@ impl PageImpl for LinearCompassPage {
                 ui.drag_angle(&mut self.spread);
                 ui.end_row();
 
-                // TODO: self.axis_labels
+                ui.label("Axis labels");
+                compass_axis_labels_ui(ui, &mut self.axis_labels);
+                ui.end_row();
 
                 ui.label("Snap");
                 ui.optional_value_widget(&mut self.snap, |ui, value| ui.drag_angle(value));
