@@ -1,7 +1,7 @@
-use eframe::egui::{DragValue, Grid, Ui};
+use eframe::egui::{DragValue, Grid, TextEdit, Ui};
 use eframe::epaint::Color32;
 use egui_extras_xt::common::{Orientation, WidgetShape};
-use egui_extras_xt::compasses::DefaultCompassMarkerColor;
+use egui_extras_xt::compasses::{CompassMarkerShape, DefaultCompassMarkerColor};
 use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
 use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
@@ -321,6 +321,69 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompa
                     {
                         ui.add(DragValue::new(saturation));
                         ui.add(DragValue::new(value));
+                    }
+                });
+            });
+        });
+    });
+}
+
+pub fn default_compass_marker_shape_ui(ui: &mut Ui, mut value: &mut CompassMarkerShape) {
+    ui.horizontal_centered(|ui| {
+        ui.combobox_from_slice(
+            "",
+            value,
+            &[
+                CompassMarkerShape::Square,
+                CompassMarkerShape::Circle,
+                CompassMarkerShape::RightArrow,
+                CompassMarkerShape::UpArrow,
+                CompassMarkerShape::LeftArrow,
+                CompassMarkerShape::DownArrow,
+                CompassMarkerShape::Diamond,
+            ],
+        );
+
+        ui.group(|ui| {
+            ui.vertical(|ui| {
+                let selected = matches!(value, CompassMarkerShape::Star(..));
+                let default_value = || CompassMarkerShape::Star(5, 0.5);
+
+                if ui.selectable_label(selected, "Star").clicked() {
+                    *value = default_value();
+                }
+
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let CompassMarkerShape::Star(ref mut rays, ref mut ratio) =
+                        if selected { &mut value } else { &mut tmp }
+                    {
+                        ui.add(DragValue::new(rays));
+                        ui.add(DragValue::new(ratio));
+                    }
+                });
+            });
+        });
+
+        ui.group(|ui| {
+            ui.vertical(|ui| {
+                let selected = matches!(value, CompassMarkerShape::Emoji(..));
+                let default_value = || CompassMarkerShape::Emoji('?');
+
+                if ui.selectable_label(selected, "Emoji").clicked() {
+                    *value = default_value();
+                }
+
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let CompassMarkerShape::Emoji(ref mut emoji) =
+                        if selected { &mut value } else { &mut tmp }
+                    {
+                        let mut tmp = emoji.to_string();
+                        ui.add(TextEdit::singleline(&mut tmp).desired_width(20.0));
+                        *emoji = tmp.chars().next().unwrap_or(' ');
                     }
                 });
             });

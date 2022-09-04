@@ -3,6 +3,7 @@ use std::f32::consts::TAU;
 use egui::color::Hsva;
 use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Shape, Stroke, Ui, Vec2};
 use itertools::Itertools;
+use strum::Display;
 
 use crate::common::normalized_angle_unsigned_excl;
 use crate::hash::PearsonHash;
@@ -81,16 +82,33 @@ impl<'a> CompassMarker<'a> {
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Display, PartialEq)]
 pub enum CompassMarkerShape {
+    #[strum(to_string = "Square")]
     Square,
+
+    #[strum(to_string = "Circle")]
     Circle,
+
+    #[strum(to_string = "Right arrow")]
     RightArrow,
+
+    #[strum(to_string = "Up arrow")]
     UpArrow,
+
+    #[strum(to_string = "Left arrow")]
     LeftArrow,
+
+    #[strum(to_string = "Down arrow")]
     DownArrow,
+
+    #[strum(to_string = "Diamond")]
     Diamond,
+
+    #[strum(to_string = "Star")]
     Star(usize, f32),
+
+    #[strum(to_string = "Emoji")]
     Emoji(char),
 }
 

@@ -9,7 +9,9 @@ use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
 
-use crate::pages::ui::{default_compass_marker_color_ui, widget_orientation_ui};
+use crate::pages::ui::{
+    default_compass_marker_color_ui, default_compass_marker_shape_ui, widget_orientation_ui,
+};
 use crate::pages::PageImpl;
 
 pub struct PolarCompassPage {
@@ -235,7 +237,9 @@ impl PageImpl for PolarCompassPage {
                 default_compass_marker_color_ui(ui, &mut self.default_marker_color);
                 ui.end_row();
 
-                // TODO: self.default_marker_shape
+                ui.label("Default marker shape");
+                default_compass_marker_shape_ui(ui, &mut self.default_marker_shape);
+                ui.end_row();
             });
     }
 }
