@@ -284,7 +284,7 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompa
                     value: 1.0,
                 };
 
-                if ui.selectable_label(selected, "HsvByAngle").clicked() {
+                if ui.selectable_label(selected, "HSV by angle").clicked() {
                     *value = default_value();
                 }
 
@@ -309,7 +309,7 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompa
                     value: 1.0,
                 };
 
-                if ui.selectable_label(selected, "HsvByLabel").clicked() {
+                if ui.selectable_label(selected, "HSV by label").clicked() {
                     *value = default_value();
                 }
 
