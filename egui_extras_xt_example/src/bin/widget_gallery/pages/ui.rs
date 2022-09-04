@@ -242,91 +242,87 @@ pub fn widget_orientation_ui(ui: &mut Ui, mut value: &mut Orientation) {
     });
 }
 
-pub fn default_compass_marker_color_ui(
-    ui: &mut Ui,
-    default_marker_color: &mut DefaultCompassMarkerColor,
-) {
+pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompassMarkerColor) {
     ui.horizontal_top(|ui| {
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_system = matches!(default_marker_color, DefaultCompassMarkerColor::System);
-                if ui.selectable_label(is_system, "System").clicked() {
-                    *default_marker_color = DefaultCompassMarkerColor::System;
+                let selected = matches!(value, DefaultCompassMarkerColor::System);
+                let default_value = || DefaultCompassMarkerColor::System;
+
+                if ui.selectable_label(selected, "System").clicked() {
+                    *value = default_value();
                 }
             });
         });
 
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_fixed = matches!(default_marker_color, DefaultCompassMarkerColor::Fixed(..));
-                if ui.selectable_label(is_fixed, "Fixed").clicked() {
-                    *default_marker_color = DefaultCompassMarkerColor::Fixed(Color32::default());
+                let selected = matches!(value, DefaultCompassMarkerColor::Fixed(..));
+                let default_value = || DefaultCompassMarkerColor::Fixed(Color32::default());
+
+                if ui.selectable_label(selected, "Fixed").clicked() {
+                    *value = default_value();
                 }
 
-                if let DefaultCompassMarkerColor::Fixed(color) = default_marker_color {
-                    ui.color_edit_button_srgba(color);
-                } else {
-                    let color = &mut Color32::default();
-                    ui.add_enabled_ui(false, |ui| {
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let DefaultCompassMarkerColor::Fixed(ref mut color) =
+                        if selected { &mut value } else { &mut tmp }
+                    {
                         ui.color_edit_button_srgba(color);
-                    });
-                }
+                    }
+                });
             });
         });
 
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_hsv_by_angle = matches!(
-                    default_marker_color,
-                    DefaultCompassMarkerColor::HsvByAngle { .. }
-                );
-                if ui.selectable_label(is_hsv_by_angle, "HsvByAngle").clicked() {
-                    *default_marker_color = DefaultCompassMarkerColor::HsvByAngle {
-                        saturation: 1.0,
-                        value: 1.0,
-                    };
+                let selected = matches!(value, DefaultCompassMarkerColor::HsvByAngle { .. });
+                let default_value = || DefaultCompassMarkerColor::HsvByAngle {
+                    saturation: 1.0,
+                    value: 1.0,
+                };
+
+                if ui.selectable_label(selected, "HsvByAngle").clicked() {
+                    *value = default_value();
                 }
 
-                if let DefaultCompassMarkerColor::HsvByAngle { saturation, value } =
-                    default_marker_color
-                {
-                    ui.add(DragValue::new(saturation));
-                    ui.add(DragValue::new(value));
-                } else {
-                    let (saturation, value) = (&mut 1.0, &mut 1.0);
-                    ui.add_enabled_ui(false, |ui| {
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let DefaultCompassMarkerColor::HsvByAngle { saturation, value } =
+                        if selected { &mut value } else { &mut tmp }
+                    {
                         ui.add(DragValue::new(saturation));
                         ui.add(DragValue::new(value));
-                    });
-                }
+                    }
+                });
             });
         });
 
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_hsv_by_label = matches!(
-                    default_marker_color,
-                    DefaultCompassMarkerColor::HsvByLabel { .. }
-                );
-                if ui.selectable_label(is_hsv_by_label, "HsvByLabel").clicked() {
-                    *default_marker_color = DefaultCompassMarkerColor::HsvByLabel {
-                        saturation: 1.0,
-                        value: 1.0,
-                    };
+                let selected = matches!(value, DefaultCompassMarkerColor::HsvByLabel { .. });
+                let default_value = || DefaultCompassMarkerColor::HsvByLabel {
+                    saturation: 1.0,
+                    value: 1.0,
+                };
+
+                if ui.selectable_label(selected, "HsvByLabel").clicked() {
+                    *value = default_value();
                 }
 
-                if let DefaultCompassMarkerColor::HsvByLabel { saturation, value } =
-                    default_marker_color
-                {
-                    ui.add(DragValue::new(saturation));
-                    ui.add(DragValue::new(value));
-                } else {
-                    let (saturation, value) = (&mut 1.0, &mut 1.0);
-                    ui.add_enabled_ui(false, |ui| {
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let DefaultCompassMarkerColor::HsvByLabel { saturation, value } =
+                        if selected { &mut value } else { &mut tmp }
+                    {
                         ui.add(DragValue::new(saturation));
                         ui.add(DragValue::new(value));
-                    });
-                }
+                    }
+                });
             });
         });
     });
