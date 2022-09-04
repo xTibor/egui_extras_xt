@@ -234,7 +234,7 @@ pub fn widget_orientation_ui(ui: &mut Ui, mut value: &mut Orientation) {
                     if let Orientation::Custom(ref mut angle) =
                         if selected { &mut value } else { &mut tmp }
                     {
-                        ui.add(DragValue::new(angle));
+                        ui.drag_angle(angle);
                     }
                 });
             });
