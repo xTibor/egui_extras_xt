@@ -42,6 +42,8 @@ pub struct LinearCompass<'a> {
     max: Option<f32>,
     animated: bool,
     show_cursor: bool,
+    show_ticks: bool,
+    show_axes: bool,
     markers: &'a [CompassMarker<'a>],
     default_marker_color: DefaultCompassMarkerColor,
     default_marker_shape: CompassMarkerShape,
@@ -73,6 +75,8 @@ impl<'a> LinearCompass<'a> {
             max: None,
             animated: false,
             show_cursor: true,
+            show_ticks: true,
+            show_axes: true,
             markers: &[],
             default_marker_color: DefaultCompassMarkerColor::HsvByAngle {
                 saturation: 1.0,
@@ -144,6 +148,16 @@ impl<'a> LinearCompass<'a> {
 
     pub fn show_cursor(mut self, show_cursor: bool) -> Self {
         self.show_cursor = show_cursor;
+        self
+    }
+
+    pub fn show_ticks(mut self, show_ticks: bool) -> Self {
+        self.show_ticks = show_ticks;
+        self
+    }
+
+    pub fn show_axes(mut self, show_axes: bool) -> Self {
+        self.show_axes = show_axes;
         self
     }
 
@@ -369,32 +383,36 @@ impl<'a> Widget for LinearCompass<'a> {
 
                     let tick_label_center = pos2(tick_x, rect.top() + (self.height * 0.875));
 
-                    let (tick_scale, tick_label) = if degree % 90 == 0 {
+                    let (tick_scale, tick_label, is_axis_tick) = if degree % 90 == 0 {
                         let axis_label_index = (degree / 90).rem_euclid(4) as usize;
-                        (1.0, Some(self.axis_labels[axis_label_index]))
+                        (1.0, Some(self.axis_labels[axis_label_index]), true)
                     } else if degree % 30 == 0 {
-                        (0.75, None)
+                        (0.75, None, false)
                     } else if degree % 10 == 0 {
-                        (0.5, None)
+                        (0.5, None, false)
                     } else if degree % 5 == 0 {
-                        (0.3, None)
+                        (0.3, None, false)
                     } else {
                         unreachable!()
                     };
 
-                    child_ui.painter().line_segment(
-                        [tick_position, tick_position + tick_size * tick_scale],
-                        child_ui.style().visuals.noninteractive().fg_stroke,
-                    );
-
-                    if let Some(tick_label) = tick_label {
-                        child_ui.painter().text(
-                            tick_label_center,
-                            Align2::CENTER_CENTER,
-                            tick_label,
-                            FontId::new(self.height / 4.0, FontFamily::Proportional),
-                            child_ui.style().visuals.text_color(),
+                    if self.show_ticks || (self.show_axes && is_axis_tick) {
+                        child_ui.painter().line_segment(
+                            [tick_position, tick_position + tick_size * tick_scale],
+                            child_ui.style().visuals.noninteractive().fg_stroke,
                         );
+                    }
+
+                    if self.show_axes {
+                        if let Some(tick_label) = tick_label {
+                            child_ui.painter().text(
+                                tick_label_center,
+                                Align2::CENTER_CENTER,
+                                tick_label,
+                                FontId::new(self.height / 4.0, FontFamily::Proportional),
+                                child_ui.style().visuals.text_color(),
+                            );
+                        }
                     }
                 }
             }

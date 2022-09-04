@@ -26,6 +26,8 @@ pub struct LinearCompassPage {
     max: Option<f32>,
     animated: bool,
     show_cursor: bool,
+    show_ticks: bool,
+    show_axes: bool,
     default_marker_color: DefaultCompassMarkerColor,
     default_marker_shape: CompassMarkerShape,
 }
@@ -47,6 +49,8 @@ impl Default for LinearCompassPage {
             max: None,
             animated: false,
             show_cursor: true,
+            show_ticks: true,
+            show_axes: true,
             default_marker_color: DefaultCompassMarkerColor::HsvByAngle {
                 saturation: 1.0,
                 value: 1.0,
@@ -72,6 +76,8 @@ impl PageImpl for LinearCompassPage {
                 .max(self.max)
                 .animated(self.animated)
                 .show_cursor(self.show_cursor)
+                .show_ticks(self.show_ticks)
+                .show_axes(self.show_axes)
                 .default_marker_color(self.default_marker_color)
                 .default_marker_shape(self.default_marker_shape)
                 .markers(&[
@@ -204,6 +210,14 @@ impl PageImpl for LinearCompassPage {
 
                 ui.label("Show cursor");
                 ui.checkbox(&mut self.show_cursor, "");
+                ui.end_row();
+
+                ui.label("Show ticks");
+                ui.checkbox(&mut self.show_ticks, "");
+                ui.end_row();
+
+                ui.label("Show axes");
+                ui.checkbox(&mut self.show_axes, "");
                 ui.end_row();
 
                 ui.label("Default marker color");
