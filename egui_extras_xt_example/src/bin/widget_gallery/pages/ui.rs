@@ -1,7 +1,7 @@
 use eframe::egui::{DragValue, Grid, TextEdit, Ui};
 use eframe::epaint::Color32;
 use egui_extras_xt::common::{Orientation, WidgetShape};
-use egui_extras_xt::compasses::{CompassMarkerShape, DefaultCompassMarkerColor, CompassAxisLabels};
+use egui_extras_xt::compasses::{CompassMarkerShape, DefaultCompassMarkerColor};
 use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
 use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
@@ -397,13 +397,4 @@ pub fn compass_axis_labels_ui(ui: &mut Ui, axis_labels: &mut Vec<String>) {
             ui.add(TextEdit::singleline(axis_label).desired_width(50.0));
         }
     });
-}
-
-pub fn vec_to_compass_axis_labels(axis_labels: &[String]) -> CompassAxisLabels {
-    axis_labels
-        .iter()
-        .map(String::as_ref)
-        .collect::<Vec<_>>()
-        .try_into()
-        .unwrap_or_else(|_| [""; 4])
 }

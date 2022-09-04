@@ -2,15 +2,14 @@ use eframe::egui::{DragValue, Grid, Ui};
 use eframe::epaint::Color32;
 use egui_extras_xt::common::{Winding, WrapMode};
 use egui_extras_xt::compasses::{
-    CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor, LinearCompass,
+    CompassAxisLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor, LinearCompass,
 };
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
 use strum::IntoEnumIterator;
 
 use crate::pages::ui::{
-    vec_to_compass_axis_labels, compass_axis_labels_ui, default_compass_marker_color_ui,
-    default_compass_marker_shape_ui,
+    compass_axis_labels_ui, default_compass_marker_color_ui, default_compass_marker_shape_ui,
 };
 use crate::pages::PageImpl;
 
@@ -79,7 +78,7 @@ impl PageImpl for LinearCompassPage {
                 .height(self.height)
                 .spread(self.spread)
                 .snap(self.snap)
-                .axis_labels(vec_to_compass_axis_labels(&self.axis_labels))
+                .axis_labels(CompassAxisLabels::from_slice(&self.axis_labels))
                 .shift_snap(self.shift_snap)
                 .min(self.min)
                 .max(self.max)

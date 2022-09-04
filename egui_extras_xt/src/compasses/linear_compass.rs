@@ -35,7 +35,7 @@ pub struct LinearCompass<'a> {
     width: f32,
     height: f32,
     spread: f32,
-    axis_labels: CompassAxisLabels<'a>,
+    axis_labels: CompassAxisLabels,
     snap: Option<f32>,
     shift_snap: Option<f32>,
     min: Option<f32>,
@@ -68,7 +68,7 @@ impl<'a> LinearCompass<'a> {
             width: 512.0,
             height: 48.0,
             spread: 180.0f32.to_radians(),
-            axis_labels: ["N", "E", "S", "W"],
+            axis_labels: ["N", "E", "S", "W"].into(),
             snap: None,
             shift_snap: Some(10.0f32.to_radians()),
             min: None,
@@ -116,7 +116,7 @@ impl<'a> LinearCompass<'a> {
         self
     }
 
-    pub fn axis_labels(mut self, axis_labels: CompassAxisLabels<'a>) -> Self {
+    pub fn axis_labels(mut self, axis_labels: CompassAxisLabels) -> Self {
         self.axis_labels = axis_labels;
         self
     }
@@ -385,7 +385,7 @@ impl<'a> Widget for LinearCompass<'a> {
 
                     let (tick_scale, tick_label, is_axis_tick) = if degree % 90 == 0 {
                         let axis_label_index = (degree / 90).rem_euclid(4) as usize;
-                        (1.0, Some(self.axis_labels[axis_label_index]), true)
+                        (1.0, Some(&self.axis_labels.inner[axis_label_index]), true)
                     } else if degree % 30 == 0 {
                         (0.75, None, false)
                     } else if degree % 10 == 0 {

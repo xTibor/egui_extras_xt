@@ -54,7 +54,7 @@ pub struct PolarCompass<'a> {
     snap: Option<f32>,
     shift_snap: Option<f32>,
     animated: bool,
-    axis_labels: CompassAxisLabels<'a>,
+    axis_labels: CompassAxisLabels,
     axis_label_height: f32,
     max_distance: f32,
     scale_log_base: f32,
@@ -95,7 +95,7 @@ impl<'a> PolarCompass<'a> {
             snap: None,
             animated: false,
             shift_snap: Some(15.0f32.to_radians()),
-            axis_labels: ["N", "E", "S", "W"],
+            axis_labels: ["N", "E", "S", "W"].into(),
             axis_label_height: 24.0,
             max_distance: 10000.0,
             scale_log_base: 10.0,
@@ -184,7 +184,7 @@ impl<'a> PolarCompass<'a> {
         self
     }
 
-    pub fn axis_labels(mut self, axis_labels: CompassAxisLabels<'a>) -> Self {
+    pub fn axis_labels(mut self, axis_labels: CompassAxisLabels) -> Self {
         self.axis_labels = axis_labels;
         self
     }
@@ -371,8 +371,9 @@ impl<'a> Widget for PolarCompass<'a> {
             }
 
             if self.show_axes {
-                for (axis_index, axis_label) in self.axis_labels.iter().enumerate() {
-                    let axis_angle = axis_index as f32 * (TAU / (self.axis_labels.len() as f32));
+                for (axis_index, axis_label) in self.axis_labels.inner.iter().enumerate() {
+                    let axis_angle =
+                        axis_index as f32 * (TAU / (self.axis_labels.inner.len() as f32));
 
                     ui.painter().add(Shape::line_segment(
                         [
