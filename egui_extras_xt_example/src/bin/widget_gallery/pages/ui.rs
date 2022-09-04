@@ -118,9 +118,9 @@ pub fn display_metrics_ui(
 }
 
 pub fn widget_shape_ui(ui: &mut Ui, mut value: &mut WidgetShape) {
-    ui.horizontal_top(|ui| {
+    ui.horizontal_centered(|ui| {
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, WidgetShape::Circle);
                 let default_value = || WidgetShape::Circle;
 
@@ -131,7 +131,7 @@ pub fn widget_shape_ui(ui: &mut Ui, mut value: &mut WidgetShape) {
         });
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, WidgetShape::Square);
                 let default_value = || WidgetShape::Square;
 
@@ -142,7 +142,7 @@ pub fn widget_shape_ui(ui: &mut Ui, mut value: &mut WidgetShape) {
         });
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, WidgetShape::Squircle(..));
                 let default_value = || WidgetShape::Squircle(4.0);
 
@@ -163,7 +163,7 @@ pub fn widget_shape_ui(ui: &mut Ui, mut value: &mut WidgetShape) {
         });
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, WidgetShape::Polygon(..));
                 let default_value = || WidgetShape::Polygon(6);
 
@@ -184,7 +184,7 @@ pub fn widget_shape_ui(ui: &mut Ui, mut value: &mut WidgetShape) {
         });
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, WidgetShape::SuperPolygon(..));
                 let default_value = || WidgetShape::SuperPolygon(6, 1.5);
 
@@ -220,7 +220,7 @@ pub fn widget_orientation_ui(ui: &mut Ui, mut value: &mut Orientation) {
         );
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, Orientation::Custom(..));
                 let default_value = || Orientation::Custom(0.0);
 
@@ -243,9 +243,9 @@ pub fn widget_orientation_ui(ui: &mut Ui, mut value: &mut Orientation) {
 }
 
 pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompassMarkerColor) {
-    ui.horizontal_top(|ui| {
+    ui.horizontal_centered(|ui| {
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, DefaultCompassMarkerColor::System);
                 let default_value = || DefaultCompassMarkerColor::System;
 
@@ -256,7 +256,7 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompa
         });
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, DefaultCompassMarkerColor::Fixed(..));
                 let default_value = || DefaultCompassMarkerColor::Fixed(Color32::default());
 
@@ -277,7 +277,7 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompa
         });
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, DefaultCompassMarkerColor::HsvByAngle { .. });
                 let default_value = || DefaultCompassMarkerColor::HsvByAngle {
                     saturation: 1.0,
@@ -302,7 +302,7 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompa
         });
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, DefaultCompassMarkerColor::HsvByLabel { .. });
                 let default_value = || DefaultCompassMarkerColor::HsvByLabel {
                     saturation: 1.0,
@@ -345,7 +345,7 @@ pub fn default_compass_marker_shape_ui(ui: &mut Ui, mut value: &mut CompassMarke
         );
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, CompassMarkerShape::Star(..));
                 let default_value = || CompassMarkerShape::Star(5, 0.5);
 
@@ -367,7 +367,7 @@ pub fn default_compass_marker_shape_ui(ui: &mut Ui, mut value: &mut CompassMarke
         });
 
         ui.group(|ui| {
-            ui.vertical(|ui| {
+            ui.horizontal(|ui| {
                 let selected = matches!(value, CompassMarkerShape::Emoji(..));
                 let default_value = || CompassMarkerShape::Emoji('?');
 
