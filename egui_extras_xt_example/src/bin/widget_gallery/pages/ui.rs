@@ -117,91 +117,100 @@ pub fn display_metrics_ui(
         });
 }
 
-pub fn widget_shape_ui(ui: &mut Ui, shape: &mut WidgetShape) {
+pub fn widget_shape_ui(ui: &mut Ui, mut value: &mut WidgetShape) {
     ui.horizontal_top(|ui| {
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_circle = matches!(shape, WidgetShape::Circle);
-                if ui.selectable_label(is_circle, "Circle").clicked() {
-                    *shape = WidgetShape::Circle;
+                let selected = matches!(value, WidgetShape::Circle);
+                let default_value = || WidgetShape::Circle;
+
+                if ui.selectable_label(selected, "Circle").clicked() {
+                    *value = default_value();
                 }
-            })
+            });
         });
 
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_square = matches!(shape, WidgetShape::Square);
-                if ui.selectable_label(is_square, "Square").clicked() {
-                    *shape = WidgetShape::Square;
+                let selected = matches!(value, WidgetShape::Square);
+                let default_value = || WidgetShape::Square;
+
+                if ui.selectable_label(selected, "Square").clicked() {
+                    *value = default_value();
                 }
-            })
+            });
         });
 
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_squircle = matches!(shape, WidgetShape::Squircle(..));
-                if ui.selectable_label(is_squircle, "Squircle").clicked() {
-                    *shape = WidgetShape::Squircle(4.0);
+                let selected = matches!(value, WidgetShape::Squircle(..));
+                let default_value = || WidgetShape::Squircle(4.0);
+
+                if ui.selectable_label(selected, "Squircle").clicked() {
+                    *value = default_value();
                 }
 
-                if let WidgetShape::Squircle(ref mut factor) = shape {
-                    ui.add(DragValue::new(factor));
-                } else {
-                    let factor = &mut 4.0;
-                    ui.add_enabled_ui(false, |ui| {
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let WidgetShape::Squircle(ref mut factor) =
+                        if selected { &mut value } else { &mut tmp }
+                    {
                         ui.add(DragValue::new(factor));
-                    });
-                }
-            })
+                    }
+                });
+            });
         });
 
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_polygon = matches!(shape, WidgetShape::Polygon(..));
-                if ui.selectable_label(is_polygon, "Polygon").clicked() {
-                    *shape = WidgetShape::Polygon(6);
+                let selected = matches!(value, WidgetShape::Polygon(..));
+                let default_value = || WidgetShape::Polygon(6);
+
+                if ui.selectable_label(selected, "Polygon").clicked() {
+                    *value = default_value();
                 }
 
-                if let WidgetShape::Polygon(ref mut n) = shape {
-                    ui.add(DragValue::new(n));
-                } else {
-                    let n = &mut 6;
-                    ui.add_enabled_ui(false, |ui| {
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let WidgetShape::Polygon(ref mut n) =
+                        if selected { &mut value } else { &mut tmp }
+                    {
                         ui.add(DragValue::new(n));
-                    });
-                }
-            })
+                    }
+                });
+            });
         });
 
         ui.group(|ui| {
             ui.vertical(|ui| {
-                let is_super_polygon = matches!(shape, WidgetShape::SuperPolygon(..));
-                if ui
-                    .selectable_label(is_super_polygon, "SuperPolygon")
-                    .clicked()
-                {
-                    *shape = WidgetShape::SuperPolygon(6, 1.5);
+                let selected = matches!(value, WidgetShape::SuperPolygon(..));
+                let default_value = || WidgetShape::SuperPolygon(6, 1.5);
+
+                if ui.selectable_label(selected, "SuperPolygon").clicked() {
+                    *value = default_value();
                 }
 
-                if let WidgetShape::SuperPolygon(ref mut n, ref mut factor) = shape {
-                    ui.add(DragValue::new(n));
-                    ui.add(DragValue::new(factor));
-                } else {
-                    let (n, factor) = (&mut 6, &mut 1.5);
-                    ui.add_enabled_ui(false, |ui| {
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let WidgetShape::SuperPolygon(ref mut n, ref mut factor) =
+                        if selected { &mut value } else { &mut tmp }
+                    {
                         ui.add(DragValue::new(n));
                         ui.add(DragValue::new(factor));
-                    });
-                }
-            })
+                    }
+                });
+            });
         });
     });
 }
 
-pub fn widget_orientation_ui(ui: &mut Ui, orientation: &mut Orientation) {
+pub fn widget_orientation_ui(ui: &mut Ui, mut value: &mut Orientation) {
     ui.horizontal_centered(|ui| {
         ui.selectable_value_from_slice(
-            orientation,
+            value,
             &[
                 Orientation::Top,
                 Orientation::Bottom,
@@ -211,19 +220,24 @@ pub fn widget_orientation_ui(ui: &mut Ui, orientation: &mut Orientation) {
         );
 
         ui.group(|ui| {
-            let is_custom = matches!(orientation, Orientation::Custom(..));
-            if ui.selectable_label(is_custom, "Custom").clicked() {
-                *orientation = Orientation::Custom(0.0);
-            }
+            ui.vertical(|ui| {
+                let selected = matches!(value, Orientation::Custom(..));
+                let default_value = || Orientation::Custom(0.0);
 
-            if let Orientation::Custom(angle) = orientation {
-                ui.drag_angle(angle);
-            } else {
-                let angle = &mut 0.0;
-                ui.add_enabled_ui(false, |ui| {
-                    ui.drag_angle(angle);
+                if ui.selectable_label(selected, "Custom").clicked() {
+                    *value = default_value();
+                }
+
+                ui.add_enabled_ui(selected, |ui| {
+                    let mut tmp = default_value();
+
+                    if let Orientation::Custom(ref mut angle) =
+                        if selected { &mut value } else { &mut tmp }
+                    {
+                        ui.add(DragValue::new(angle));
+                    }
                 });
-            }
+            });
         });
     });
 }
