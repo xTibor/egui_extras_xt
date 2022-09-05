@@ -26,7 +26,7 @@ pub struct AngleKnobPage {
     axis_count: usize,
 }
 
-impl<'a> Default for AngleKnobPage {
+impl Default for AngleKnobPage {
     fn default() -> AngleKnobPage {
         AngleKnobPage {
             value: 0.0,

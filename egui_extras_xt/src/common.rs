@@ -1,5 +1,4 @@
 use std::f32::consts::TAU;
-use std::sync::Arc;
 
 use egui::Ui;
 use emath::{almost_equal, lerp, Pos2, Rot2, Vec2};
