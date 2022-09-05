@@ -182,28 +182,6 @@ impl<'a> Widget for ThumbstickKnob<'a> {
         if ui.is_rect_visible(rect) {
             let visuals = *ui.style().interact(&response);
 
-            let (r, theta) = {
-                let mut v = if self.animated {
-                    // Where's .animate_vec2_with_time()?
-                    let (x, y) = get(&mut self.get_set_value);
-                    vec2(
-                        ui.ctx()
-                            .animate_value_with_time(response.id.with("x"), x, 0.1),
-                        ui.ctx()
-                            .animate_value_with_time(response.id.with("y"), y, 0.1),
-                    )
-                } else {
-                    get(&mut self.get_set_value).into()
-                };
-
-                v.x = remap_clamp(v.x, self.range_x.clone(), -1.0..=1.0);
-                v.y = remap_clamp(v.y, self.range_y.clone(), -1.0..=1.0);
-
-                (v.length().clamp(0.0, 1.0), v.angle())
-            };
-
-            let tilt_factor = 0.9;
-
             ui.painter().circle(
                 rect.center(),
                 self.diameter / 2.0,
@@ -211,28 +189,74 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                 ui.style().visuals.window_stroke(),
             );
 
-            let mut paint_thumbstick = |size| {
-                let ellipse_center = rect.center()
-                    + Vec2::angled(theta)
-                        * r
-                        * ((self.diameter - (self.diameter * tilt_factor * size)) / 2.0);
+            {
+                let paint_snap_axis = |angle| {
+                    ui.painter().line_segment(
+                        [
+                            rect.center(),
+                            rect.center() + Vec2::angled(angle) * (self.diameter / 2.0),
+                        ],
+                        ui.style().visuals.window_stroke(),
+                    );
+                };
 
-                let ellipse_size = Vec2::splat(self.diameter)
-                    * size
-                    * Vec2::new(1.0 - (1.0 - tilt_factor) * r, 1.0);
+                match self.snap {
+                    ThumbstickKnobSnap::None => {}
+                    ThumbstickKnobSnap::Strict { axes, rotation, .. } => {
+                        for axis_index in 0..axes {
+                            let angle = ((axis_index as f32) / (axes as f32)) * TAU + rotation;
+                            paint_snap_axis(angle);
+                        }
+                    }
+                };
+            }
 
-                paint_ellipse(
-                    ui,
-                    ellipse_center,
-                    ellipse_size,
-                    visuals.bg_fill,
-                    visuals.fg_stroke,
-                    Rot2::from_angle(theta),
-                );
-            };
+            {
+                let (r, theta) = {
+                    let mut v = if self.animated {
+                        // Where's .animate_vec2_with_time()?
+                        let (x, y) = get(&mut self.get_set_value);
+                        vec2(
+                            ui.ctx()
+                                .animate_value_with_time(response.id.with("x"), x, 0.1),
+                            ui.ctx()
+                                .animate_value_with_time(response.id.with("y"), y, 0.1),
+                        )
+                    } else {
+                        get(&mut self.get_set_value).into()
+                    };
 
-            paint_thumbstick(0.750);
-            paint_thumbstick(0.625);
+                    v.x = remap_clamp(v.x, self.range_x.clone(), -1.0..=1.0);
+                    v.y = remap_clamp(v.y, self.range_y.clone(), -1.0..=1.0);
+
+                    (v.length().clamp(0.0, 1.0), v.angle())
+                };
+
+                let tilt_factor = 0.9;
+
+                let mut paint_thumbstick = |size| {
+                    let ellipse_center = rect.center()
+                        + Vec2::angled(theta)
+                            * r
+                            * ((self.diameter - (self.diameter * tilt_factor * size)) / 2.0);
+
+                    let ellipse_size = Vec2::splat(self.diameter)
+                        * size
+                        * Vec2::new(1.0 - (1.0 - tilt_factor) * r, 1.0);
+
+                    paint_ellipse(
+                        ui,
+                        ellipse_center,
+                        ellipse_size,
+                        visuals.bg_fill,
+                        visuals.fg_stroke,
+                        Rot2::from_angle(theta),
+                    );
+                };
+
+                paint_thumbstick(0.750);
+                paint_thumbstick(0.625);
+            }
         }
 
         response
