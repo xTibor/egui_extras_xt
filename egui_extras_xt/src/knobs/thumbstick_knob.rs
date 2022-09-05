@@ -1,7 +1,9 @@
+use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
 
 use egui::{self, lerp, remap_clamp, Response, Sense, Ui, Widget};
 use emath::{vec2, Rot2, Vec2};
+use strum::Display;
 
 use crate::common::paint_ellipse;
 
@@ -21,6 +23,34 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: (f32, f32)) {
 
 // ----------------------------------------------------------------------------
 
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, Display, PartialEq)]
+pub enum ThumbstickKnobSnap {
+    #[strum(to_string = "None")]
+    None,
+
+    #[strum(to_string = "Strict")]
+    Strict { axes: usize, rotation: f32 },
+}
+
+impl ThumbstickKnobSnap {
+    fn eval(&self, input: Vec2) -> Vec2 {
+        match *self {
+            ThumbstickKnobSnap::None => input,
+            ThumbstickKnobSnap::Strict { axes, rotation } => {
+                assert!(axes > 0, "snapping to non-positive number of axes");
+                let angle = ((((input.angle() - rotation) / TAU) * (axes as f32)).round()
+                    / (axes as f32)
+                    * TAU)
+                    + rotation;
+                Vec2::angled(angle) * input.length()
+            }
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct ThumbstickKnob<'a> {
     get_set_value: GetSetValue<'a>,
@@ -30,6 +60,7 @@ pub struct ThumbstickKnob<'a> {
     diameter: f32,
     animated: bool,
     auto_center: bool,
+    snap: ThumbstickKnobSnap,
 }
 
 impl<'a> ThumbstickKnob<'a> {
@@ -51,6 +82,7 @@ impl<'a> ThumbstickKnob<'a> {
             diameter: 96.0,
             animated: true,
             auto_center: true,
+            snap: ThumbstickKnobSnap::None,
         }
     }
 
@@ -89,6 +121,11 @@ impl<'a> ThumbstickKnob<'a> {
         self.auto_center = auto_center;
         self
     }
+
+    pub fn snap(mut self, snap: ThumbstickKnobSnap) -> Self {
+        self.snap = snap;
+        self
+    }
 }
 
 impl<'a> Widget for ThumbstickKnob<'a> {
@@ -111,6 +148,8 @@ impl<'a> Widget for ThumbstickKnob<'a> {
             if v.length() > 1.0 {
                 v = v.normalized();
             }
+
+            v = self.snap.eval(v);
 
             v.x = remap_clamp(v.x, -1.0..=1.0, self.range_x.clone());
             v.y = remap_clamp(v.y, -1.0..=1.0, self.range_y.clone());

@@ -1,9 +1,10 @@
 use std::ops::RangeInclusive;
 
 use eframe::egui::{DragValue, Grid, Ui};
-use egui_extras_xt::knobs::ThumbstickKnob;
+use egui_extras_xt::knobs::{ThumbstickKnob, ThumbstickKnobSnap};
 use egui_extras_xt::ui::drag_rangeinclusive::DragRangeInclusive;
 
+use crate::pages::ui::thumbstick_knob_snap_ui;
 use crate::pages::PageImpl;
 
 pub struct ThumbstickKnobPage {
@@ -14,6 +15,7 @@ pub struct ThumbstickKnobPage {
     diameter: f32,
     animated: bool,
     auto_center: bool,
+    snap: ThumbstickKnobSnap,
 }
 
 impl Default for ThumbstickKnobPage {
@@ -26,6 +28,7 @@ impl Default for ThumbstickKnobPage {
             diameter: 96.0,
             animated: true,
             auto_center: true,
+            snap: ThumbstickKnobSnap::None,
         }
     }
 }
@@ -39,7 +42,8 @@ impl PageImpl for ThumbstickKnobPage {
                 .interactive(self.interactive)
                 .diameter(self.diameter)
                 .animated(self.animated)
-                .auto_center(self.auto_center),
+                .auto_center(self.auto_center)
+                .snap(self.snap),
         );
         ui.separator();
 
@@ -78,6 +82,10 @@ impl PageImpl for ThumbstickKnobPage {
 
                 ui.label("Auto-center");
                 ui.checkbox(&mut self.auto_center, "");
+                ui.end_row();
+
+                ui.label("Snap");
+                thumbstick_knob_snap_ui(ui, &mut self.snap);
                 ui.end_row();
             });
     }

@@ -4,6 +4,7 @@ use egui_extras_xt::common::{Orientation, WidgetShape};
 use egui_extras_xt::compasses::{CompassMarkerShape, DefaultCompassMarkerColor};
 use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
+use egui_extras_xt::knobs::ThumbstickKnobSnap;
 use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
 use strum::IntoEnumIterator;
 
@@ -305,6 +306,33 @@ pub fn compass_axis_labels_ui(ui: &mut Ui, axis_labels: &mut Vec<String>) {
     ui.horizontal_centered(|ui| {
         for axis_label in axis_labels {
             ui.add(TextEdit::singleline(axis_label).desired_width(50.0));
+        }
+    });
+}
+
+pub fn thumbstick_knob_snap_ui(ui: &mut Ui, value: &mut ThumbstickKnobSnap) {
+    ui.horizontal_centered(|ui| {
+        ui.push_id("thumbstick_knob_snap_combo", |ui| {
+            ui.combobox_from_slice(
+                "",
+                value,
+                &[
+                    ThumbstickKnobSnap::None,
+                    ThumbstickKnobSnap::Strict {
+                        axes: 4,
+                        rotation: 0.0f32.to_radians(),
+                    },
+                ],
+            );
+        });
+
+        match value {
+            ThumbstickKnobSnap::None => {}
+            ThumbstickKnobSnap::Strict { axes, rotation } => {
+                ui.add(DragValue::new(axes));
+                ui.drag_angle(rotation);
+            }
+            _ => unimplemented!(),
         }
     });
 }
