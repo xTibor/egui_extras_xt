@@ -39,10 +39,11 @@ impl ThumbstickKnobSnap {
             ThumbstickKnobSnap::None => input,
             ThumbstickKnobSnap::Strict { axes, rotation } => {
                 assert!(axes > 0, "snapping to non-positive number of axes");
-                let angle = ((((input.angle() - rotation) / TAU) * (axes as f32)).round()
-                    / (axes as f32)
-                    * TAU)
-                    + rotation;
+
+                let mut angle = input.angle() - rotation;
+                angle = (angle / TAU * (axes as f32)).round() * TAU / (axes as f32);
+                angle = angle + rotation;
+
                 Vec2::angled(angle) * input.length()
             }
         }
