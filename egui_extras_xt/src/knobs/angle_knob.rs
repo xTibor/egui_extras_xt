@@ -97,7 +97,7 @@ pub struct AngleKnob<'a> {
     orientation: Orientation,
     winding: Winding,
     wrap: WrapMode,
-    shape: WidgetShape<'a>,
+    shape: WidgetShape,
     min: Option<f32>,
     max: Option<f32>,
     snap: Option<f32>,
@@ -161,7 +161,7 @@ impl<'a> AngleKnob<'a> {
         self
     }
 
-    pub fn shape(mut self, shape: WidgetShape<'a>) -> Self {
+    pub fn shape(mut self, shape: WidgetShape) -> Self {
         self.shape = shape;
         self
     }

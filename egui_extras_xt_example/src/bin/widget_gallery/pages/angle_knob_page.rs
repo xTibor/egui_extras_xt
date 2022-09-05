@@ -8,7 +8,7 @@ use strum::IntoEnumIterator;
 use crate::pages::ui::{widget_orientation_ui, widget_shape_ui};
 use crate::pages::PageImpl;
 
-pub struct AngleKnobPage<'a> {
+pub struct AngleKnobPage {
     value: f32,
     interactive: bool,
     diameter: f32,
@@ -16,7 +16,7 @@ pub struct AngleKnobPage<'a> {
     orientation: Orientation,
     winding: Winding,
     wrap: WrapMode,
-    shape: WidgetShape<'a>,
+    shape: WidgetShape,
     min: Option<f32>,
     max: Option<f32>,
     snap: Option<f32>,
@@ -26,8 +26,8 @@ pub struct AngleKnobPage<'a> {
     axis_count: usize,
 }
 
-impl<'a> Default for AngleKnobPage<'a> {
-    fn default() -> AngleKnobPage<'a> {
+impl<'a> Default for AngleKnobPage {
+    fn default() -> AngleKnobPage {
         AngleKnobPage {
             value: 0.0,
             preset: AngleKnobPreset::AdobePhotoshop,
@@ -48,7 +48,7 @@ impl<'a> Default for AngleKnobPage<'a> {
     }
 }
 
-impl<'a> PageImpl for AngleKnobPage<'a> {
+impl PageImpl for AngleKnobPage {
     fn ui(&mut self, ui: &mut Ui) {
         ui.add(
             AngleKnob::new(&mut self.value)

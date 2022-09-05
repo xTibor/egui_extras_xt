@@ -11,11 +11,18 @@ use crate::hash::PearsonHash;
 // ----------------------------------------------------------------------------
 
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Display, PartialEq)]
 pub enum DefaultCompassMarkerColor {
+    #[strum(to_string = "System")]
     System,
+
+    #[strum(to_string = "Fixed")]
     Fixed(Color32),
+
+    #[strum(to_string = "HSV by angle")]
     HsvByAngle { saturation: f32, value: f32 },
+
+    #[strum(to_string = "HSV by label")]
     HsvByLabel { saturation: f32, value: f32 },
 }
 

@@ -75,23 +75,32 @@ pub enum WrapMode {
 
 // ----------------------------------------------------------------------------
 
-/// A polar function defining the shape of a knob widget.
-pub type WidgetShapeFn<'a> = Arc<dyn 'a + Fn(f32) -> f32>;
-
 #[non_exhaustive]
-#[derive(Clone)]
-pub enum WidgetShape<'a> {
+#[derive(Clone, Display, PartialEq)]
+pub enum WidgetShape {
+    #[strum(to_string = "Circle")]
     Circle,
+
+    #[strum(to_string = "Square")]
     Square,
+
+    #[strum(to_string = "Squircle")]
     Squircle(f32),
+
+    #[strum(to_string = "Polygon")]
     Polygon(usize),
+
+    #[strum(to_string = "SuperPolygon")]
     SuperPolygon(usize, f32),
-    Rotated(Box<WidgetShape<'a>>, f32),
-    Mix(Box<WidgetShape<'a>>, Box<WidgetShape<'a>>, f32),
-    Custom(WidgetShapeFn<'a>),
+
+    #[strum(to_string = "Rotated")]
+    Rotated(Box<WidgetShape>, f32),
+
+    #[strum(to_string = "Mix")]
+    Mix(Box<WidgetShape>, Box<WidgetShape>, f32),
 }
 
-impl WidgetShape<'_> {
+impl WidgetShape {
     const RESOLUTION: usize = 32;
 
     pub(crate) fn eval(&self, theta: f32) -> f32 {
@@ -125,7 +134,6 @@ impl WidgetShape<'_> {
             WidgetShape::Mix(shape_a, shape_b, t) => {
                 (shape_a.eval(theta) * (1.0 - t)) + (shape_b.eval(theta) * t)
             }
-            WidgetShape::Custom(callback) => callback(theta),
         }
     }
 

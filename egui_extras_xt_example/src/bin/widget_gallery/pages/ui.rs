@@ -117,93 +117,56 @@ pub fn display_metrics_ui(
         });
 }
 
-pub fn widget_shape_ui(ui: &mut Ui, mut value: &mut WidgetShape) {
+pub fn widget_shape_ui(ui: &mut Ui, value: &mut WidgetShape) {
     ui.horizontal_centered(|ui| {
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, WidgetShape::Circle);
-                let default_value = || WidgetShape::Circle;
-
-                if ui.selectable_label(selected, "Circle").clicked() {
-                    *value = default_value();
-                }
-            });
+        ui.push_id("widget_shape_combo", |ui| {
+            ui.combobox_from_slice(
+                "",
+                value,
+                &[
+                    WidgetShape::Circle,
+                    WidgetShape::Square,
+                    WidgetShape::Squircle(4.0),
+                    WidgetShape::Polygon(6),
+                    WidgetShape::SuperPolygon(6, 1.5),
+                    WidgetShape::Rotated(Box::new(WidgetShape::Square), 0.0f32.to_radians()),
+                    WidgetShape::Mix(
+                        Box::new(WidgetShape::Circle),
+                        Box::new(WidgetShape::Square),
+                        0.5,
+                    ),
+                ],
+            );
         });
 
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, WidgetShape::Square);
-                let default_value = || WidgetShape::Square;
-
-                if ui.selectable_label(selected, "Square").clicked() {
-                    *value = default_value();
-                }
-            });
-        });
-
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, WidgetShape::Squircle(..));
-                let default_value = || WidgetShape::Squircle(4.0);
-
-                if ui.selectable_label(selected, "Squircle").clicked() {
-                    *value = default_value();
-                }
-
-                ui.add_enabled_ui(selected, |ui| {
-                    let mut tmp = default_value();
-
-                    if let WidgetShape::Squircle(ref mut factor) =
-                        if selected { &mut value } else { &mut tmp }
-                    {
-                        ui.add(DragValue::new(factor));
-                    }
+        match value {
+            WidgetShape::Circle => {}
+            WidgetShape::Square => {}
+            WidgetShape::Squircle(factor) => {
+                ui.add(DragValue::new(factor));
+            }
+            WidgetShape::Polygon(n) => {
+                ui.add(DragValue::new(n));
+            }
+            WidgetShape::SuperPolygon(n, factor) => {
+                ui.add(DragValue::new(n));
+                ui.add(DragValue::new(factor));
+            }
+            WidgetShape::Rotated(shape, rotation) => {
+                ui.group(|ui| {
+                    widget_shape_ui(ui, shape);
+                    ui.drag_angle(rotation);
                 });
-            });
-        });
-
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, WidgetShape::Polygon(..));
-                let default_value = || WidgetShape::Polygon(6);
-
-                if ui.selectable_label(selected, "Polygon").clicked() {
-                    *value = default_value();
-                }
-
-                ui.add_enabled_ui(selected, |ui| {
-                    let mut tmp = default_value();
-
-                    if let WidgetShape::Polygon(ref mut n) =
-                        if selected { &mut value } else { &mut tmp }
-                    {
-                        ui.add(DragValue::new(n));
-                    }
+            }
+            WidgetShape::Mix(shape_a, shape_b, t) => {
+                ui.group(|ui| {
+                    ui.push_id("shape_a", |ui| widget_shape_ui(ui, shape_a));
+                    ui.push_id("shape_b", |ui| widget_shape_ui(ui, shape_b));
+                    ui.add(DragValue::new(t));
                 });
-            });
-        });
-
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, WidgetShape::SuperPolygon(..));
-                let default_value = || WidgetShape::SuperPolygon(6, 1.5);
-
-                if ui.selectable_label(selected, "SuperPolygon").clicked() {
-                    *value = default_value();
-                }
-
-                ui.add_enabled_ui(selected, |ui| {
-                    let mut tmp = default_value();
-
-                    if let WidgetShape::SuperPolygon(ref mut n, ref mut factor) =
-                        if selected { &mut value } else { &mut tmp }
-                    {
-                        ui.add(DragValue::new(n));
-                        ui.add(DragValue::new(factor));
-                    }
-                });
-            });
-        });
+            }
+            _ => unimplemented!(),
+        }
     });
 }
 
@@ -242,152 +205,84 @@ pub fn widget_orientation_ui(ui: &mut Ui, mut value: &mut Orientation) {
     });
 }
 
-pub fn default_compass_marker_color_ui(ui: &mut Ui, mut value: &mut DefaultCompassMarkerColor) {
+pub fn default_compass_marker_color_ui(ui: &mut Ui, value: &mut DefaultCompassMarkerColor) {
     ui.horizontal_centered(|ui| {
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, DefaultCompassMarkerColor::System);
-                let default_value = || DefaultCompassMarkerColor::System;
-
-                if ui.selectable_label(selected, "System").clicked() {
-                    *value = default_value();
-                }
-            });
+        ui.push_id("compass_marker_color_combo", |ui| {
+            ui.combobox_from_slice(
+                "",
+                value,
+                &[
+                    DefaultCompassMarkerColor::System,
+                    DefaultCompassMarkerColor::Fixed(Color32::default()),
+                    DefaultCompassMarkerColor::HsvByAngle {
+                        saturation: 1.0,
+                        value: 1.0,
+                    },
+                    DefaultCompassMarkerColor::HsvByLabel {
+                        saturation: 1.0,
+                        value: 1.0,
+                    },
+                ],
+            );
         });
 
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, DefaultCompassMarkerColor::Fixed(..));
-                let default_value = || DefaultCompassMarkerColor::Fixed(Color32::default());
-
-                if ui.selectable_label(selected, "Fixed").clicked() {
-                    *value = default_value();
-                }
-
-                ui.add_enabled_ui(selected, |ui| {
-                    let mut tmp = default_value();
-
-                    if let DefaultCompassMarkerColor::Fixed(ref mut color) =
-                        if selected { &mut value } else { &mut tmp }
-                    {
-                        ui.color_edit_button_srgba(color);
-                    }
-                });
-            });
-        });
-
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, DefaultCompassMarkerColor::HsvByAngle { .. });
-                let default_value = || DefaultCompassMarkerColor::HsvByAngle {
-                    saturation: 1.0,
-                    value: 1.0,
-                };
-
-                if ui.selectable_label(selected, "HSV by angle").clicked() {
-                    *value = default_value();
-                }
-
-                ui.add_enabled_ui(selected, |ui| {
-                    let mut tmp = default_value();
-
-                    if let DefaultCompassMarkerColor::HsvByAngle { saturation, value } =
-                        if selected { &mut value } else { &mut tmp }
-                    {
-                        ui.add(DragValue::new(saturation));
-                        ui.add(DragValue::new(value));
-                    }
-                });
-            });
-        });
-
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, DefaultCompassMarkerColor::HsvByLabel { .. });
-                let default_value = || DefaultCompassMarkerColor::HsvByLabel {
-                    saturation: 1.0,
-                    value: 1.0,
-                };
-
-                if ui.selectable_label(selected, "HSV by label").clicked() {
-                    *value = default_value();
-                }
-
-                ui.add_enabled_ui(selected, |ui| {
-                    let mut tmp = default_value();
-
-                    if let DefaultCompassMarkerColor::HsvByLabel { saturation, value } =
-                        if selected { &mut value } else { &mut tmp }
-                    {
-                        ui.add(DragValue::new(saturation));
-                        ui.add(DragValue::new(value));
-                    }
-                });
-            });
-        });
+        match value {
+            DefaultCompassMarkerColor::System => {}
+            DefaultCompassMarkerColor::Fixed(color) => {
+                ui.color_edit_button_srgba(color);
+            }
+            DefaultCompassMarkerColor::HsvByAngle { saturation, value } => {
+                ui.add(DragValue::new(saturation));
+                ui.add(DragValue::new(value));
+            }
+            DefaultCompassMarkerColor::HsvByLabel { saturation, value } => {
+                ui.add(DragValue::new(saturation));
+                ui.add(DragValue::new(value));
+            }
+            _ => unimplemented!(),
+        }
     });
 }
 
-pub fn default_compass_marker_shape_ui(ui: &mut Ui, mut value: &mut CompassMarkerShape) {
+pub fn default_compass_marker_shape_ui(ui: &mut Ui, value: &mut CompassMarkerShape) {
     ui.horizontal_centered(|ui| {
-        ui.combobox_from_slice(
-            "",
-            value,
-            &[
-                CompassMarkerShape::Square,
-                CompassMarkerShape::Circle,
-                CompassMarkerShape::RightArrow,
-                CompassMarkerShape::UpArrow,
-                CompassMarkerShape::LeftArrow,
-                CompassMarkerShape::DownArrow,
-                CompassMarkerShape::Diamond,
-            ],
-        );
-
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, CompassMarkerShape::Star(..));
-                let default_value = || CompassMarkerShape::Star(5, 0.5);
-
-                if ui.selectable_label(selected, "Star").clicked() {
-                    *value = default_value();
-                }
-
-                ui.add_enabled_ui(selected, |ui| {
-                    let mut tmp = default_value();
-
-                    if let CompassMarkerShape::Star(ref mut rays, ref mut ratio) =
-                        if selected { &mut value } else { &mut tmp }
-                    {
-                        ui.add(DragValue::new(rays));
-                        ui.add(DragValue::new(ratio));
-                    }
-                });
-            });
+        ui.push_id("compass_marker_shape_combo", |ui| {
+            ui.combobox_from_slice(
+                "",
+                value,
+                &[
+                    CompassMarkerShape::Square,
+                    CompassMarkerShape::Circle,
+                    CompassMarkerShape::RightArrow,
+                    CompassMarkerShape::UpArrow,
+                    CompassMarkerShape::LeftArrow,
+                    CompassMarkerShape::DownArrow,
+                    CompassMarkerShape::Diamond,
+                    CompassMarkerShape::Star(5, 0.5),
+                    CompassMarkerShape::Emoji('?'),
+                ],
+            );
         });
 
-        ui.group(|ui| {
-            ui.horizontal(|ui| {
-                let selected = matches!(value, CompassMarkerShape::Emoji(..));
-                let default_value = || CompassMarkerShape::Emoji('?');
-
-                if ui.selectable_label(selected, "Emoji").clicked() {
-                    *value = default_value();
-                }
-
-                ui.add_enabled_ui(selected, |ui| {
-                    let mut tmp = default_value();
-
-                    if let CompassMarkerShape::Emoji(ref mut emoji) =
-                        if selected { &mut value } else { &mut tmp }
-                    {
-                        let mut tmp = emoji.to_string();
-                        ui.add(TextEdit::singleline(&mut tmp).desired_width(20.0));
-                        *emoji = tmp.chars().next().unwrap_or(' ');
-                    }
-                });
-            });
-        });
+        match value {
+            CompassMarkerShape::Star(rays, ratio) => {
+                ui.add(DragValue::new(rays));
+                ui.add(DragValue::new(ratio));
+            }
+            CompassMarkerShape::Emoji(emoji) => {
+                let mut tmp = emoji.to_string();
+                ui.add(TextEdit::singleline(&mut tmp).desired_width(25.0));
+                *emoji = tmp.chars().next().unwrap_or(' ');
+            }
+            CompassMarkerShape::Square
+            | CompassMarkerShape::Circle
+            | CompassMarkerShape::RightArrow
+            | CompassMarkerShape::UpArrow
+            | CompassMarkerShape::LeftArrow
+            | CompassMarkerShape::DownArrow
+            | CompassMarkerShape::Diamond => {}
+            _ => unimplemented!(),
+        }
     });
 }
 

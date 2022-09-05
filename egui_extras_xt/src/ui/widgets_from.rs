@@ -83,17 +83,17 @@ pub trait WidgetsFromSlice<'a, Value> {
 
 impl<'a, Value> WidgetsFromSlice<'a, Value> for Ui
 where
-    Value: PartialEq + Display + Copy,
+    Value: PartialEq + Display + Clone,
 {
     fn selectable_value_from_slice(&mut self, current_value: &mut Value, values: &'a [Value]) {
         for value in values {
-            self.selectable_value(current_value, *value, format!("{}", value));
+            self.selectable_value(current_value, value.clone(), format!("{}", value));
         }
     }
 
     fn radio_value_from_slice(&mut self, current_value: &mut Value, values: &'a [Value]) {
         for value in values {
-            self.radio_value(current_value, *value, format!("{}", value));
+            self.radio_value(current_value, value.clone(), format!("{}", value));
         }
     }
 
@@ -107,7 +107,7 @@ where
             .selected_text(format!("{}", current_value))
             .show_ui(self, |ui| {
                 for value in values {
-                    ui.selectable_value(current_value, *value, format!("{}", value));
+                    ui.selectable_value(current_value, value.clone(), format!("{}", value));
                 }
             });
     }

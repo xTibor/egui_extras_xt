@@ -32,7 +32,7 @@ pub struct AudioKnob<'a> {
     range: RangeInclusive<f32>,
     spread: f32,
     thickness: f32,
-    shape: WidgetShape<'a>,
+    shape: WidgetShape,
     animated: bool,
     snap: Option<f32>,
     shift_snap: Option<f32>,
@@ -100,7 +100,7 @@ impl<'a> AudioKnob<'a> {
         self
     }
 
-    pub fn shape(mut self, shape: WidgetShape<'a>) -> Self {
+    pub fn shape(mut self, shape: WidgetShape) -> Self {
         self.shape = shape;
         self
     }

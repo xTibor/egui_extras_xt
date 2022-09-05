@@ -11,7 +11,7 @@ use strum::IntoEnumIterator;
 use crate::pages::ui::{widget_orientation_ui, widget_shape_ui};
 use crate::pages::PageImpl;
 
-pub struct AudioKnobPage<'a> {
+pub struct AudioKnobPage {
     value: f32,
     interactive: bool,
     diameter: f32,
@@ -20,14 +20,14 @@ pub struct AudioKnobPage<'a> {
     range: RangeInclusive<f32>,
     spread: f32,
     thickness: f32,
-    shape: WidgetShape<'a>,
+    shape: WidgetShape,
     animated: bool,
     snap: Option<f32>,
     shift_snap: Option<f32>,
 }
 
-impl<'a> Default for AudioKnobPage<'a> {
-    fn default() -> AudioKnobPage<'a> {
+impl Default for AudioKnobPage {
+    fn default() -> AudioKnobPage {
         AudioKnobPage {
             value: 0.0,
             interactive: true,
@@ -45,7 +45,7 @@ impl<'a> Default for AudioKnobPage<'a> {
     }
 }
 
-impl<'a> PageImpl for AudioKnobPage<'a> {
+impl PageImpl for AudioKnobPage {
     fn ui(&mut self, ui: &mut Ui) {
         ui.add(
             AudioKnob::new(&mut self.value)
