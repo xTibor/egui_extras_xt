@@ -102,6 +102,7 @@ pub struct ThumbstickWidget<'a> {
     get_set_value: GetSetValue<'a>,
     range_x: RangeInclusive<f32>,
     range_y: RangeInclusive<f32>,
+    precision: f32,
     interactive: bool,
     diameter: f32,
     animated: bool,
@@ -126,6 +127,7 @@ impl<'a> ThumbstickWidget<'a> {
             get_set_value: Box::new(get_set_value),
             range_x: -1.0..=1.0,
             range_y: -1.0..=1.0,
+            precision: 1.0,
             interactive: true,
             diameter: 96.0,
             animated: true,
@@ -164,6 +166,11 @@ impl<'a> ThumbstickWidget<'a> {
 
     pub fn range_y(mut self, range_y: RangeInclusive<f32>) -> Self {
         self.range_y = range_y;
+        self
+    }
+
+    pub fn precision(mut self, precision: impl Into<f32>) -> Self {
+        self.precision = precision.into();
         self
     }
 
@@ -210,6 +217,7 @@ impl<'a> Widget for ThumbstickWidget<'a> {
             }
 
             v = self.dead_zone.eval(v);
+            v = v.normalized() * v.length().powf(self.precision);
             v = self.snap.eval(v);
 
             v.x = remap_clamp(v.x, -1.0..=1.0, self.range_x.clone());

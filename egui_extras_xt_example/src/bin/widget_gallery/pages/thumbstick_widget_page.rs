@@ -11,6 +11,7 @@ pub struct ThumbstickWidgetPage {
     position: (f32, f32),
     range_x: RangeInclusive<f32>,
     range_y: RangeInclusive<f32>,
+    precision: f32,
     interactive: bool,
     diameter: f32,
     animated: bool,
@@ -26,6 +27,7 @@ impl Default for ThumbstickWidgetPage {
             position: (0.0, 0.0),
             range_x: -1.0..=1.0,
             range_y: -1.0..=1.0,
+            precision: 1.0,
             interactive: true,
             diameter: 96.0,
             animated: true,
@@ -43,6 +45,7 @@ impl PageImpl for ThumbstickWidgetPage {
             ThumbstickWidget::new(&mut self.position)
                 .range_x(self.range_x.clone())
                 .range_y(self.range_y.clone())
+                .precision(self.precision)
                 .interactive(self.interactive)
                 .diameter(self.diameter)
                 .animated(self.animated)
@@ -72,6 +75,10 @@ impl PageImpl for ThumbstickWidgetPage {
 
                 ui.label("Y range");
                 ui.drag_rangeinclusive(&mut self.range_y);
+                ui.end_row();
+
+                ui.label("Precision");
+                ui.add(DragValue::new(&mut self.precision));
                 ui.end_row();
 
                 ui.label("Interactive");
