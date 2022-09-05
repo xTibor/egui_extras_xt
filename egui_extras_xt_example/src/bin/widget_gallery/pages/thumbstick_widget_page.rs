@@ -1,13 +1,13 @@
 use std::ops::RangeInclusive;
 
 use eframe::egui::{DragValue, Grid, Ui};
-use egui_extras_xt::knobs::{ThumbstickKnob, ThumbstickKnobDeadZone, ThumbstickKnobSnap};
+use egui_extras_xt::knobs::{ThumbstickDeadZone, ThumbstickSnap, ThumbstickWidget};
 use egui_extras_xt::ui::drag_rangeinclusive::DragRangeInclusive;
 
-use crate::pages::ui::{thumbstick_knob_dead_zone_ui, thumbstick_knob_snap_ui};
+use crate::pages::ui::{thumbstick_dead_zone_ui, thumbstick_snap_ui};
 use crate::pages::PageImpl;
 
-pub struct ThumbstickKnobPage {
+pub struct ThumbstickWidgetPage {
     position: (f32, f32),
     range_x: RangeInclusive<f32>,
     range_y: RangeInclusive<f32>,
@@ -16,13 +16,13 @@ pub struct ThumbstickKnobPage {
     animated: bool,
     auto_center: bool,
     show_axes: bool,
-    snap: ThumbstickKnobSnap,
-    dead_zone: ThumbstickKnobDeadZone,
+    snap: ThumbstickSnap,
+    dead_zone: ThumbstickDeadZone,
 }
 
-impl Default for ThumbstickKnobPage {
-    fn default() -> ThumbstickKnobPage {
-        ThumbstickKnobPage {
+impl Default for ThumbstickWidgetPage {
+    fn default() -> ThumbstickWidgetPage {
+        ThumbstickWidgetPage {
             position: (0.0, 0.0),
             range_x: -1.0..=1.0,
             range_y: -1.0..=1.0,
@@ -31,16 +31,16 @@ impl Default for ThumbstickKnobPage {
             animated: true,
             auto_center: true,
             show_axes: true,
-            snap: ThumbstickKnobSnap::None,
-            dead_zone: ThumbstickKnobDeadZone::None,
+            snap: ThumbstickSnap::None,
+            dead_zone: ThumbstickDeadZone::None,
         }
     }
 }
 
-impl PageImpl for ThumbstickKnobPage {
+impl PageImpl for ThumbstickWidgetPage {
     fn ui(&mut self, ui: &mut Ui) {
         ui.add(
-            ThumbstickKnob::new(&mut self.position)
+            ThumbstickWidget::new(&mut self.position)
                 .range_x(self.range_x.clone())
                 .range_y(self.range_y.clone())
                 .interactive(self.interactive)
@@ -53,7 +53,7 @@ impl PageImpl for ThumbstickKnobPage {
         );
         ui.separator();
 
-        Grid::new("thumbstick_knob_properties")
+        Grid::new("thumbstick_widget_properties")
             .num_columns(2)
             .spacing([20.0, 10.0])
             .striped(true)
@@ -95,11 +95,11 @@ impl PageImpl for ThumbstickKnobPage {
                 ui.end_row();
 
                 ui.label("Snap");
-                thumbstick_knob_snap_ui(ui, &mut self.snap);
+                thumbstick_snap_ui(ui, &mut self.snap);
                 ui.end_row();
 
                 ui.label("Dead zone");
-                thumbstick_knob_dead_zone_ui(ui, &mut self.dead_zone);
+                thumbstick_dead_zone_ui(ui, &mut self.dead_zone);
                 ui.end_row();
             });
     }

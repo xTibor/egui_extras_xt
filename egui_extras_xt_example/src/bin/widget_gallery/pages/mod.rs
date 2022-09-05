@@ -35,8 +35,8 @@ use qrcode_page::QrCodePage;
 mod segmented_display_page;
 use segmented_display_page::SegmentedDisplayPage;
 
-mod thumbstick_knob_page;
-use thumbstick_knob_page::ThumbstickKnobPage;
+mod thumbstick_widget_page;
+use thumbstick_widget_page::ThumbstickWidgetPage;
 
 mod welcome_page;
 use welcome_page::WelcomePage;
@@ -90,9 +90,9 @@ pub enum PageId {
     #[strum(props(feature = "displays"))]
     SegmentedDisplayPage,
 
-    #[strum(to_string = "ThumbstickKnob")]
+    #[strum(to_string = "ThumbstickWidget")]
     #[strum(props(feature = "knobs"))]
-    ThumbstickKnobPage,
+    ThumbstickWidgetPage,
 
     #[strum(to_string = "Welcome")]
     WelcomePage,
@@ -111,7 +111,7 @@ impl PageId {
             PageId::PolarCompassPage => Box::new(PolarCompassPage::default()),
             PageId::QrCodePage => Box::new(QrCodePage::default()),
             PageId::SegmentedDisplayPage => Box::new(SegmentedDisplayPage::default()),
-            PageId::ThumbstickKnobPage => Box::new(ThumbstickKnobPage::default()),
+            PageId::ThumbstickWidgetPage => Box::new(ThumbstickWidgetPage::default()),
             PageId::WelcomePage => Box::new(WelcomePage::default()),
         }
     }

@@ -25,7 +25,7 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: (f32, f32)) {
 
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, Display, PartialEq)]
-pub enum ThumbstickKnobSnap {
+pub enum ThumbstickSnap {
     #[strum(to_string = "None")]
     None,
 
@@ -37,11 +37,11 @@ pub enum ThumbstickKnobSnap {
     },
 }
 
-impl ThumbstickKnobSnap {
+impl ThumbstickSnap {
     fn eval(&self, input: Vec2) -> Vec2 {
         match *self {
-            ThumbstickKnobSnap::None => input,
-            ThumbstickKnobSnap::Strict {
+            ThumbstickSnap::None => input,
+            ThumbstickSnap::Strict {
                 axes,
                 rotation,
                 threshold,
@@ -70,7 +70,7 @@ impl ThumbstickKnobSnap {
 
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, Display, PartialEq)]
-pub enum ThumbstickKnobDeadZone {
+pub enum ThumbstickDeadZone {
     #[strum(to_string = "None")]
     None,
 
@@ -78,11 +78,11 @@ pub enum ThumbstickKnobDeadZone {
     ScaledRadial { dead_zone: f32 },
 }
 
-impl ThumbstickKnobDeadZone {
+impl ThumbstickDeadZone {
     fn eval(&self, input: Vec2) -> Vec2 {
         match *self {
-            ThumbstickKnobDeadZone::None => input,
-            ThumbstickKnobDeadZone::ScaledRadial { dead_zone } => {
+            ThumbstickDeadZone::None => input,
+            ThumbstickDeadZone::ScaledRadial { dead_zone } => {
                 assert!(
                     (0.0..=1.0).contains(&dead_zone),
                     "dead zone must be normalized"
@@ -98,7 +98,7 @@ impl ThumbstickKnobDeadZone {
 // ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct ThumbstickKnob<'a> {
+pub struct ThumbstickWidget<'a> {
     get_set_value: GetSetValue<'a>,
     range_x: RangeInclusive<f32>,
     range_y: RangeInclusive<f32>,
@@ -107,11 +107,11 @@ pub struct ThumbstickKnob<'a> {
     animated: bool,
     auto_center: bool,
     show_axes: bool,
-    snap: ThumbstickKnobSnap,
-    dead_zone: ThumbstickKnobDeadZone,
+    snap: ThumbstickSnap,
+    dead_zone: ThumbstickDeadZone,
 }
 
-impl<'a> ThumbstickKnob<'a> {
+impl<'a> ThumbstickWidget<'a> {
     pub fn new(value: &'a mut (f32, f32)) -> Self {
         Self::from_get_set(move |v: Option<(f32, f32)>| {
             if let Some(v) = v {
@@ -131,8 +131,8 @@ impl<'a> ThumbstickKnob<'a> {
             animated: true,
             auto_center: true,
             show_axes: true,
-            snap: ThumbstickKnobSnap::None,
-            dead_zone: ThumbstickKnobDeadZone::None,
+            snap: ThumbstickSnap::None,
+            dead_zone: ThumbstickDeadZone::None,
         }
     }
 
@@ -177,18 +177,18 @@ impl<'a> ThumbstickKnob<'a> {
         self
     }
 
-    pub fn snap(mut self, snap: ThumbstickKnobSnap) -> Self {
+    pub fn snap(mut self, snap: ThumbstickSnap) -> Self {
         self.snap = snap;
         self
     }
 
-    pub fn dead_zone(mut self, dead_zone: ThumbstickKnobDeadZone) -> Self {
+    pub fn dead_zone(mut self, dead_zone: ThumbstickDeadZone) -> Self {
         self.dead_zone = dead_zone;
         self
     }
 }
 
-impl<'a> Widget for ThumbstickKnob<'a> {
+impl<'a> Widget for ThumbstickWidget<'a> {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = Vec2::splat(self.diameter);
 
@@ -249,8 +249,8 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                 };
 
                 match self.snap {
-                    ThumbstickKnobSnap::None => {}
-                    ThumbstickKnobSnap::Strict { axes, rotation, .. } => {
+                    ThumbstickSnap::None => {}
+                    ThumbstickSnap::Strict { axes, rotation, .. } => {
                         for axis_index in 0..axes {
                             let angle = ((axis_index as f32) / (axes as f32)) * TAU + rotation;
                             paint_snap_axis(angle);

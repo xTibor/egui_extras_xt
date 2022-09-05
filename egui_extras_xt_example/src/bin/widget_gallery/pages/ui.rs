@@ -4,7 +4,7 @@ use egui_extras_xt::common::{Orientation, WidgetShape};
 use egui_extras_xt::compasses::{CompassMarkerShape, DefaultCompassMarkerColor};
 use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
-use egui_extras_xt::knobs::{ThumbstickKnobDeadZone, ThumbstickKnobSnap};
+use egui_extras_xt::knobs::{ThumbstickDeadZone, ThumbstickSnap};
 use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
 use strum::IntoEnumIterator;
 
@@ -320,15 +320,15 @@ pub fn compass_axis_labels_ui(ui: &mut Ui, axis_labels: &mut Vec<String>) {
     });
 }
 
-pub fn thumbstick_knob_snap_ui(ui: &mut Ui, value: &mut ThumbstickKnobSnap) {
+pub fn thumbstick_snap_ui(ui: &mut Ui, value: &mut ThumbstickSnap) {
     ui.horizontal_centered(|ui| {
-        ui.push_id("thumbstick_knob_snap_combo", |ui| {
+        ui.push_id("thumbstick_snap_combo", |ui| {
             ui.combobox_from_slice(
                 "",
                 value,
                 &[
-                    ThumbstickKnobSnap::None,
-                    ThumbstickKnobSnap::Strict {
+                    ThumbstickSnap::None,
+                    ThumbstickSnap::Strict {
                         axes: 8,
                         rotation: 0.0f32.to_radians(),
                         threshold: 0.0,
@@ -338,8 +338,8 @@ pub fn thumbstick_knob_snap_ui(ui: &mut Ui, value: &mut ThumbstickKnobSnap) {
         });
 
         match value {
-            ThumbstickKnobSnap::None => {}
-            ThumbstickKnobSnap::Strict {
+            ThumbstickSnap::None => {}
+            ThumbstickSnap::Strict {
                 axes,
                 rotation,
                 threshold,
@@ -353,22 +353,22 @@ pub fn thumbstick_knob_snap_ui(ui: &mut Ui, value: &mut ThumbstickKnobSnap) {
     });
 }
 
-pub fn thumbstick_knob_dead_zone_ui(ui: &mut Ui, value: &mut ThumbstickKnobDeadZone) {
+pub fn thumbstick_dead_zone_ui(ui: &mut Ui, value: &mut ThumbstickDeadZone) {
     ui.horizontal_centered(|ui| {
-        ui.push_id("thumbstick_knob_dead_zone_combo", |ui| {
+        ui.push_id("thumbstick_dead_zone_combo", |ui| {
             ui.combobox_from_slice(
                 "",
                 value,
                 &[
-                    ThumbstickKnobDeadZone::None,
-                    ThumbstickKnobDeadZone::ScaledRadial { dead_zone: 0.25 },
+                    ThumbstickDeadZone::None,
+                    ThumbstickDeadZone::ScaledRadial { dead_zone: 0.25 },
                 ],
             );
         });
 
         match value {
-            ThumbstickKnobDeadZone::None => {}
-            ThumbstickKnobDeadZone::ScaledRadial { dead_zone } => {
+            ThumbstickDeadZone::None => {}
+            ThumbstickDeadZone::ScaledRadial { dead_zone } => {
                 ui.add(DragValue::new(dead_zone));
             }
             _ => unimplemented!(),
