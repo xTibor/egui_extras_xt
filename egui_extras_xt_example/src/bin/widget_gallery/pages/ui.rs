@@ -130,11 +130,14 @@ pub fn widget_shape_ui(ui: &mut Ui, value: &mut WidgetShape) {
                     WidgetShape::Polygon(6),
                     WidgetShape::SuperPolygon(6, 1.5),
                     WidgetShape::Rotated(Box::new(WidgetShape::Square), 0.0f32.to_radians()),
+                    WidgetShape::Scaled(Box::new(WidgetShape::Square), 1.0),
                     WidgetShape::Mix(
                         Box::new(WidgetShape::Circle),
                         Box::new(WidgetShape::Square),
                         0.5,
                     ),
+                    WidgetShape::Min(Box::new(WidgetShape::Circle), Box::new(WidgetShape::Square)),
+                    WidgetShape::Max(Box::new(WidgetShape::Circle), Box::new(WidgetShape::Square)),
                 ],
             );
         });
@@ -158,11 +161,23 @@ pub fn widget_shape_ui(ui: &mut Ui, value: &mut WidgetShape) {
                     ui.drag_angle(rotation);
                 });
             }
+            WidgetShape::Scaled(shape, scale) => {
+                ui.group(|ui| {
+                    widget_shape_ui(ui, shape);
+                    ui.add(DragValue::new(scale));
+                });
+            }
             WidgetShape::Mix(shape_a, shape_b, t) => {
                 ui.group(|ui| {
                     ui.push_id("shape_a", |ui| widget_shape_ui(ui, shape_a));
                     ui.push_id("shape_b", |ui| widget_shape_ui(ui, shape_b));
                     ui.add(DragValue::new(t));
+                });
+            }
+            WidgetShape::Min(shape_a, shape_b) | WidgetShape::Max(shape_a, shape_b) => {
+                ui.group(|ui| {
+                    ui.push_id("shape_a", |ui| widget_shape_ui(ui, shape_a));
+                    ui.push_id("shape_b", |ui| widget_shape_ui(ui, shape_b));
                 });
             }
             _ => unimplemented!(),

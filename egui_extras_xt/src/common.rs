@@ -96,8 +96,17 @@ pub enum WidgetShape {
     #[strum(to_string = "Rotated")]
     Rotated(Box<WidgetShape>, f32),
 
+    #[strum(to_string = "Scaled")]
+    Scaled(Box<WidgetShape>, f32),
+
     #[strum(to_string = "Mix")]
     Mix(Box<WidgetShape>, Box<WidgetShape>, f32),
+
+    #[strum(to_string = "Mininum")]
+    Min(Box<WidgetShape>, Box<WidgetShape>),
+
+    #[strum(to_string = "Maximum")]
+    Max(Box<WidgetShape>, Box<WidgetShape>),
 }
 
 impl WidgetShape {
@@ -131,9 +140,12 @@ impl WidgetShape {
                 (a + b).powf(-1.0 / *factor)
             }
             WidgetShape::Rotated(shape, rotation) => shape.eval(theta - rotation),
+            WidgetShape::Scaled(shape, scale) => shape.eval(theta) * scale,
             WidgetShape::Mix(shape_a, shape_b, t) => {
                 (shape_a.eval(theta) * (1.0 - t)) + (shape_b.eval(theta) * t)
             }
+            WidgetShape::Min(shape_a, shape_b) => shape_a.eval(theta).min(shape_b.eval(theta)),
+            WidgetShape::Max(shape_a, shape_b) => shape_a.eval(theta).max(shape_b.eval(theta)),
         }
     }
 
