@@ -1,10 +1,10 @@
 use std::ops::RangeInclusive;
 
 use eframe::egui::{DragValue, Grid, Ui};
-use egui_extras_xt::knobs::{ThumbstickKnob, ThumbstickKnobSnap};
+use egui_extras_xt::knobs::{ThumbstickKnob, ThumbstickKnobDeadZone, ThumbstickKnobSnap};
 use egui_extras_xt::ui::drag_rangeinclusive::DragRangeInclusive;
 
-use crate::pages::ui::thumbstick_knob_snap_ui;
+use crate::pages::ui::{thumbstick_knob_dead_zone_ui, thumbstick_knob_snap_ui};
 use crate::pages::PageImpl;
 
 pub struct ThumbstickKnobPage {
@@ -17,6 +17,7 @@ pub struct ThumbstickKnobPage {
     auto_center: bool,
     show_axes: bool,
     snap: ThumbstickKnobSnap,
+    dead_zone: ThumbstickKnobDeadZone,
 }
 
 impl Default for ThumbstickKnobPage {
@@ -31,6 +32,7 @@ impl Default for ThumbstickKnobPage {
             auto_center: true,
             show_axes: true,
             snap: ThumbstickKnobSnap::None,
+            dead_zone: ThumbstickKnobDeadZone::None,
         }
     }
 }
@@ -46,7 +48,8 @@ impl PageImpl for ThumbstickKnobPage {
                 .animated(self.animated)
                 .auto_center(self.auto_center)
                 .show_axes(self.show_axes)
-                .snap(self.snap),
+                .snap(self.snap)
+                .dead_zone(self.dead_zone),
         );
         ui.separator();
 
@@ -93,6 +96,10 @@ impl PageImpl for ThumbstickKnobPage {
 
                 ui.label("Snap");
                 thumbstick_knob_snap_ui(ui, &mut self.snap);
+                ui.end_row();
+
+                ui.label("Dead zone");
+                thumbstick_knob_dead_zone_ui(ui, &mut self.dead_zone);
                 ui.end_row();
             });
     }

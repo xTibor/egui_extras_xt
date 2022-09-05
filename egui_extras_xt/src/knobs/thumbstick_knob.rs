@@ -47,6 +47,10 @@ impl ThumbstickKnobSnap {
                 threshold,
             } => {
                 assert!(axes > 0, "snapping to non-positive number of axes");
+                assert!(
+                    (0.0..=1.0).contains(&threshold),
+                    "threshold must be normalized"
+                );
 
                 if input.length() >= threshold {
                     let mut angle = input.angle() - rotation;
@@ -57,6 +61,35 @@ impl ThumbstickKnobSnap {
                 } else {
                     input
                 }
+            }
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, Display, PartialEq)]
+pub enum ThumbstickKnobDeadZone {
+    #[strum(to_string = "None")]
+    None,
+
+    #[strum(to_string = "Scaled radial")]
+    ScaledRadial { dead_zone: f32 },
+}
+
+impl ThumbstickKnobDeadZone {
+    fn eval(&self, input: Vec2) -> Vec2 {
+        match *self {
+            ThumbstickKnobDeadZone::None => input,
+            ThumbstickKnobDeadZone::ScaledRadial { dead_zone } => {
+                assert!(
+                    (0.0..=1.0).contains(&dead_zone),
+                    "dead zone must be normalized"
+                );
+
+                let scaled_length = (input.length() - dead_zone).max(0.0) / (1.0 - dead_zone);
+                input.normalized() * scaled_length
             }
         }
     }
@@ -75,6 +108,7 @@ pub struct ThumbstickKnob<'a> {
     auto_center: bool,
     show_axes: bool,
     snap: ThumbstickKnobSnap,
+    dead_zone: ThumbstickKnobDeadZone,
 }
 
 impl<'a> ThumbstickKnob<'a> {
@@ -98,6 +132,7 @@ impl<'a> ThumbstickKnob<'a> {
             auto_center: true,
             show_axes: true,
             snap: ThumbstickKnobSnap::None,
+            dead_zone: ThumbstickKnobDeadZone::None,
         }
     }
 
@@ -146,6 +181,11 @@ impl<'a> ThumbstickKnob<'a> {
         self.snap = snap;
         self
     }
+
+    pub fn dead_zone(mut self, dead_zone: ThumbstickKnobDeadZone) -> Self {
+        self.dead_zone = dead_zone;
+        self
+    }
 }
 
 impl<'a> Widget for ThumbstickKnob<'a> {
@@ -169,6 +209,7 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                 v = v.normalized();
             }
 
+            v = self.dead_zone.eval(v);
             v = self.snap.eval(v);
 
             v.x = remap_clamp(v.x, -1.0..=1.0, self.range_x.clone());

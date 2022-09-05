@@ -4,7 +4,7 @@ use egui_extras_xt::common::{Orientation, WidgetShape};
 use egui_extras_xt::compasses::{CompassMarkerShape, DefaultCompassMarkerColor};
 use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
-use egui_extras_xt::knobs::ThumbstickKnobSnap;
+use egui_extras_xt::knobs::{ThumbstickKnobDeadZone, ThumbstickKnobSnap};
 use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
 use strum::IntoEnumIterator;
 
@@ -347,6 +347,29 @@ pub fn thumbstick_knob_snap_ui(ui: &mut Ui, value: &mut ThumbstickKnobSnap) {
                 ui.add(DragValue::new(axes));
                 ui.drag_angle(rotation);
                 ui.add(DragValue::new(threshold));
+            }
+            _ => unimplemented!(),
+        }
+    });
+}
+
+pub fn thumbstick_knob_dead_zone_ui(ui: &mut Ui, value: &mut ThumbstickKnobDeadZone) {
+    ui.horizontal_centered(|ui| {
+        ui.push_id("thumbstick_knob_dead_zone_combo", |ui| {
+            ui.combobox_from_slice(
+                "",
+                value,
+                &[
+                    ThumbstickKnobDeadZone::None,
+                    ThumbstickKnobDeadZone::ScaledRadial { dead_zone: 0.25 },
+                ],
+            );
+        });
+
+        match value {
+            ThumbstickKnobDeadZone::None => {}
+            ThumbstickKnobDeadZone::ScaledRadial { dead_zone } => {
+                ui.add(DragValue::new(dead_zone));
             }
             _ => unimplemented!(),
         }
