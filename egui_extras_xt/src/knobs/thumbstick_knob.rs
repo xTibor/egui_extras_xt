@@ -73,6 +73,7 @@ pub struct ThumbstickKnob<'a> {
     diameter: f32,
     animated: bool,
     auto_center: bool,
+    show_axes: bool,
     snap: ThumbstickKnobSnap,
 }
 
@@ -95,6 +96,7 @@ impl<'a> ThumbstickKnob<'a> {
             diameter: 96.0,
             animated: true,
             auto_center: true,
+            show_axes: true,
             snap: ThumbstickKnobSnap::None,
         }
     }
@@ -132,6 +134,11 @@ impl<'a> ThumbstickKnob<'a> {
 
     pub fn auto_center(mut self, auto_center: bool) -> Self {
         self.auto_center = auto_center;
+        self
+    }
+
+    pub fn show_axes(mut self, show_axes: bool) -> Self {
+        self.show_axes = show_axes;
         self
     }
 
@@ -189,7 +196,7 @@ impl<'a> Widget for ThumbstickKnob<'a> {
                 ui.style().visuals.window_stroke(),
             );
 
-            {
+            if self.show_axes {
                 let paint_snap_axis = |angle| {
                     ui.painter().line_segment(
                         [

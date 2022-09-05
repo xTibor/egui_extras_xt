@@ -15,6 +15,7 @@ pub struct ThumbstickKnobPage {
     diameter: f32,
     animated: bool,
     auto_center: bool,
+    show_axes: bool,
     snap: ThumbstickKnobSnap,
 }
 
@@ -28,6 +29,7 @@ impl Default for ThumbstickKnobPage {
             diameter: 96.0,
             animated: true,
             auto_center: true,
+            show_axes: true,
             snap: ThumbstickKnobSnap::None,
         }
     }
@@ -43,6 +45,7 @@ impl PageImpl for ThumbstickKnobPage {
                 .diameter(self.diameter)
                 .animated(self.animated)
                 .auto_center(self.auto_center)
+                .show_axes(self.show_axes)
                 .snap(self.snap),
         );
         ui.separator();
@@ -82,6 +85,10 @@ impl PageImpl for ThumbstickKnobPage {
 
                 ui.label("Auto-center");
                 ui.checkbox(&mut self.auto_center, "");
+                ui.end_row();
+
+                ui.label("Show axes");
+                ui.checkbox(&mut self.show_axes, "");
                 ui.end_row();
 
                 ui.label("Snap");
