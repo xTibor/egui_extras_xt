@@ -119,70 +119,80 @@ pub fn display_metrics_ui(
 }
 
 pub fn widget_shape_ui(ui: &mut Ui, value: &mut WidgetShape) {
-    ui.horizontal_centered(|ui| {
-        ui.push_id("widget_shape_combo", |ui| {
-            ui.combobox_from_slice(
-                "",
-                value,
-                &[
-                    WidgetShape::Circle,
-                    WidgetShape::Square,
-                    WidgetShape::Squircle(4.0),
-                    WidgetShape::Polygon(6),
-                    WidgetShape::SuperPolygon(6, 1.5),
-                    WidgetShape::Rotated(Box::new(WidgetShape::Square), 0.0f32.to_radians()),
-                    WidgetShape::Scaled(Box::new(WidgetShape::Square), 1.0),
-                    WidgetShape::Mix(
-                        Box::new(WidgetShape::Circle),
-                        Box::new(WidgetShape::Square),
-                        0.5,
-                    ),
-                    WidgetShape::Min(Box::new(WidgetShape::Circle), Box::new(WidgetShape::Square)),
-                    WidgetShape::Max(Box::new(WidgetShape::Circle), Box::new(WidgetShape::Square)),
-                ],
-            );
-        });
+    ui.group(|ui| {
+        ui.horizontal_top(|ui| {
+            ui.push_id("widget_shape_combo", |ui| {
+                ui.combobox_from_slice(
+                    "",
+                    value,
+                    &[
+                        WidgetShape::Circle,
+                        WidgetShape::Square,
+                        WidgetShape::Squircle(4.0),
+                        WidgetShape::Polygon(6),
+                        WidgetShape::SuperPolygon(6, 1.5),
+                        WidgetShape::Rotated(Box::new(WidgetShape::Square), 0.0f32.to_radians()),
+                        WidgetShape::Scaled(Box::new(WidgetShape::Square), 1.0),
+                        WidgetShape::Mix(
+                            Box::new(WidgetShape::Circle),
+                            Box::new(WidgetShape::Square),
+                            0.5,
+                        ),
+                        WidgetShape::Min(
+                            Box::new(WidgetShape::Circle),
+                            Box::new(WidgetShape::Square),
+                        ),
+                        WidgetShape::Max(
+                            Box::new(WidgetShape::Circle),
+                            Box::new(WidgetShape::Square),
+                        ),
+                    ],
+                );
+            });
 
-        match value {
-            WidgetShape::Circle => {}
-            WidgetShape::Square => {}
-            WidgetShape::Squircle(factor) => {
-                ui.add(DragValue::new(factor));
+            match value {
+                WidgetShape::Circle => {}
+                WidgetShape::Square => {}
+                WidgetShape::Squircle(factor) => {
+                    ui.add(DragValue::new(factor));
+                }
+                WidgetShape::Polygon(n) => {
+                    ui.add(DragValue::new(n));
+                }
+                WidgetShape::SuperPolygon(n, factor) => {
+                    ui.vertical(|ui| {
+                        ui.add(DragValue::new(n));
+                        ui.add(DragValue::new(factor));
+                    });
+                }
+                WidgetShape::Rotated(shape, rotation) => {
+                    ui.vertical(|ui| {
+                        widget_shape_ui(ui, shape);
+                        ui.drag_angle(rotation);
+                    });
+                }
+                WidgetShape::Scaled(shape, scale) => {
+                    ui.vertical(|ui| {
+                        widget_shape_ui(ui, shape);
+                        ui.add(DragValue::new(scale));
+                    });
+                }
+                WidgetShape::Mix(shape_a, shape_b, t) => {
+                    ui.vertical(|ui| {
+                        ui.push_id("shape_a", |ui| widget_shape_ui(ui, shape_a));
+                        ui.add(DragValue::new(t));
+                        ui.push_id("shape_b", |ui| widget_shape_ui(ui, shape_b));
+                    });
+                }
+                WidgetShape::Min(shape_a, shape_b) | WidgetShape::Max(shape_a, shape_b) => {
+                    ui.vertical(|ui| {
+                        ui.push_id("shape_a", |ui| widget_shape_ui(ui, shape_a));
+                        ui.push_id("shape_b", |ui| widget_shape_ui(ui, shape_b));
+                    });
+                }
+                _ => unimplemented!(),
             }
-            WidgetShape::Polygon(n) => {
-                ui.add(DragValue::new(n));
-            }
-            WidgetShape::SuperPolygon(n, factor) => {
-                ui.add(DragValue::new(n));
-                ui.add(DragValue::new(factor));
-            }
-            WidgetShape::Rotated(shape, rotation) => {
-                ui.group(|ui| {
-                    widget_shape_ui(ui, shape);
-                    ui.drag_angle(rotation);
-                });
-            }
-            WidgetShape::Scaled(shape, scale) => {
-                ui.group(|ui| {
-                    widget_shape_ui(ui, shape);
-                    ui.add(DragValue::new(scale));
-                });
-            }
-            WidgetShape::Mix(shape_a, shape_b, t) => {
-                ui.group(|ui| {
-                    ui.push_id("shape_a", |ui| widget_shape_ui(ui, shape_a));
-                    ui.push_id("shape_b", |ui| widget_shape_ui(ui, shape_b));
-                    ui.add(DragValue::new(t));
-                });
-            }
-            WidgetShape::Min(shape_a, shape_b) | WidgetShape::Max(shape_a, shape_b) => {
-                ui.group(|ui| {
-                    ui.push_id("shape_a", |ui| widget_shape_ui(ui, shape_a));
-                    ui.push_id("shape_b", |ui| widget_shape_ui(ui, shape_b));
-                });
-            }
-            _ => unimplemented!(),
-        }
+        });
     });
 }
 
