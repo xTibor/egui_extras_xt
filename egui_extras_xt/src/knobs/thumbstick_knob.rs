@@ -30,21 +30,33 @@ pub enum ThumbstickKnobSnap {
     None,
 
     #[strum(to_string = "Strict")]
-    Strict { axes: usize, rotation: f32 },
+    Strict {
+        axes: usize,
+        rotation: f32,
+        threshold: f32,
+    },
 }
 
 impl ThumbstickKnobSnap {
     fn eval(&self, input: Vec2) -> Vec2 {
         match *self {
             ThumbstickKnobSnap::None => input,
-            ThumbstickKnobSnap::Strict { axes, rotation } => {
+            ThumbstickKnobSnap::Strict {
+                axes,
+                rotation,
+                threshold,
+            } => {
                 assert!(axes > 0, "snapping to non-positive number of axes");
 
-                let mut angle = input.angle() - rotation;
-                angle = (angle / TAU * (axes as f32)).round() * TAU / (axes as f32);
-                angle = angle + rotation;
+                if input.length() >= threshold {
+                    let mut angle = input.angle() - rotation;
+                    angle = (angle / TAU * (axes as f32)).round() * TAU / (axes as f32);
+                    angle = angle + rotation;
 
-                Vec2::angled(angle) * input.length()
+                    Vec2::angled(angle) * input.length()
+                } else {
+                    input
+                }
             }
         }
     }

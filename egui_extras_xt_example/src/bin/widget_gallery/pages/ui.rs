@@ -319,8 +319,9 @@ pub fn thumbstick_knob_snap_ui(ui: &mut Ui, value: &mut ThumbstickKnobSnap) {
                 &[
                     ThumbstickKnobSnap::None,
                     ThumbstickKnobSnap::Strict {
-                        axes: 4,
+                        axes: 8,
                         rotation: 0.0f32.to_radians(),
+                        threshold: 0.0,
                     },
                 ],
             );
@@ -328,9 +329,14 @@ pub fn thumbstick_knob_snap_ui(ui: &mut Ui, value: &mut ThumbstickKnobSnap) {
 
         match value {
             ThumbstickKnobSnap::None => {}
-            ThumbstickKnobSnap::Strict { axes, rotation } => {
+            ThumbstickKnobSnap::Strict {
+                axes,
+                rotation,
+                threshold,
+            } => {
                 ui.add(DragValue::new(axes));
                 ui.drag_angle(rotation);
+                ui.add(DragValue::new(threshold));
             }
             _ => unimplemented!(),
         }
