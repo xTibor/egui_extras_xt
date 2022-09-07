@@ -44,7 +44,7 @@ impl<'a> IndicatorButton<'a> {
             get_set_value: Box::new(get_set_value),
             width: 64.0,
             height: 40.0,
-            label: Some("TEST".to_owned()),
+            label: None,
             style: DisplayStylePreset::Default.style(),
             animated: true,
             interactive: true,
