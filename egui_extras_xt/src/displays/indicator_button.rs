@@ -127,27 +127,33 @@ impl<'a> Widget for IndicatorButton<'a> {
             let top_rect = Rect::from_min_max(rect.left_top(), rect.right_center());
             let bottom_rect = Rect::from_min_max(rect.left_center(), rect.right_bottom());
 
-            ui.painter().rect(
-                top_rect.shrink(4.0),
-                4.0,
-                self.style.background_color,
-                Stroke::none(),
-            );
+            {
+                let indicator_rect = if self.label.is_some() { top_rect } else { rect };
 
-            ui.painter().rect(
-                top_rect.shrink(6.0),
-                4.0,
-                self.style.foreground_color_blend(value),
-                Stroke::none(),
-            );
+                ui.painter().rect(
+                    indicator_rect.shrink(4.0),
+                    4.0,
+                    self.style.background_color,
+                    Stroke::none(),
+                );
 
-            ui.painter().text(
-                bottom_rect.center(),
-                Align2::CENTER_CENTER,
-                self.label.unwrap(),
-                FontId::new(bottom_rect.shrink(2.0).height(), FontFamily::Proportional),
-                visuals.text_color(),
-            );
+                ui.painter().rect(
+                    indicator_rect.shrink(6.0),
+                    4.0,
+                    self.style.foreground_color_blend(value),
+                    Stroke::none(),
+                );
+            }
+
+            if let Some(label) = self.label {
+                ui.painter().text(
+                    bottom_rect.center() - vec2(0.0, 2.0),
+                    Align2::CENTER_CENTER,
+                    label,
+                    FontId::new(bottom_rect.height() - 4.0, FontFamily::Proportional),
+                    visuals.text_color(),
+                );
+            }
         }
 
         response
