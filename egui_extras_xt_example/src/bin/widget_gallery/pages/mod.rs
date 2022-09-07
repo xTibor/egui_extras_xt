@@ -20,6 +20,9 @@ use datamatrix_page::DataMatrixPage;
 mod hyperlink_with_icon_page;
 use hyperlink_with_icon_page::HyperlinkWithIconPage;
 
+mod indicator_button_page;
+use indicator_button_page::IndicatorButtonPage;
+
 mod led_display_page;
 use led_display_page::LedDisplayPage;
 
@@ -70,6 +73,10 @@ pub enum PageId {
     #[strum(props(feature = "ui"))]
     HyperlinkWithIconPage,
 
+    #[strum(to_string = "IndicatorButton")]
+    #[strum(props(feature = "displays"))]
+    IndicatorButtonPage,
+
     #[strum(to_string = "LedDisplay")]
     #[strum(props(feature = "displays"))]
     LedDisplayPage,
@@ -106,6 +113,7 @@ impl PageId {
             PageId::BarcodePage => Box::new(BarcodePage::default()),
             PageId::DataMatrixPage => Box::new(DataMatrixPage::default()),
             PageId::HyperlinkWithIconPage => Box::new(HyperlinkWithIconPage::default()),
+            PageId::IndicatorButtonPage => Box::new(IndicatorButtonPage::default()),
             PageId::LedDisplayPage => Box::new(LedDisplayPage::default()),
             PageId::LinearCompassPage => Box::new(LinearCompassPage::default()),
             PageId::PolarCompassPage => Box::new(PolarCompassPage::default()),
