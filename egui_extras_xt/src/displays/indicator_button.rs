@@ -1,4 +1,4 @@
-use egui::{vec2, Response, Sense, Stroke, Ui, Widget};
+use egui::{vec2, Align2, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
 
 use crate::displays::{DisplayStyle, DisplayStylePreset};
 
@@ -43,8 +43,8 @@ impl<'a> IndicatorButton<'a> {
         Self {
             get_set_value: Box::new(get_set_value),
             width: 64.0,
-            height: 48.0,
-            label: None,
+            height: 40.0,
+            label: Some("TEST".to_owned()),
             style: DisplayStylePreset::Default.style(),
             animated: true,
             interactive: true,
@@ -124,11 +124,29 @@ impl<'a> Widget for IndicatorButton<'a> {
             ui.painter()
                 .rect(rect, visuals.rounding, visuals.bg_fill, visuals.bg_stroke);
 
+            let top_rect = Rect::from_min_max(rect.left_top(), rect.right_center());
+            let bottom_rect = Rect::from_min_max(rect.left_center(), rect.right_bottom());
+
             ui.painter().rect(
-                rect.shrink(6.0),
-                visuals.rounding,
+                top_rect.shrink(4.0),
+                4.0,
+                self.style.background_color,
+                Stroke::none(),
+            );
+
+            ui.painter().rect(
+                top_rect.shrink(6.0),
+                4.0,
                 self.style.foreground_color_blend(value),
                 Stroke::none(),
+            );
+
+            ui.painter().text(
+                bottom_rect.center(),
+                Align2::CENTER_CENTER,
+                self.label.unwrap(),
+                FontId::new(bottom_rect.shrink(2.0).height(), FontFamily::Proportional),
+                visuals.text_color(),
             );
         }
 
