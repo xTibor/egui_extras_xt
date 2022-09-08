@@ -1,15 +1,17 @@
+use std::borrow::Borrow;
 use std::sync::Arc;
 
 use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget};
 
+use datamatrix::data::DataEncodingError;
 use datamatrix::placement::Bitmap;
 use datamatrix::{DataMatrix, SymbolList};
 
 // ----------------------------------------------------------------------------
 
 type DataMatrixCacheKey<'a> = &'a str;
-type DataMatrixCacheValue = Arc<Bitmap<bool>>;
+type DataMatrixCacheValue = Arc<Result<Bitmap<bool>, DataEncodingError>>;
 
 #[derive(Default)]
 struct DataMatrixComputer;
@@ -18,8 +20,7 @@ impl<'a> ComputerMut<DataMatrixCacheKey<'a>, DataMatrixCacheValue> for DataMatri
     fn compute(&mut self, key: DataMatrixCacheKey) -> DataMatrixCacheValue {
         Arc::new(
             DataMatrix::encode_str(key, SymbolList::default())
-                .unwrap()
-                .bitmap(),
+                .map(|datamatrix| datamatrix.bitmap()),
         )
     }
 }
@@ -71,45 +72,49 @@ impl<'a> DataMatrixWidget<'a> {
 
 impl<'a> Widget for DataMatrixWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let datamatrix = {
+        let cached_bitmap = {
             let mut memory = ui.memory();
             let cache = memory.caches.cache::<DataMatrixCache<'_>>();
             cache.get(self.value)
         };
 
-        let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();
+        if let Ok(bitmap) = cached_bitmap.borrow() {
+            let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();
 
-        let desired_size = vec2(
-            (datamatrix.width() + self.quiet_zone * 2) as f32,
-            (datamatrix.height() + self.quiet_zone * 2) as f32,
-        ) * module_size;
+            let desired_size = vec2(
+                (bitmap.width() + self.quiet_zone * 2) as f32,
+                (bitmap.height() + self.quiet_zone * 2) as f32,
+            ) * module_size;
 
-        let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
+            let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
-        if ui.is_rect_visible(rect) {
-            ui.painter().rect(
-                rect,
-                ui.style().visuals.noninteractive().rounding,
-                self.background_color,
-                Stroke::none(),
-            );
+            if ui.is_rect_visible(rect) {
+                ui.painter().rect(
+                    rect,
+                    ui.style().visuals.noninteractive().rounding,
+                    self.background_color,
+                    Stroke::none(),
+                );
 
-            datamatrix
-                .pixels()
-                .map(|(x, y)| {
-                    Rect::from_min_size(
-                        ui.painter().round_pos_to_pixels(
-                            rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size),
-                        ) + vec2(x as f32, y as f32) * module_size,
-                        Vec2::splat(module_size),
-                    )
-                })
-                .for_each(|module_rect| {
-                    ui.painter()
-                        .rect(module_rect, 0.0, self.foreground_color, Stroke::none())
-                });
+                bitmap
+                    .pixels()
+                    .map(|(x, y)| {
+                        Rect::from_min_size(
+                            ui.painter().round_pos_to_pixels(
+                                rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size),
+                            ) + vec2(x as f32, y as f32) * module_size,
+                            Vec2::splat(module_size),
+                        )
+                    })
+                    .for_each(|module_rect| {
+                        ui.painter()
+                            .rect(module_rect, 0.0, self.foreground_color, Stroke::none())
+                    });
+            }
+
+            response
+        } else {
+            ui.label("\u{26A0} Failed to render Data Matrix code")
         }
-
-        response
     }
 }

@@ -1,21 +1,22 @@
+use std::borrow::Borrow;
 use std::sync::Arc;
 
 use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget};
 
-use qrcode::{Color, QrCode};
+use qrcode::{Color, QrCode, QrResult};
 
 // ----------------------------------------------------------------------------
 
 type QrCodeCacheKey<'a> = &'a str;
-type QrCodeCacheValue = Arc<QrCode>;
+type QrCodeCacheValue = Arc<QrResult<QrCode>>;
 
 #[derive(Default)]
 struct QrCodeComputer;
 
 impl<'a> ComputerMut<QrCodeCacheKey<'a>, QrCodeCacheValue> for QrCodeComputer {
     fn compute(&mut self, key: QrCodeCacheKey) -> QrCodeCacheValue {
-        Arc::new(QrCode::new(key).unwrap())
+        Arc::new(QrCode::new(key))
     }
 }
 
@@ -66,52 +67,56 @@ impl<'a> QrCodeWidget<'a> {
 
 impl<'a> Widget for QrCodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let qr_code = {
+        let cached_qr_code = {
             let mut memory = ui.memory();
             let cache = memory.caches.cache::<QrCodeCache<'_>>();
             cache.get(self.value)
         };
 
-        let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();
+        if let Ok(qr_code) = cached_qr_code.borrow() {
+            let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();
 
-        let desired_size =
-            Vec2::splat((qr_code.width() + self.quiet_zone * 2) as f32 * module_size);
+            let desired_size =
+                Vec2::splat((qr_code.width() + self.quiet_zone * 2) as f32 * module_size);
 
-        let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
+            let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
-        if ui.is_rect_visible(rect) {
-            ui.painter().rect(
-                rect,
-                ui.style().visuals.noninteractive().rounding,
-                self.background_color,
-                Stroke::none(),
-            );
+            if ui.is_rect_visible(rect) {
+                ui.painter().rect(
+                    rect,
+                    ui.style().visuals.noninteractive().rounding,
+                    self.background_color,
+                    Stroke::none(),
+                );
 
-            qr_code
-                .to_colors()
-                .into_iter()
-                .enumerate()
-                .filter(|&(_module_index, module_value)| module_value == Color::Dark)
-                .map(|(module_index, _module_value)| {
-                    (
-                        module_index % qr_code.width(),
-                        module_index / qr_code.width(),
-                    )
-                })
-                .map(|(x, y)| {
-                    Rect::from_min_size(
-                        ui.painter().round_pos_to_pixels(
-                            rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size),
-                        ) + vec2(x as f32, y as f32) * module_size,
-                        Vec2::splat(module_size),
-                    )
-                })
-                .for_each(|module_rect| {
-                    ui.painter()
-                        .rect(module_rect, 0.0, self.foreground_color, Stroke::none())
-                });
+                qr_code
+                    .to_colors()
+                    .into_iter()
+                    .enumerate()
+                    .filter(|&(_module_index, module_value)| module_value == Color::Dark)
+                    .map(|(module_index, _module_value)| {
+                        (
+                            module_index % qr_code.width(),
+                            module_index / qr_code.width(),
+                        )
+                    })
+                    .map(|(x, y)| {
+                        Rect::from_min_size(
+                            ui.painter().round_pos_to_pixels(
+                                rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size),
+                            ) + vec2(x as f32, y as f32) * module_size,
+                            Vec2::splat(module_size),
+                        )
+                    })
+                    .for_each(|module_rect| {
+                        ui.painter()
+                            .rect(module_rect, 0.0, self.foreground_color, Stroke::none())
+                    });
+            }
+
+            response
+        } else {
+            ui.label("\u{26A0} Failed to render QR code")
         }
-
-        response
     }
 }
