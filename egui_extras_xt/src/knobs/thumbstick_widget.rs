@@ -55,7 +55,7 @@ impl ThumbstickSnap {
                 if input.length() >= threshold {
                     let mut angle = input.angle() - rotation;
                     angle = (angle / TAU * (axes as f32)).round() * TAU / (axes as f32);
-                    angle = angle + rotation;
+                    angle += rotation;
 
                     Vec2::angled(angle) * input.length()
                 } else {

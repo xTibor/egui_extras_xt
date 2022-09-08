@@ -121,6 +121,7 @@ impl<'a> Widget for IndicatorButton<'a> {
                 ui.ctx()
                     .animate_bool(response.id, get(&mut self.get_set_value))
             } else {
+                #[allow(clippy::collapsible_else_if)]
                 if get(&mut self.get_set_value) {
                     1.0
                 } else {
