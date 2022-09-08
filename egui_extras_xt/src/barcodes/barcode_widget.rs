@@ -1,5 +1,7 @@
+use std::borrow::Borrow;
 use std::sync::Arc;
 
+use barcoders::error::Error;
 use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
 
@@ -55,19 +57,19 @@ pub enum BarcodeKind {
 }
 
 impl BarcodeKind {
-    fn encode<T: AsRef<str>>(&self, data: T) -> Option<Vec<u8>> {
+    fn encode<T: AsRef<str>>(&self, data: T) -> Result<Vec<u8>, Error> {
         match *self {
-            BarcodeKind::Codabar => Some(Codabar::new(data).ok()?.encode()),
-            BarcodeKind::Code11 => Some(Code11::new(data).ok()?.encode()),
-            BarcodeKind::Code39 => Some(Code39::new(data).ok()?.encode()),
-            BarcodeKind::Code39Checksum => Some(Code39::with_checksum(data).ok()?.encode()),
-            BarcodeKind::Code93 => Some(Code93::new(data).ok()?.encode()),
-            BarcodeKind::Code128 => Some(Code128::new(data).ok()?.encode()),
-            BarcodeKind::EAN8 => Some(EAN8::new(data).ok()?.encode()),
-            BarcodeKind::EAN13 => Some(EAN13::new(data).ok()?.encode()),
-            BarcodeKind::EANSUPP => Some(EANSUPP::new(data).ok()?.encode()),
-            BarcodeKind::ITF => Some(TF::interleaved(data).ok()?.encode()),
-            BarcodeKind::STF => Some(TF::standard(data).ok()?.encode()),
+            BarcodeKind::Codabar => Codabar::new(data).map(|b| b.encode()),
+            BarcodeKind::Code11 => Code11::new(data).map(|b| b.encode()),
+            BarcodeKind::Code39 => Code39::new(data).map(|b| b.encode()),
+            BarcodeKind::Code39Checksum => Code39::with_checksum(data).map(|b| b.encode()),
+            BarcodeKind::Code93 => Code93::new(data).map(|b| b.encode()),
+            BarcodeKind::Code128 => Code128::new(data).map(|b| b.encode()),
+            BarcodeKind::EAN8 => EAN8::new(data).map(|b| b.encode()),
+            BarcodeKind::EAN13 => EAN13::new(data).map(|b| b.encode()),
+            BarcodeKind::EANSUPP => EANSUPP::new(data).map(|b| b.encode()),
+            BarcodeKind::ITF => TF::interleaved(data).map(|b| b.encode()),
+            BarcodeKind::STF => TF::standard(data).map(|b| b.encode()),
         }
     }
 }
@@ -75,7 +77,7 @@ impl BarcodeKind {
 // ----------------------------------------------------------------------------
 
 type BarcodeCacheKey<'a> = (BarcodeKind, &'a str);
-type BarcodeCacheValue = Arc<Vec<u8>>;
+type BarcodeCacheValue = Arc<Result<Vec<u8>, Error>>;
 
 #[derive(Default)]
 struct BarcodeComputer;
@@ -83,7 +85,7 @@ struct BarcodeComputer;
 impl<'a> ComputerMut<BarcodeCacheKey<'a>, BarcodeCacheValue> for BarcodeComputer {
     fn compute(&mut self, key: BarcodeCacheKey) -> BarcodeCacheValue {
         let (barcode_kind, value) = key;
-        Arc::new(barcode_kind.encode(value).unwrap_or_default())
+        Arc::new(barcode_kind.encode(value))
     }
 }
 
@@ -176,63 +178,68 @@ impl<'a> BarcodeWidget<'a> {
 
 impl<'a> Widget for BarcodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let barcode = {
+        let cached_barcode = {
             let mut memory = ui.memory();
             let cache = memory.caches.cache::<BarcodeCache<'_>>();
             cache.get((self.barcode_kind, self.value))
         };
 
-        let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
+        if let Ok(barcode) = cached_barcode.borrow() {
+            let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();
 
-        let desired_size = {
-            let mut size = vec2(bar_width * barcode.len() as f32, self.bar_height)
-                + vec2(self.horizontal_padding, self.vertical_padding) * 2.0;
+            let desired_size = {
+                let mut size = vec2(bar_width * barcode.len() as f32, self.bar_height)
+                    + vec2(self.horizontal_padding, self.vertical_padding) * 2.0;
 
-            if self.label.is_some() {
-                size += vec2(0.0, self.label_height + self.label_top_margin)
-            }
+                if self.label.is_some() {
+                    size += vec2(0.0, self.label_height + self.label_top_margin)
+                }
 
-            size
-        };
+                size
+            };
 
-        let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
+            let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
-        if ui.is_rect_visible(rect) {
-            ui.painter().rect(
-                rect,
-                ui.style().visuals.noninteractive().rounding,
-                self.background_color,
-                Stroke::none(),
-            );
-
-            barcode
-                .iter()
-                .enumerate()
-                .filter(|&(_bar_index, bar_value)| *bar_value == 1)
-                .map(|(bar_index, _bar_value)| {
-                    Rect::from_min_size(
-                        ui.painter().round_pos_to_pixels(
-                            rect.left_top() + vec2(self.horizontal_padding, self.vertical_padding),
-                        ) + vec2(bar_width * bar_index as f32, 0.0),
-                        vec2(bar_width, self.bar_height),
-                    )
-                })
-                .for_each(|bar_rect| {
-                    ui.painter()
-                        .rect(bar_rect, 0.0, self.foreground_color, Stroke::none());
-                });
-
-            if let Some(label) = self.label {
-                ui.painter().text(
-                    rect.center_bottom() - vec2(0.0, self.vertical_padding),
-                    Align2::CENTER_BOTTOM,
-                    label,
-                    FontId::new(self.label_height, FontFamily::Proportional),
-                    self.foreground_color,
+            if ui.is_rect_visible(rect) {
+                ui.painter().rect(
+                    rect,
+                    ui.style().visuals.noninteractive().rounding,
+                    self.background_color,
+                    Stroke::none(),
                 );
-            }
-        }
 
-        response
+                barcode
+                    .iter()
+                    .enumerate()
+                    .filter(|&(_bar_index, bar_value)| *bar_value == 1)
+                    .map(|(bar_index, _bar_value)| {
+                        Rect::from_min_size(
+                            ui.painter().round_pos_to_pixels(
+                                rect.left_top()
+                                    + vec2(self.horizontal_padding, self.vertical_padding),
+                            ) + vec2(bar_width * bar_index as f32, 0.0),
+                            vec2(bar_width, self.bar_height),
+                        )
+                    })
+                    .for_each(|bar_rect| {
+                        ui.painter()
+                            .rect(bar_rect, 0.0, self.foreground_color, Stroke::none());
+                    });
+
+                if let Some(label) = self.label {
+                    ui.painter().text(
+                        rect.center_bottom() - vec2(0.0, self.vertical_padding),
+                        Align2::CENTER_BOTTOM,
+                        label,
+                        FontId::new(self.label_height, FontFamily::Proportional),
+                        self.foreground_color,
+                    );
+                }
+            }
+
+            response
+        } else {
+            ui.label("\u{26A0} Failed to render barcode")
+        }
     }
 }
