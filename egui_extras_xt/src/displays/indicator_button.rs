@@ -27,6 +27,7 @@ pub struct IndicatorButton<'a> {
     style: DisplayStyle,
     animated: bool,
     interactive: bool,
+    margin: f32,
 }
 
 impl<'a> IndicatorButton<'a> {
@@ -48,6 +49,7 @@ impl<'a> IndicatorButton<'a> {
             style: DisplayStylePreset::Default.style(),
             animated: true,
             interactive: true,
+            margin: 0.2,
         }
     }
 
@@ -83,6 +85,11 @@ impl<'a> IndicatorButton<'a> {
 
     pub fn interactive(mut self, interactive: bool) -> Self {
         self.interactive = interactive;
+        self
+    }
+
+    pub fn margin(mut self, margin: impl Into<f32>) -> Self {
+        self.margin = margin.into();
         self
     }
 }
@@ -127,18 +134,20 @@ impl<'a> Widget for IndicatorButton<'a> {
             let top_rect = Rect::from_min_max(rect.left_top(), rect.right_center());
             let bottom_rect = Rect::from_min_max(rect.left_center(), rect.right_bottom());
 
+            let margin = (self.height / 2.0) * self.margin;
+
             {
                 let indicator_rect = if self.label.is_some() { top_rect } else { rect };
 
                 ui.painter().rect(
-                    indicator_rect.shrink(4.0),
+                    indicator_rect.shrink(margin),
                     4.0,
                     self.style.background_color,
                     Stroke::none(),
                 );
 
                 ui.painter().rect(
-                    indicator_rect.shrink(6.0),
+                    indicator_rect.shrink(margin + 2.0),
                     4.0,
                     self.style.foreground_color_blend(value),
                     Stroke::none(),
@@ -147,10 +156,10 @@ impl<'a> Widget for IndicatorButton<'a> {
 
             if let Some(label) = self.label {
                 ui.painter().text(
-                    bottom_rect.center() - vec2(0.0, 2.0),
+                    bottom_rect.center() - vec2(0.0, margin / 2.0),
                     Align2::CENTER_CENTER,
                     label,
-                    FontId::new(bottom_rect.height() - 4.0, FontFamily::Proportional),
+                    FontId::new(bottom_rect.height() - margin, FontFamily::Proportional),
                     visuals.text_color(),
                 );
             }

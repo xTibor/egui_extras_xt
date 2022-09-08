@@ -13,6 +13,7 @@ pub struct IndicatorButtonPage {
     style_preset: DisplayStylePreset,
     animated: bool,
     interactive: bool,
+    margin: f32,
 }
 
 impl Default for IndicatorButtonPage {
@@ -26,6 +27,7 @@ impl Default for IndicatorButtonPage {
             style_preset: DisplayStylePreset::Default,
             animated: true,
             interactive: true,
+            margin: 0.2,
         }
     }
 }
@@ -39,7 +41,8 @@ impl PageImpl for IndicatorButtonPage {
                 .label(&self.label)
                 .style(self.style)
                 .animated(self.animated)
-                .interactive(self.interactive),
+                .interactive(self.interactive)
+                .margin(self.margin),
         );
         ui.separator();
 
@@ -74,6 +77,10 @@ impl PageImpl for IndicatorButtonPage {
 
                 ui.label("Interactive");
                 ui.checkbox(&mut self.interactive, "");
+                ui.end_row();
+
+                ui.label("Margin");
+                ui.add(DragValue::new(&mut self.margin));
                 ui.end_row();
             });
     }
