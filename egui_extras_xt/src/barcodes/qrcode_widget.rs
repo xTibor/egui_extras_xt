@@ -116,7 +116,10 @@ impl<'a> Widget for QrCodeWidget<'a> {
 
             response
         } else {
-            ui.label("\u{26A0} Failed to render QR code")
+            ui.colored_label(
+                ui.style().visuals.error_fg_color,
+                "\u{1F525} Failed to render QR code",
+            )
         }
     }
 }

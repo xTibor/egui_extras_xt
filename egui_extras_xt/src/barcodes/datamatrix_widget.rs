@@ -114,7 +114,10 @@ impl<'a> Widget for DataMatrixWidget<'a> {
 
             response
         } else {
-            ui.label("\u{26A0} Failed to render Data Matrix code")
+            ui.colored_label(
+                ui.style().visuals.error_fg_color,
+                "\u{1F525} Failed to render data matrix code",
+            )
         }
     }
 }
