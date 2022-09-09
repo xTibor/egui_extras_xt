@@ -8,7 +8,9 @@ use emath::normalized_angle;
 
 use strum::{Display, EnumIter};
 
-use crate::common::{snap_wrap_constrain_angle, Orientation, SymLog, Winding, WrapMode};
+use crate::common::{
+    snap_wrap_constrain_angle, Orientation, RotatedText, SymLog, Winding, WrapMode,
+};
 use crate::compasses::{
     CompassAxisLabels, CompassMarker, CompassMarkerShape, DefaultCompassMarkerColor,
 };
@@ -383,7 +385,7 @@ impl<'a> Widget for PolarCompass<'a> {
                         visuals.fg_stroke, // TODO: Semantically correct color
                     ));
 
-                    ui.painter().text(
+                    ui.painter().rotated_text(
                         rect.center()
                             + angle_to_direction(axis_angle)
                                 * (radius + self.axis_label_height / 2.0),
@@ -391,6 +393,7 @@ impl<'a> Widget for PolarCompass<'a> {
                         axis_label,
                         FontId::new(self.axis_label_height, FontFamily::Proportional),
                         visuals.text_color(), // TODO: Semantically correct color
+                        axis_angle - value,
                     );
                 }
             }
