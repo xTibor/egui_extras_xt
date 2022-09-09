@@ -35,6 +35,9 @@ use polar_compass_page::PolarCompassPage;
 mod qrcode_page;
 use qrcode_page::QrCodePage;
 
+mod rotated_label_page;
+use rotated_label_page::RotatedLabelPage;
+
 mod segmented_display_page;
 use segmented_display_page::SegmentedDisplayPage;
 
@@ -93,6 +96,10 @@ pub enum PageId {
     #[strum(props(feature = "barcodes"))]
     QrCodePage,
 
+    #[strum(to_string = "RotatedLabel")]
+    #[strum(props(feature = "ui"))]
+    RotatedLabelPage,
+
     #[strum(to_string = "SegmentedDisplayWidget")]
     #[strum(props(feature = "displays"))]
     SegmentedDisplayPage,
@@ -118,6 +125,7 @@ impl PageId {
             PageId::LinearCompassPage => Box::new(LinearCompassPage::default()),
             PageId::PolarCompassPage => Box::new(PolarCompassPage::default()),
             PageId::QrCodePage => Box::new(QrCodePage::default()),
+            PageId::RotatedLabelPage => Box::new(RotatedLabelPage::default()),
             PageId::SegmentedDisplayPage => Box::new(SegmentedDisplayPage::default()),
             PageId::ThumbstickWidgetPage => Box::new(ThumbstickWidgetPage::default()),
             PageId::WelcomePage => Box::new(WelcomePage::default()),
