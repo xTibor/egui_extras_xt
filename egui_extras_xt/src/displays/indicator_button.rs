@@ -139,6 +139,11 @@ impl<'a> Widget for IndicatorButton<'a> {
                 }
             }
             IndicatorButtonBehavior::Hold => {
+                // TODO: response doesn't expose mouse pressed/released events I need here.
+                // Not having these events lead to trashing the widget's input value variable,
+                // causing issues when the same input variable is bound to multiple widgets.
+                // if response.primary_pressed() || response.primary_released() {
+
                 let value = get(&mut self.get_set_value);
                 let new_value = response.is_pointer_button_down_on();
 
