@@ -1,4 +1,4 @@
-use egui::{vec2, Align2, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
+use egui::{vec2, Align2, FontFamily, FontId, Key, Rect, Response, Sense, Stroke, Ui, Widget};
 use strum::{Display, EnumIter};
 
 use crate::displays::{DisplayStyle, DisplayStylePreset};
@@ -140,6 +140,22 @@ impl<'a> Widget for IndicatorButton<'a> {
                 if response.drag_started() || response.drag_released() {
                     set(&mut self.get_set_value, response.dragged());
                     response.mark_changed();
+                }
+
+                if response.has_focus() {
+                    if ui.ctx().input().key_pressed(Key::Enter)
+                        || ui.ctx().input().key_pressed(Key::Space)
+                    {
+                        set(&mut self.get_set_value, true);
+                        response.mark_changed();
+                    }
+
+                    if ui.ctx().input().key_released(Key::Enter)
+                        || ui.ctx().input().key_released(Key::Space)
+                    {
+                        set(&mut self.get_set_value, false);
+                        response.mark_changed();
+                    }
                 }
             }
         }
