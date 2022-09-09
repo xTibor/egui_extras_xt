@@ -1,4 +1,7 @@
-use egui::{vec2, Align2, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
+use egui::{
+    vec2, Align2, FontFamily, FontId, PointerButton, Rect, Response, Sense, Stroke, Ui, Widget,
+};
+use strum::{Display, EnumIter};
 
 use crate::displays::{DisplayStyle, DisplayStylePreset};
 
@@ -18,6 +21,18 @@ fn set(get_set_value: &mut GetSetValue<'_>, value: bool) {
 
 // ----------------------------------------------------------------------------
 
+#[non_exhaustive]
+#[derive(Clone, Copy, Display, EnumIter, Eq, PartialEq)]
+pub enum IndicatorButtonBehavior {
+    #[strum(to_string = "Toggle")]
+    Toggle,
+
+    #[strum(to_string = "Hold")]
+    Hold,
+}
+
+// ----------------------------------------------------------------------------
+
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct IndicatorButton<'a> {
     get_set_value: GetSetValue<'a>,
@@ -28,6 +43,7 @@ pub struct IndicatorButton<'a> {
     animated: bool,
     interactive: bool,
     margin: f32,
+    behavior: IndicatorButtonBehavior,
 }
 
 impl<'a> IndicatorButton<'a> {
@@ -50,6 +66,7 @@ impl<'a> IndicatorButton<'a> {
             animated: true,
             interactive: true,
             margin: 0.2,
+            behavior: IndicatorButtonBehavior::Toggle,
         }
     }
 
@@ -92,6 +109,11 @@ impl<'a> IndicatorButton<'a> {
         self.margin = margin.into();
         self
     }
+
+    pub fn behavior(mut self, behavior: IndicatorButtonBehavior) -> Self {
+        self.behavior = behavior;
+        self
+    }
 }
 
 impl<'a> Widget for IndicatorButton<'a> {
@@ -101,17 +123,30 @@ impl<'a> Widget for IndicatorButton<'a> {
         let (rect, mut response) = ui.allocate_exact_size(
             desired_size,
             if self.interactive {
-                Sense::click()
+                Sense::click_and_drag()
             } else {
                 Sense::hover()
             },
         );
 
-        if response.clicked() {
-            let value = get(&mut self.get_set_value);
-            set(&mut self.get_set_value, !value);
+        match self.behavior {
+            IndicatorButtonBehavior::Toggle => {
+                if response.clicked() {
+                    let value = get(&mut self.get_set_value);
+                    set(&mut self.get_set_value, !value);
 
-            response.mark_changed();
+                    response.mark_changed();
+                }
+            }
+            IndicatorButtonBehavior::Hold => {
+                let value = get(&mut self.get_set_value);
+                let new_value = response.is_pointer_button_down_on();
+
+                if value != new_value {
+                    set(&mut self.get_set_value, new_value);
+                    response.mark_changed();
+                }
+            }
         }
 
         if ui.is_rect_visible(rect) {

@@ -1,5 +1,9 @@
 use eframe::egui::{DragValue, Grid, Ui};
-use egui_extras_xt::displays::{DisplayStyle, DisplayStylePreset, IndicatorButton};
+use egui_extras_xt::displays::{
+    DisplayStyle, DisplayStylePreset, IndicatorButton, IndicatorButtonBehavior,
+};
+use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+use strum::IntoEnumIterator;
 
 use crate::pages::ui::display_style_ui;
 use crate::pages::PageImpl;
@@ -14,6 +18,7 @@ pub struct IndicatorButtonPage {
     animated: bool,
     interactive: bool,
     margin: f32,
+    behavior: IndicatorButtonBehavior,
 }
 
 impl Default for IndicatorButtonPage {
@@ -28,6 +33,7 @@ impl Default for IndicatorButtonPage {
             animated: true,
             interactive: true,
             margin: 0.2,
+            behavior: IndicatorButtonBehavior::Toggle,
         }
     }
 }
@@ -42,7 +48,8 @@ impl PageImpl for IndicatorButtonPage {
                 .style(self.style)
                 .animated(self.animated)
                 .interactive(self.interactive)
-                .margin(self.margin),
+                .margin(self.margin)
+                .behavior(self.behavior),
         );
         ui.separator();
 
@@ -81,6 +88,15 @@ impl PageImpl for IndicatorButtonPage {
 
                 ui.label("Margin");
                 ui.add(DragValue::new(&mut self.margin));
+                ui.end_row();
+
+                ui.label("Behavior");
+                ui.horizontal(|ui| {
+                    ui.selectable_value_from_iter(
+                        &mut self.behavior,
+                        IndicatorButtonBehavior::iter(),
+                    );
+                });
                 ui.end_row();
             });
     }
