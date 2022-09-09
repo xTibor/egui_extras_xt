@@ -1,6 +1,4 @@
-use egui::{
-    vec2, Align2, FontFamily, FontId, PointerButton, Rect, Response, Sense, Stroke, Ui, Widget,
-};
+use egui::{vec2, Align2, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
 use strum::{Display, EnumIter};
 
 use crate::displays::{DisplayStyle, DisplayStylePreset};
