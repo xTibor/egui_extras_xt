@@ -1,4 +1,4 @@
-use egui::{Color32, FontId, Pos2, Rect, Response, Sense, Ui, Widget};
+use egui::{Color32, FontSelection, Pos2, Rect, Response, Sense, Ui, Widget};
 use emath::Rot2;
 use epaint::TextShape;
 
@@ -6,7 +6,6 @@ use epaint::TextShape;
 pub struct RotatedLabel {
     value: String,
     angle: f32,
-    font_id: FontId,
     color: Option<Color32>,
 }
 
@@ -15,18 +14,12 @@ impl RotatedLabel {
         Self {
             value: value.to_string(),
             angle: 0.0,
-            font_id: FontId::default(),
             color: None,
         }
     }
 
     pub fn angle(mut self, angle: impl Into<f32>) -> Self {
         self.angle = angle.into();
-        self
-    }
-
-    pub fn font_id(mut self, font_id: FontId) -> Self {
-        self.font_id = font_id;
         self
     }
 
@@ -42,7 +35,8 @@ impl Widget for RotatedLabel {
             .color
             .unwrap_or_else(|| ui.style().visuals.text_color());
 
-        let galley = ui.painter().layout_no_wrap(self.value, self.font_id, color);
+        let font_id = FontSelection::Default.resolve(ui.style());
+        let galley = ui.painter().layout_no_wrap(self.value, font_id, color);
 
         let rotation = Rot2::from_angle(self.angle);
 
