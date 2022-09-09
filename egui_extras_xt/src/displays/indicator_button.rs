@@ -54,6 +54,14 @@ impl<'a> IndicatorButton<'a> {
         })
     }
 
+    pub fn toggle(value: &'a mut bool) -> Self {
+        Self::new(value).behavior(IndicatorButtonBehavior::Toggle)
+    }
+
+    pub fn hold(value: &'a mut bool) -> Self {
+        Self::new(value).behavior(IndicatorButtonBehavior::Hold)
+    }
+
     pub fn from_get_set(get_set_value: impl 'a + FnMut(Option<bool>) -> bool) -> Self {
         Self {
             get_set_value: Box::new(get_set_value),
