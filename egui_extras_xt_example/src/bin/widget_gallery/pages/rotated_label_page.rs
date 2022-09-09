@@ -1,33 +1,28 @@
-use eframe::egui::{Grid, Ui};
-use eframe::epaint::Color32;
-use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
+use eframe::egui::{Grid, TextStyle, Ui};
 use egui_extras_xt::ui::rotated_label::RotatedLabel;
 
 use crate::pages::PageImpl;
 
 pub struct RotatedLabelPage {
-    value: String,
+    text: String,
     angle: f32,
-    color: Option<Color32>,
 }
 
 impl Default for RotatedLabelPage {
     fn default() -> RotatedLabelPage {
         RotatedLabelPage {
-            value: "egui_extras_xt".to_owned(),
+            text: "egui_extras_xt".to_owned(),
             angle: 0.0,
-            color: None,
         }
     }
 }
 
 impl PageImpl for RotatedLabelPage {
     fn ui(&mut self, ui: &mut Ui) {
-        ui.add(
-            RotatedLabel::new(&self.value)
-                .angle(self.angle)
-                .color(self.color),
-        );
+        ui.scope(|ui| {
+            ui.style_mut().override_text_style = Some(TextStyle::Heading);
+            ui.add(RotatedLabel::new(&self.text).angle(self.angle));
+        });
         ui.separator();
 
         Grid::new("rotated_label_properties")
@@ -35,18 +30,12 @@ impl PageImpl for RotatedLabelPage {
             .spacing([20.0, 10.0])
             .striped(true)
             .show(ui, |ui| {
-                ui.label("Value");
-                ui.text_edit_singleline(&mut self.value);
+                ui.label("Text");
+                ui.text_edit_singleline(&mut self.text);
                 ui.end_row();
 
                 ui.label("Angle");
                 ui.drag_angle(&mut self.angle);
-                ui.end_row();
-
-                ui.label("Color");
-                ui.optional_value_widget(&mut self.color, |ui, value| {
-                    ui.color_edit_button_srgba(value)
-                });
                 ui.end_row();
             });
     }
