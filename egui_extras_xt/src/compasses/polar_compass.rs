@@ -393,7 +393,7 @@ impl<'a> Widget for PolarCompass<'a> {
                         axis_label,
                         FontId::new(self.axis_label_height, FontFamily::Proportional),
                         visuals.text_color(), // TODO: Semantically correct color
-                        axis_angle - value,
+                        angle_to_direction(axis_angle).angle() + (TAU / 4.0),
                     );
                 }
             }
