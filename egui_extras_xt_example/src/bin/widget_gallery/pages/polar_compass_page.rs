@@ -136,6 +136,37 @@ impl PageImpl for PolarCompassPage {
                         .color(Color32::from_rgb(0xEF, 0xBB, 0xC4))
                         .shape(CompassMarkerShape::UpArrow)
                         .label("Ayumi"),
+                    // Markers with unset colors and shapes
+                    CompassMarker::new(135.0f32.to_radians())
+                        .distance(100.0)
+                        .label("A"),
+                    CompassMarker::new(157.5f32.to_radians())
+                        .distance(200.0)
+                        .label("B"),
+                    CompassMarker::new(180.0f32.to_radians())
+                        .distance(300.0)
+                        .label("C"),
+                    CompassMarker::new(202.5f32.to_radians())
+                        .distance(400.0)
+                        .label("D"),
+                    CompassMarker::new(225.0f32.to_radians())
+                        .distance(500.0)
+                        .label("E"),
+                    CompassMarker::new(247.5f32.to_radians())
+                        .distance(600.0)
+                        .label("F"),
+                    CompassMarker::new(270.0f32.to_radians())
+                        .distance(700.0)
+                        .label("G"),
+                    CompassMarker::new(292.5f32.to_radians())
+                        .distance(800.0)
+                        .label("H"),
+                    CompassMarker::new(315.0f32.to_radians())
+                        .distance(900.0)
+                        .label("I"),
+                    CompassMarker::new(337.5f32.to_radians())
+                        .distance(1000.0)
+                        .label("J"),
                 ]),
         );
         ui.separator();
