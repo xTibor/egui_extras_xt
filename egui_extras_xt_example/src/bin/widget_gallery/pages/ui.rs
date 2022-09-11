@@ -241,10 +241,12 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, value: &mut DefaultCompassMa
                     DefaultCompassMarkerColor::System,
                     DefaultCompassMarkerColor::Fixed(Color32::default()),
                     DefaultCompassMarkerColor::HsvByAngle {
+                        hue_phase: 0.0,
                         saturation: 1.0,
                         value: 1.0,
                     },
                     DefaultCompassMarkerColor::HsvByLabel {
+                        hue_phase: 0.0,
                         saturation: 1.0,
                         value: 1.0,
                     },
@@ -257,11 +259,21 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, value: &mut DefaultCompassMa
             DefaultCompassMarkerColor::Fixed(color) => {
                 ui.color_edit_button_srgba(color);
             }
-            DefaultCompassMarkerColor::HsvByAngle { saturation, value } => {
+            DefaultCompassMarkerColor::HsvByAngle {
+                hue_phase,
+                saturation,
+                value,
+            } => {
+                ui.add(DragValue::new(hue_phase));
                 ui.add(DragValue::new(saturation));
                 ui.add(DragValue::new(value));
             }
-            DefaultCompassMarkerColor::HsvByLabel { saturation, value } => {
+            DefaultCompassMarkerColor::HsvByLabel {
+                hue_phase,
+                saturation,
+                value,
+            } => {
+                ui.add(DragValue::new(hue_phase));
                 ui.add(DragValue::new(saturation));
                 ui.add(DragValue::new(value));
             }

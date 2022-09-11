@@ -59,6 +59,7 @@ impl Default for LinearCompassPage {
             show_ticks: true,
             show_axes: true,
             default_marker_color: DefaultCompassMarkerColor::HsvByAngle {
+                hue_phase: 0.0,
                 saturation: 1.0,
                 value: 1.0,
             },

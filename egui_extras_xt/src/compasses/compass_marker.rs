@@ -20,10 +20,18 @@ pub enum DefaultCompassMarkerColor {
     Fixed(Color32),
 
     #[strum(to_string = "HSV by angle")]
-    HsvByAngle { saturation: f32, value: f32 },
+    HsvByAngle {
+        hue_phase: f32,
+        saturation: f32,
+        value: f32,
+    },
 
     #[strum(to_string = "HSV by label")]
-    HsvByLabel { saturation: f32, value: f32 },
+    HsvByLabel {
+        hue_phase: f32,
+        saturation: f32,
+        value: f32,
+    },
 }
 
 impl DefaultCompassMarkerColor {
@@ -31,13 +39,23 @@ impl DefaultCompassMarkerColor {
         match *self {
             DefaultCompassMarkerColor::System => ui.style().visuals.text_color(),
             DefaultCompassMarkerColor::Fixed(color) => color,
-            DefaultCompassMarkerColor::HsvByAngle { saturation, value } => {
-                let hue = marker.angle / TAU;
+            DefaultCompassMarkerColor::HsvByAngle {
+                hue_phase,
+                saturation,
+                value,
+            } => {
+                let hue_raw = marker.angle / TAU;
+                let hue = (hue_raw + hue_phase).rem_euclid(1.0);
                 Color32::from(Hsva::new(hue, saturation, value, 1.0))
             }
-            DefaultCompassMarkerColor::HsvByLabel { saturation, value } => {
+            DefaultCompassMarkerColor::HsvByLabel {
+                hue_phase,
+                saturation,
+                value,
+            } => {
                 let marker_label = marker.label.unwrap_or("");
-                let hue = marker_label.pearson_hash() as f32 / 255.0;
+                let hue_raw = marker_label.pearson_hash() as f32 / 255.0;
+                let hue = (hue_raw + hue_phase).rem_euclid(1.0);
                 Color32::from(Hsva::new(hue, saturation, value, 1.0))
             }
         }

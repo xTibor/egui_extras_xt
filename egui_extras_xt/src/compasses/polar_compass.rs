@@ -111,6 +111,7 @@ impl<'a> PolarCompass<'a> {
             show_marker_lines: true,
             markers: &[],
             default_marker_color: DefaultCompassMarkerColor::HsvByAngle {
+                hue_phase: 0.0,
                 saturation: 1.0,
                 value: 1.0,
             },
