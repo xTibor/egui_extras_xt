@@ -195,6 +195,10 @@ impl PageImpl for PolarCompassPage {
                 ui.optional_value_widget(&mut self.shift_snap, |ui, value| ui.drag_angle(value));
                 ui.end_row();
 
+                ui.label("Animated");
+                ui.checkbox(&mut self.animated, "");
+                ui.end_row();
+
                 ui.label("Axis labels");
                 compass_axis_labels_ui(ui, &mut self.axis_labels);
                 ui.end_row();
