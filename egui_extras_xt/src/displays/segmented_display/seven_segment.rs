@@ -43,7 +43,7 @@ impl DisplayImpl for SevenSegment {
             ('|',  0x0030), ('}',  0x0070), ('~',  0x0040),
         ];
 
-        assert!(GLYPH_DATA
+        debug_assert!(GLYPH_DATA
             .iter()
             .map(|(k, _)| k)
             .tuple_windows()

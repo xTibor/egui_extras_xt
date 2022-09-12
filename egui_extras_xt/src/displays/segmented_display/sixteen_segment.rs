@@ -158,7 +158,7 @@ impl DisplayImpl for SixteenSegment {
             ('🤣',  0x0578), ('🥵',  0x50B4), ('🧘',  0x7230),
         ];
 
-        assert!(GLYPH_DATA
+        debug_assert!(GLYPH_DATA
             .iter()
             .map(|(k, _)| k)
             .tuple_windows()
