@@ -1,4 +1,4 @@
-use egui::{vec2, Pos2, Response, Sense, Shape, Stroke, Ui, Widget};
+use egui::{pos2, vec2, Pos2, Response, Sense, Shape, Stroke, Ui, Widget};
 use itertools::Itertools;
 
 use crate::displays::segmented_display::{
@@ -154,43 +154,42 @@ impl Widget for SegmentedDisplayWidget {
                 Stroke::none(),
             );
 
+            let segment_geometry = display_impl.geometry(
+                digit_width,
+                digit_height,
+                segment_thickness,
+                segment_spacing,
+                digit_median,
+            );
+            assert_eq!(segment_geometry.len(), display_impl.segment_count());
+
+            #[rustfmt::skip]
+            let apostrophe_points: Vec<Pos2> = vec![
+                pos2(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
+                pos2(-(digit_width / 2.0) - (digit_spacing / 2.0) + (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
+                pos2(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0) + (segment_thickness * 2.0)),
+            ];
+
+            #[rustfmt::skip]
+            let (colon_top_pos, colon_bottom_pos, dot_pos) = (
+                pos2(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median - colon_separation),
+                pos2(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median + colon_separation),
+                pos2( (digit_width / 2.0) + (digit_spacing / 2.0), (digit_height / 2.0) - (segment_thickness / 2.0))
+            );
+
             let paint_digit = |digit: &DisplayDigit, digit_center: Pos2| {
-                let tr = move |dx, dy| {
-                    digit_center + vec2(dx, dy)
-                        - vec2((dy / (digit_height / 2.0)) * digit_shearing, 0.0)
+                let transform = |&Pos2 { x, y }| {
+                    digit_center + vec2(x, y)
+                        - vec2((y / (digit_height / 2.0)) * digit_shearing, 0.0)
                 };
 
-                let segment_points = display_impl.geometry(
-                    &tr,
-                    digit_width,
-                    digit_height,
-                    segment_thickness,
-                    segment_spacing,
-                    digit_median,
-                );
-                assert_eq!(segment_points.len(), display_impl.segment_count());
-
-                #[rustfmt::skip]
-                let apostrophe_points: Vec<Pos2> = vec![
-                    tr(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
-                    tr(-(digit_width / 2.0) - (digit_spacing / 2.0) + (segment_thickness / 2.0), -(digit_height / 2.0)                            ),
-                    tr(-(digit_width / 2.0) - (digit_spacing / 2.0) - (segment_thickness / 2.0), -(digit_height / 2.0) + (segment_thickness * 2.0)),
-                ];
-
-                #[rustfmt::skip]
-                let (colon_top_pos, colon_bottom_pos, dot_pos) = (
-                    tr(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median - colon_separation),
-                    tr(-(digit_width / 2.0) - (digit_spacing / 2.0), digit_median + colon_separation),
-                    tr( (digit_width / 2.0) + (digit_spacing / 2.0), (digit_height / 2.0) - (segment_thickness / 2.0))
-                );
-
-                for (segment_index, segment_points) in segment_points.iter().enumerate() {
+                for (segment_index, segment_points) in segment_geometry.iter().enumerate() {
                     let segment_active = ((digit.glyph >> segment_index) & 0x01) != 0x00;
 
                     // TODO: concave_polygon
                     // https://github.com/emilk/egui/issues/513
                     child_ui.painter().add(Shape::convex_polygon(
-                        segment_points.to_vec(),
+                        segment_points.iter().map(transform).collect_vec(),
                         self.style.foreground_color(segment_active),
                         self.style.foreground_stroke(segment_active),
                     ));
@@ -198,7 +197,7 @@ impl Widget for SegmentedDisplayWidget {
 
                 if self.show_dots {
                     child_ui.painter().circle(
-                        dot_pos,
+                        transform(&dot_pos),
                         segment_thickness / 2.0,
                         self.style.foreground_color(digit.dot),
                         self.style.foreground_stroke(digit.dot),
@@ -207,14 +206,14 @@ impl Widget for SegmentedDisplayWidget {
 
                 if self.show_colons {
                     child_ui.painter().circle(
-                        colon_top_pos,
+                        transform(&colon_top_pos),
                         segment_thickness / 2.0,
                         self.style.foreground_color(digit.colon),
                         self.style.foreground_stroke(digit.colon),
                     );
 
                     child_ui.painter().circle(
-                        colon_bottom_pos,
+                        transform(&colon_bottom_pos),
                         segment_thickness / 2.0,
                         self.style.foreground_color(digit.colon),
                         self.style.foreground_stroke(digit.colon),
@@ -223,7 +222,7 @@ impl Widget for SegmentedDisplayWidget {
 
                 if self.show_apostrophes {
                     child_ui.painter().add(Shape::convex_polygon(
-                        apostrophe_points.to_vec(),
+                        apostrophe_points.iter().map(transform).collect_vec(),
                         self.style.foreground_color(digit.apostrophe),
                         self.style.foreground_stroke(digit.apostrophe),
                     ));

@@ -55,8 +55,6 @@ impl DisplayKind {
 
 // ----------------------------------------------------------------------------
 
-pub(crate) type SegmentGeometryTransformFn = dyn Fn(f32, f32) -> Pos2;
-
 pub(crate) trait DisplayImpl {
     fn segment_count(&self) -> usize;
 
@@ -64,7 +62,6 @@ pub(crate) trait DisplayImpl {
 
     fn geometry(
         &self,
-        tr: &SegmentGeometryTransformFn,
         digit_width: f32,
         digit_height: f32,
         segment_thickness: f32,
