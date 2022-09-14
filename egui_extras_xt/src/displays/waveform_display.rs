@@ -1,4 +1,7 @@
-use egui::{vec2, Align2, FontSelection, Response, Sense, Ui, Widget};
+use std::ops::RangeInclusive;
+
+use egui::{pos2, remap_clamp, vec2, Align2, FontSelection, Response, Sense, Shape, Ui, Widget};
+use itertools::Itertools;
 
 // ----------------------------------------------------------------------------
 
@@ -34,19 +37,63 @@ pub enum BufferLayout {
 
 // ----------------------------------------------------------------------------
 
+pub trait SampleRange<T> {
+    const SAMPLE_CENTER: T;
+    const DISPLAY_RANGE: RangeInclusive<f32>;
+}
+
+impl SampleRange<u8> for u8 {
+    const SAMPLE_CENTER: u8 = 128;
+    const DISPLAY_RANGE: RangeInclusive<f32> = 0.0..=255.0;
+}
+
+impl SampleRange<i8> for i8 {
+    const SAMPLE_CENTER: i8 = 0;
+    const DISPLAY_RANGE: RangeInclusive<f32> = -128.0..=127.0;
+}
+
+impl SampleRange<u16> for u16 {
+    const SAMPLE_CENTER: u16 = 32768;
+    const DISPLAY_RANGE: RangeInclusive<f32> = 0.0..=65535.0;
+}
+
+impl SampleRange<i16> for i16 {
+    const SAMPLE_CENTER: i16 = 0;
+    const DISPLAY_RANGE: RangeInclusive<f32> = -32768.0..=32767.0;
+}
+
+impl SampleRange<f32> for f32 {
+    const SAMPLE_CENTER: f32 = 0.0;
+    const DISPLAY_RANGE: RangeInclusive<f32> = -1.0..=1.0;
+}
+
+impl SampleRange<f64> for f64 {
+    const SAMPLE_CENTER: f64 = 0.0;
+    const DISPLAY_RANGE: RangeInclusive<f32> = -1.0..=1.0;
+}
+
+// ----------------------------------------------------------------------------
+
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
-pub struct WaveformDisplayWidget<'a, Sample> {
+pub struct WaveformDisplayWidget<'a, SampleType>
+where
+    SampleType: SampleRange<SampleType>,
+{
     get_set_value: GetSetValue<'a>,
-    buffer: Option<&'a [Sample]>,
+    buffer: Option<&'a [SampleType]>,
     buffer_layout: BufferLayout,
     channels: usize,
     trigger_mode: TriggerMode,
+    window_size: usize,
     width: f32,
     height: f32,
     label: Option<String>,
 }
 
-impl<'a, Sample> WaveformDisplayWidget<'a, Sample> {
+impl<'a, SampleType> WaveformDisplayWidget<'a, SampleType>
+where
+    SampleType: SampleRange<SampleType>,
+{
     pub fn new(value: &'a mut bool) -> Self {
         Self::from_get_set(move |v: Option<bool>| {
             if let Some(v) = v {
@@ -63,13 +110,14 @@ impl<'a, Sample> WaveformDisplayWidget<'a, Sample> {
             buffer_layout: BufferLayout::Interleaved,
             channels: 1,
             trigger_mode: TriggerMode::SignalEdge(SignalEdge::RisingEdge),
+            window_size: 128,
             width: 256.0,
             height: 64.0,
             label: None,
         }
     }
 
-    pub fn buffer(mut self, buffer: &'a [Sample]) -> Self {
+    pub fn buffer(mut self, buffer: &'a [SampleType]) -> Self {
         self.buffer = Some(buffer);
         self
     }
@@ -89,6 +137,11 @@ impl<'a, Sample> WaveformDisplayWidget<'a, Sample> {
         self
     }
 
+    pub fn window_size(mut self, window_size: usize) -> Self {
+        self.window_size = window_size;
+        self
+    }
+
     pub fn width(mut self, width: impl Into<f32>) -> Self {
         self.width = width.into();
         self
@@ -105,7 +158,10 @@ impl<'a, Sample> WaveformDisplayWidget<'a, Sample> {
     }
 }
 
-impl<'a, Sample> Widget for WaveformDisplayWidget<'a, Sample> {
+impl<'a, SampleType> Widget for WaveformDisplayWidget<'a, SampleType>
+where
+    SampleType: SampleRange<SampleType> + Into<f32> + Copy,
+{
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = vec2(self.width, self.height);
         let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click());
@@ -159,7 +215,54 @@ impl<'a, Sample> Widget for WaveformDisplayWidget<'a, Sample> {
             ui.painter().line_segment(
                 [rect.left_center(), rect.right_center()],
                 ui.style().visuals.noninteractive().fg_stroke,
-            )
+            );
+
+            if let Some(buffer) = self.buffer {
+                assert_eq!(buffer.len() % self.channels, 0);
+                let channel_sample_count = buffer.len() / self.channels;
+
+                for channel_id in 0..self.channels {
+                    let channel_samples = match self.buffer_layout {
+                        BufferLayout::Planar => buffer
+                            .iter()
+                            .skip(channel_id * channel_sample_count)
+                            .take(channel_sample_count)
+                            .collect_vec(),
+                        BufferLayout::Interleaved => buffer
+                            .iter()
+                            .skip(channel_id)
+                            .step_by(self.channels)
+                            .take(channel_sample_count)
+                            .collect_vec(),
+                    };
+                    assert_eq!(channel_samples.len(), channel_sample_count);
+
+                    let waveform_points = channel_samples
+                        .into_iter()
+                        .enumerate()
+                        .map(|(sample_index, &sample)| {
+                            pos2(
+                                remap_clamp(
+                                    sample_index as f32,
+                                    0.0..=(channel_sample_count as f32 - 1.0),
+                                    rect.x_range(),
+                                ),
+                                remap_clamp(
+                                    sample.into(),
+                                    SampleType::DISPLAY_RANGE,
+                                    (rect.bottom() - 4.0)..=(rect.top() + 4.0),
+                                ),
+                            )
+                        })
+                        .collect_vec();
+
+                    ui.painter()
+                        .add(Shape::line(waveform_points, visuals.fg_stroke));
+
+                    //let window_position = channel_sample_count / 2;
+                    //let (left_side, right_side) = channel_samples.split_at(channel_sample_count / 2);
+                }
+            }
         };
 
         response

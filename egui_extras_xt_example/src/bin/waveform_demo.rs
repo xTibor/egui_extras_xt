@@ -8,16 +8,18 @@ const OUTPUT_FREQUENCY: usize = 44100;
 
 struct WaveformDemoApp {
     enabled: bool,
-    frequency: f32,
     buffer: [u8; BUFFER_SIZE],
+    left_frequency: f32,
+    right_frequency: f32,
 }
 
 impl Default for WaveformDemoApp {
     fn default() -> Self {
         let mut tmp = Self {
             enabled: true,
-            frequency: 440.0,
             buffer: [0; BUFFER_SIZE],
+            left_frequency: 440.0,
+            right_frequency: 440.0,
         };
         tmp.regenerate_buffer();
         tmp
@@ -26,9 +28,14 @@ impl Default for WaveformDemoApp {
 
 impl WaveformDemoApp {
     fn regenerate_buffer(&mut self) {
-        for (index, sample) in self.buffer.iter_mut().enumerate() {
-            let q = index as f32 * (self.frequency / OUTPUT_FREQUENCY as f32);
-            *sample = if (q % 1.0) > 0.5 { 0 } else { 255 };
+        for (index, sample) in self.buffer.iter_mut().skip(0).step_by(2).enumerate() {
+            let q = index as f32 * (self.left_frequency / OUTPUT_FREQUENCY as f32);
+            *sample = if (q % 1.0) < 0.5 { 255 } else { 0 };
+        }
+
+        for (index, sample) in self.buffer.iter_mut().skip(1).step_by(2).enumerate() {
+            let q = index as f32 * (self.right_frequency / OUTPUT_FREQUENCY as f32);
+            *sample = if (q % 1.0) < 0.5 { 255 } else { 0 };
         }
     }
 }
@@ -36,13 +43,19 @@ impl WaveformDemoApp {
 impl eframe::App for WaveformDemoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            if ui.add(DragValue::new(&mut self.frequency)).changed() {
-                self.regenerate_buffer();
-            }
+            ui.horizontal(|ui| {
+                if ui.add(DragValue::new(&mut self.left_frequency)).changed() {
+                    self.regenerate_buffer();
+                }
+
+                if ui.add(DragValue::new(&mut self.right_frequency)).changed() {
+                    self.regenerate_buffer();
+                }
+            });
 
             ui.add(
                 WaveformDisplayWidget::new(&mut self.enabled)
-                    .channels(1)
+                    .channels(2)
                     .buffer(&self.buffer)
                     .buffer_layout(BufferLayout::Interleaved)
                     .label("Channel #1"),
