@@ -32,7 +32,7 @@ impl WaveformDemoApp {
     fn regenerate_buffer(&mut self) {
         for (index, sample) in self.buffer.iter_mut().skip(0).step_by(2).enumerate() {
             let q = index as f32 * (self.left_frequency / OUTPUT_FREQUENCY as f32);
-            *sample = q % 1.0;
+            *sample = (q % 1.0) * 2.0 - 1.0;
         }
 
         for (index, sample) in self.buffer.iter_mut().skip(1).step_by(2).enumerate() {

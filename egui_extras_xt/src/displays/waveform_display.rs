@@ -64,6 +64,16 @@ impl SampleRange<i16> for i16 {
     const DISPLAY_RANGE: RangeInclusive<f32> = -32768.0..=32767.0;
 }
 
+impl SampleRange<u32> for u32 {
+    const SAMPLE_CENTER: u32 = 2147483648;
+    const DISPLAY_RANGE: RangeInclusive<f32> = 0.0..=4294967295.0;
+}
+
+impl SampleRange<i32> for i32 {
+    const SAMPLE_CENTER: i32 = 0;
+    const DISPLAY_RANGE: RangeInclusive<f32> = -2147483648.0..=2147483647.0;
+}
+
 impl SampleRange<f32> for f32 {
     const SAMPLE_CENTER: f32 = 0.0;
     const DISPLAY_RANGE: RangeInclusive<f32> = -1.0..=1.0;
@@ -224,70 +234,75 @@ where
                 let render_channel =
                     |rect: Rect, channel_buffer: &[SampleType], channel_name: &Option<String>| {
                         let header_height = font_id.size;
-                        let header_rect = {
-                            let mut tmp = rect;
-                            tmp.set_height(header_height);
-                            tmp
-                        };
-
-                        let waveform_rect = {
-                            let mut tmp = rect;
-                            tmp = tmp.translate(vec2(0.0, header_height));
-                            tmp.set_height(rect.height() - header_height);
-                            tmp
-                        };
 
                         // Header
+                        if self.show_header {
+                            let header_rect = {
+                                let mut tmp = rect;
+                                tmp.set_height(header_height);
+                                tmp
+                            };
 
-                        if let Some(channel_name) = channel_name {
-                            ui.painter().text(
-                                header_rect.center(),
-                                Align2::CENTER_CENTER,
-                                channel_name,
-                                font_id.clone(),
-                                foreground_color,
-                            );
-                        }
+                            if let Some(channel_name) = channel_name {
+                                ui.painter().text(
+                                    header_rect.center(),
+                                    Align2::CENTER_CENTER,
+                                    channel_name,
+                                    font_id.clone(),
+                                    foreground_color,
+                                );
+                            }
 
-                        if track_enabled {
-                            ui.painter().text(
-                                header_rect.right_center(),
-                                Align2::RIGHT_CENTER,
-                                '\u{1F508}',
-                                font_id.clone(),
-                                foreground_color,
-                            );
+                            if track_enabled {
+                                ui.painter().text(
+                                    header_rect.right_center(),
+                                    Align2::RIGHT_CENTER,
+                                    '\u{1F508}',
+                                    font_id.clone(),
+                                    foreground_color,
+                                );
+                            }
                         }
 
                         // Waveform
+                        {
+                            let waveform_rect = if self.show_header {
+                                let mut tmp = rect;
+                                tmp = tmp.translate(vec2(0.0, header_height));
+                                tmp.set_height(rect.height() - header_height);
+                                tmp
+                            } else {
+                                rect
+                            };
 
-                        let waveform_points = channel_buffer
-                            .iter()
-                            .enumerate()
-                            .map(|(index, &sample)| {
-                                pos2(
-                                    remap_clamp(
-                                        index as f32,
-                                        0.0..=(channel_buffer_length as f32 - 1.0),
-                                        waveform_rect.x_range(),
-                                    ),
-                                    remap_clamp(
-                                        sample.into(),
-                                        SampleType::DISPLAY_RANGE,
-                                        (waveform_rect.bottom() - 4.0)
-                                            ..=(waveform_rect.top() + 4.0),
-                                    ),
-                                )
-                            })
-                            .collect_vec();
+                            let waveform_points = channel_buffer
+                                .iter()
+                                .enumerate()
+                                .map(|(index, &sample)| {
+                                    pos2(
+                                        remap_clamp(
+                                            index as f32,
+                                            0.0..=(channel_buffer_length as f32 - 1.0),
+                                            waveform_rect.x_range(),
+                                        ),
+                                        remap_clamp(
+                                            sample.into(),
+                                            SampleType::DISPLAY_RANGE,
+                                            (waveform_rect.bottom() - 4.0)
+                                                ..=(waveform_rect.top() + 4.0),
+                                        ),
+                                    )
+                                })
+                                .collect_vec();
 
-                        ui.painter().line_segment(
-                            [waveform_rect.left_center(), waveform_rect.right_center()],
-                            ui.style().visuals.noninteractive().fg_stroke,
-                        );
+                            ui.painter().line_segment(
+                                [waveform_rect.left_center(), waveform_rect.right_center()],
+                                ui.style().visuals.noninteractive().fg_stroke,
+                            );
 
-                        ui.painter()
-                            .add(Shape::line(waveform_points, visuals.fg_stroke));
+                            ui.painter()
+                                .add(Shape::line(waveform_points, visuals.fg_stroke));
+                        }
                     };
 
                 if self.channels == 1 {
