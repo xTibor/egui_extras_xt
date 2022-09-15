@@ -1,6 +1,8 @@
 use std::ops::RangeInclusive;
 
-use egui::{pos2, remap_clamp, vec2, Align2, FontSelection, Response, Sense, Shape, Ui, Widget};
+use egui::{
+    pos2, remap_clamp, vec2, Align2, FontSelection, Rect, Response, Sense, Shape, Ui, Widget,
+};
 use itertools::Itertools;
 
 // ----------------------------------------------------------------------------
@@ -192,75 +194,97 @@ where
                 visuals.fg_stroke,
             );
 
-            if let Some(label) = self.label {
-                ui.painter().text(
-                    rect.left_top() + vec2(4.0, 4.0),
-                    Align2::LEFT_TOP,
-                    label,
-                    font_id.clone(),
-                    foreground_color,
-                );
-            }
-
-            if value {
-                ui.painter().text(
-                    rect.right_top() + vec2(-4.0, 4.0),
-                    Align2::RIGHT_TOP,
-                    '\u{1F508}',
-                    font_id,
-                    foreground_color,
-                );
-            }
-
-            ui.painter().line_segment(
-                [rect.left_center(), rect.right_center()],
-                ui.style().visuals.noninteractive().fg_stroke,
-            );
-
             if let Some(buffer) = self.buffer {
                 assert_eq!(buffer.len() % self.channels, 0);
                 let channel_sample_count = buffer.len() / self.channels;
 
-                for channel_id in 0..self.channels {
-                    let channel_samples = match self.buffer_layout {
-                        BufferLayout::Planar => buffer
-                            .iter()
-                            .skip(channel_id * channel_sample_count)
-                            .take(channel_sample_count)
-                            .collect_vec(),
-                        BufferLayout::Interleaved => buffer
-                            .iter()
-                            .skip(channel_id)
-                            .step_by(self.channels)
-                            .take(channel_sample_count)
-                            .collect_vec(),
+                let render_channel =
+                    |rect: Rect, samples: &[SampleType], label: &Option<String>| {
+                        let waveform_points = samples
+                            .into_iter()
+                            .enumerate()
+                            .map(|(sample_index, &sample)| {
+                                pos2(
+                                    remap_clamp(
+                                        sample_index as f32,
+                                        0.0..=(channel_sample_count as f32 - 1.0),
+                                        rect.x_range(),
+                                    ),
+                                    remap_clamp(
+                                        sample.into(),
+                                        SampleType::DISPLAY_RANGE,
+                                        (rect.bottom() - 4.0)..=(rect.top() + 4.0),
+                                    ),
+                                )
+                            })
+                            .collect_vec();
+
+                        ui.painter().line_segment(
+                            [rect.left_center(), rect.right_center()],
+                            ui.style().visuals.noninteractive().fg_stroke,
+                        );
+
+                        ui.painter()
+                            .add(Shape::line(waveform_points, visuals.fg_stroke));
+
+                        if let Some(label) = label {
+                            ui.painter().text(
+                                rect.left_top() + vec2(4.0, 4.0),
+                                Align2::LEFT_TOP,
+                                label,
+                                font_id.clone(),
+                                foreground_color,
+                            );
+                        }
+
+                        if value {
+                            ui.painter().text(
+                                rect.right_top() + vec2(-4.0, 4.0),
+                                Align2::RIGHT_TOP,
+                                '\u{1F508}',
+                                font_id.clone(),
+                                foreground_color,
+                            );
+                        }
                     };
-                    assert_eq!(channel_samples.len(), channel_sample_count);
 
-                    let waveform_points = channel_samples
-                        .into_iter()
-                        .enumerate()
-                        .map(|(sample_index, &sample)| {
-                            pos2(
-                                remap_clamp(
-                                    sample_index as f32,
-                                    0.0..=(channel_sample_count as f32 - 1.0),
-                                    rect.x_range(),
-                                ),
-                                remap_clamp(
-                                    sample.into(),
-                                    SampleType::DISPLAY_RANGE,
-                                    (rect.bottom() - 4.0)..=(rect.top() + 4.0),
-                                ),
-                            )
-                        })
-                        .collect_vec();
+                if self.channels == 1 {
+                    render_channel(rect, buffer, &self.label);
+                } else {
+                    for channel_id in 0..self.channels {
+                        let channel_samples = match self.buffer_layout {
+                            BufferLayout::Planar => buffer
+                                .iter()
+                                .cloned()
+                                .skip(channel_id * channel_sample_count)
+                                .take(channel_sample_count)
+                                .collect_vec(),
+                            BufferLayout::Interleaved => buffer
+                                .iter()
+                                .cloned()
+                                .skip(channel_id)
+                                .step_by(self.channels)
+                                .take(channel_sample_count)
+                                .collect_vec(),
+                        };
+                        assert_eq!(channel_samples.len(), channel_sample_count);
 
-                    ui.painter()
-                        .add(Shape::line(waveform_points, visuals.fg_stroke));
+                        let channel_rect = Rect::from_min_size(
+                            rect.left_top()
+                                + rect.size() / vec2(self.channels as f32, 1.0)
+                                    * vec2(channel_id as f32, 0.0),
+                            rect.size() / vec2(self.channels as f32, 1.0),
+                        );
 
-                    //let window_position = channel_sample_count / 2;
-                    //let (left_side, right_side) = channel_samples.split_at(channel_sample_count / 2);
+                        render_channel(channel_rect, channel_samples.as_slice(), &self.label);
+
+                        if channel_id < self.channels - 1 {
+                            ui.painter().line_segment(
+                                [channel_rect.right_top(), channel_rect.right_bottom()],
+                                ui.style().visuals.noninteractive().fg_stroke,
+                            );
+                        }
+                    }
                 }
             }
         };
