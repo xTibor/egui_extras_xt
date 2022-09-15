@@ -55,6 +55,8 @@ impl eframe::App for WaveformDemoApp {
                 }
             });
 
+            ui.separator();
+
             ui.add(
                 WaveformDisplayWidget::new(&mut self.enabled)
                     .track_name("Track #1")
@@ -63,6 +65,11 @@ impl eframe::App for WaveformDemoApp {
                     .buffer(&self.buffer)
                     .buffer_layout(BufferLayout::Interleaved),
             );
+
+            ui.separator();
+            egui::ScrollArea::both().show(ui, |ui| {
+                ctx.settings_ui(ui);
+            });
         });
     }
 }

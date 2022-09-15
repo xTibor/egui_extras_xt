@@ -96,7 +96,7 @@ where
     buffer_layout: BufferLayout,
     channels: usize,
     trigger_mode: TriggerMode,
-    window_size: usize,
+    window_size: Option<usize>,
     width: f32,
     height: f32,
     track_name: Option<String>,
@@ -124,7 +124,7 @@ where
             buffer_layout: BufferLayout::Interleaved,
             channels: 1,
             trigger_mode: TriggerMode::SignalEdge(SignalEdge::RisingEdge),
-            window_size: 128,
+            window_size: None,
             width: 256.0,
             height: 64.0,
             track_name: None,
@@ -154,7 +154,7 @@ where
     }
 
     pub fn window_size(mut self, window_size: usize) -> Self {
-        self.window_size = window_size;
+        self.window_size = Some(window_size);
         self
     }
 
@@ -234,6 +234,7 @@ where
                 let render_channel =
                     |rect: Rect, channel_buffer: &[SampleType], channel_name: &Option<String>| {
                         let header_height = font_id.size;
+                        let waveform_vertical_margin = 4.0;
 
                         // Header
                         if self.show_header {
@@ -270,26 +271,39 @@ where
                                 let mut tmp = rect;
                                 tmp = tmp.translate(vec2(0.0, header_height));
                                 tmp.set_height(rect.height() - header_height);
-                                tmp
+                                tmp.shrink2(vec2(0.0, waveform_vertical_margin))
                             } else {
-                                rect
+                                rect.shrink2(vec2(0.0, waveform_vertical_margin))
                             };
 
-                            let waveform_points = channel_buffer
+                            let window_size = self
+                                .window_size
+                                .unwrap_or_else(|| channel_buffer_length / 2); // Default window size
+
+                            let window_center_valid_range =
+                                (window_size / 2)..=(channel_buffer_length - (window_size / 2));
+
+                            let mut window_center = 0; //channel_buffer_length / 2;
+
+                            if !window_center_valid_range.contains(&window_center) {
+                                window_center = channel_buffer_length / 2;
+                            }
+
+                            let waveform_points = channel_buffer[(window_center - window_size / 2)
+                                ..(window_center + window_size / 2)]
                                 .iter()
                                 .enumerate()
                                 .map(|(index, &sample)| {
                                     pos2(
                                         remap_clamp(
                                             index as f32,
-                                            0.0..=(channel_buffer_length as f32 - 1.0),
+                                            0.0..=(window_size as f32 - 1.0),
                                             waveform_rect.x_range(),
                                         ),
                                         remap_clamp(
                                             sample.into(),
                                             SampleType::DISPLAY_RANGE,
-                                            (waveform_rect.bottom() - 4.0)
-                                                ..=(waveform_rect.top() + 4.0),
+                                            waveform_rect.bottom_up_range(),
                                         ),
                                     )
                                 })
