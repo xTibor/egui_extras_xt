@@ -58,7 +58,7 @@ impl eframe::App for WaveformDemoApp {
                     .channels(2)
                     .buffer(&self.buffer)
                     .buffer_layout(BufferLayout::Interleaved)
-                    .label("Channel #1"),
+                    .track_name("Track #1"),
             );
         });
     }

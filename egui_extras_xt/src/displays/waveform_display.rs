@@ -15,8 +15,8 @@ fn get(get_set_value: &mut GetSetValue<'_>) -> bool {
     (get_set_value)(None)
 }
 
-fn set(get_set_value: &mut GetSetValue<'_>, value: bool) {
-    (get_set_value)(Some(value));
+fn set(get_set_value: &mut GetSetValue<'_>, track_enabled: bool) {
+    (get_set_value)(Some(track_enabled));
 }
 
 // ----------------------------------------------------------------------------
@@ -89,19 +89,19 @@ where
     window_size: usize,
     width: f32,
     height: f32,
-    label: Option<String>,
+    track_name: Option<String>,
 }
 
 impl<'a, SampleType> WaveformDisplayWidget<'a, SampleType>
 where
     SampleType: SampleRange<SampleType>,
 {
-    pub fn new(value: &'a mut bool) -> Self {
+    pub fn new(track_enabled: &'a mut bool) -> Self {
         Self::from_get_set(move |v: Option<bool>| {
             if let Some(v) = v {
-                *value = v;
+                *track_enabled = v;
             }
-            *value
+            *track_enabled
         })
     }
 
@@ -115,7 +115,7 @@ where
             window_size: 128,
             width: 256.0,
             height: 64.0,
-            label: None,
+            track_name: None,
         }
     }
 
@@ -154,8 +154,8 @@ where
         self
     }
 
-    pub fn label(mut self, label: impl ToString) -> Self {
-        self.label = Some(label.to_string());
+    pub fn track_name(mut self, track_name: impl ToString) -> Self {
+        self.track_name = Some(track_name.to_string());
         self
     }
 }
@@ -169,19 +169,19 @@ where
         let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click());
 
         if response.clicked() {
-            let value = get(&mut self.get_set_value);
-            set(&mut self.get_set_value, !value);
+            let track_enabled = get(&mut self.get_set_value);
+            set(&mut self.get_set_value, !track_enabled);
             response.mark_changed();
         }
 
         if ui.is_rect_visible(rect) {
-            let value = get(&mut self.get_set_value);
+            let track_enabled = get(&mut self.get_set_value);
 
             let visuals = *ui.style().interact(&response);
 
             let font_id = FontSelection::Default.resolve(ui.style());
 
-            let foreground_color = if value {
+            let foreground_color = if track_enabled {
                 visuals.text_color()
             } else {
                 ui.style().noninteractive().text_color()
@@ -196,78 +196,96 @@ where
 
             if let Some(buffer) = self.buffer {
                 assert_eq!(buffer.len() % self.channels, 0);
-                let channel_sample_count = buffer.len() / self.channels;
+                let channel_buffer_length = buffer.len() / self.channels;
 
                 let render_channel =
-                    |rect: Rect, samples: &[SampleType], label: &Option<String>| {
-                        let waveform_points = samples
-                            .into_iter()
+                    |rect: Rect, channel_buffer: &[SampleType], track_name: &Option<String>| {
+                        let header_height = font_id.size;
+                        let header_rect = {
+                            let mut tmp = rect;
+                            tmp.set_height(header_height);
+                            tmp
+                        };
+
+                        let waveform_rect = {
+                            let mut tmp = rect;
+                            tmp = tmp.translate(vec2(0.0, header_height));
+                            tmp.set_height(rect.height() - header_height);
+                            tmp
+                        };
+
+                        // Header
+                        if let Some(track_name) = track_name {
+                            ui.painter().text(
+                                header_rect.center(),
+                                Align2::CENTER_CENTER,
+                                track_name,
+                                font_id.clone(),
+                                foreground_color,
+                            );
+                        }
+
+                        if track_enabled {
+                            ui.painter().text(
+                                header_rect.right_center(),
+                                Align2::RIGHT_CENTER,
+                                '\u{1F508}',
+                                font_id.clone(),
+                                foreground_color,
+                            );
+                        }
+
+                        // Waveform
+
+                        let waveform_points = channel_buffer
+                            .iter()
                             .enumerate()
-                            .map(|(sample_index, &sample)| {
+                            .map(|(index, &sample)| {
                                 pos2(
                                     remap_clamp(
-                                        sample_index as f32,
-                                        0.0..=(channel_sample_count as f32 - 1.0),
-                                        rect.x_range(),
+                                        index as f32,
+                                        0.0..=(channel_buffer_length as f32 - 1.0),
+                                        waveform_rect.x_range(),
                                     ),
                                     remap_clamp(
                                         sample.into(),
                                         SampleType::DISPLAY_RANGE,
-                                        (rect.bottom() - 4.0)..=(rect.top() + 4.0),
+                                        (waveform_rect.bottom() - 4.0)
+                                            ..=(waveform_rect.top() + 4.0),
                                     ),
                                 )
                             })
                             .collect_vec();
 
                         ui.painter().line_segment(
-                            [rect.left_center(), rect.right_center()],
+                            [waveform_rect.left_center(), waveform_rect.right_center()],
                             ui.style().visuals.noninteractive().fg_stroke,
                         );
 
                         ui.painter()
                             .add(Shape::line(waveform_points, visuals.fg_stroke));
-
-                        if let Some(label) = label {
-                            ui.painter().text(
-                                rect.left_top() + vec2(4.0, 4.0),
-                                Align2::LEFT_TOP,
-                                label,
-                                font_id.clone(),
-                                foreground_color,
-                            );
-                        }
-
-                        if value {
-                            ui.painter().text(
-                                rect.right_top() + vec2(-4.0, 4.0),
-                                Align2::RIGHT_TOP,
-                                '\u{1F508}',
-                                font_id.clone(),
-                                foreground_color,
-                            );
-                        }
                     };
 
                 if self.channels == 1 {
-                    render_channel(rect, buffer, &self.label);
+                    render_channel(rect, buffer, &self.track_name);
                 } else {
                     for channel_id in 0..self.channels {
-                        let channel_samples = match self.buffer_layout {
+                        let channel_buffer = match self.buffer_layout {
                             BufferLayout::Planar => buffer
                                 .iter()
                                 .cloned()
-                                .skip(channel_id * channel_sample_count)
-                                .take(channel_sample_count)
+                                .skip(channel_id * channel_buffer_length)
+                                .take(channel_buffer_length)
                                 .collect_vec(),
                             BufferLayout::Interleaved => buffer
                                 .iter()
                                 .cloned()
                                 .skip(channel_id)
                                 .step_by(self.channels)
-                                .take(channel_sample_count)
+                                .take(channel_buffer_length)
                                 .collect_vec(),
                         };
-                        assert_eq!(channel_samples.len(), channel_sample_count);
+                        assert_eq!(channel_buffer.len(), channel_buffer_length);
 
                         let channel_rect = Rect::from_min_size(
                             rect.left_top()
@@ -276,7 +294,7 @@ where
                             rect.size() / vec2(self.channels as f32, 1.0),
                         );
 
-                        render_channel(channel_rect, channel_samples.as_slice(), &self.label);
+                        render_channel(channel_rect, channel_buffer.as_slice(), &self.track_name);
 
                         if channel_id < self.channels - 1 {
                             ui.painter().line_segment(
