@@ -1,3 +1,5 @@
+use std::f32::consts::TAU;
+
 use eframe::egui::{self, DragValue};
 use eframe::emath::vec2;
 
@@ -8,7 +10,7 @@ const OUTPUT_FREQUENCY: usize = 44100;
 
 struct WaveformDemoApp {
     enabled: bool,
-    buffer: [u8; BUFFER_SIZE],
+    buffer: [f32; BUFFER_SIZE],
     left_frequency: f32,
     right_frequency: f32,
 }
@@ -17,7 +19,7 @@ impl Default for WaveformDemoApp {
     fn default() -> Self {
         let mut tmp = Self {
             enabled: true,
-            buffer: [0; BUFFER_SIZE],
+            buffer: [0.0; BUFFER_SIZE],
             left_frequency: 440.0,
             right_frequency: 440.0,
         };
@@ -30,12 +32,12 @@ impl WaveformDemoApp {
     fn regenerate_buffer(&mut self) {
         for (index, sample) in self.buffer.iter_mut().skip(0).step_by(2).enumerate() {
             let q = index as f32 * (self.left_frequency / OUTPUT_FREQUENCY as f32);
-            *sample = if (q % 1.0) < 0.5 { 255 } else { 0 };
+            *sample = q % 1.0;
         }
 
         for (index, sample) in self.buffer.iter_mut().skip(1).step_by(2).enumerate() {
             let q = index as f32 * (self.right_frequency / OUTPUT_FREQUENCY as f32);
-            *sample = if (q % 1.0) < 0.5 { 255 } else { 0 };
+            *sample = (q * TAU).sin();
         }
     }
 }
@@ -55,10 +57,11 @@ impl eframe::App for WaveformDemoApp {
 
             ui.add(
                 WaveformDisplayWidget::new(&mut self.enabled)
+                    .track_name("Track #1")
                     .channels(2)
+                    .channel_names(&["Left", "Right"])
                     .buffer(&self.buffer)
-                    .buffer_layout(BufferLayout::Interleaved)
-                    .track_name("Track #1"),
+                    .buffer_layout(BufferLayout::Interleaved),
             );
         });
     }

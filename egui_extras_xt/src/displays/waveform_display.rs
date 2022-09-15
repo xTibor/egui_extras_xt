@@ -90,6 +90,8 @@ where
     width: f32,
     height: f32,
     track_name: Option<String>,
+    channel_names: Option<Vec<String>>,
+    show_header: bool,
 }
 
 impl<'a, SampleType> WaveformDisplayWidget<'a, SampleType>
@@ -116,6 +118,8 @@ where
             width: 256.0,
             height: 64.0,
             track_name: None,
+            channel_names: None,
+            show_header: true,
         }
     }
 
@@ -158,6 +162,21 @@ where
         self.track_name = Some(track_name.to_string());
         self
     }
+
+    pub fn channel_names(mut self, channel_names: &[impl ToString]) -> Self {
+        self.channel_names = Some(
+            channel_names
+                .iter()
+                .map(|channel_name| channel_name.to_string())
+                .collect_vec(),
+        );
+        self
+    }
+
+    pub fn show_header(mut self, show_header: bool) -> Self {
+        self.show_header = show_header;
+        self
+    }
 }
 
 impl<'a, SampleType> Widget for WaveformDisplayWidget<'a, SampleType>
@@ -198,8 +217,12 @@ where
                 assert_eq!(buffer.len() % self.channels, 0);
                 let channel_buffer_length = buffer.len() / self.channels;
 
+                if let Some(ref channel_names) = self.channel_names {
+                    assert_eq!(channel_names.len(), self.channels);
+                }
+
                 let render_channel =
-                    |rect: Rect, channel_buffer: &[SampleType], track_name: &Option<String>| {
+                    |rect: Rect, channel_buffer: &[SampleType], channel_name: &Option<String>| {
                         let header_height = font_id.size;
                         let header_rect = {
                             let mut tmp = rect;
@@ -215,11 +238,12 @@ where
                         };
 
                         // Header
-                        if let Some(track_name) = track_name {
+
+                        if let Some(channel_name) = channel_name {
                             ui.painter().text(
                                 header_rect.center(),
                                 Align2::CENTER_CENTER,
-                                track_name,
+                                channel_name,
                                 font_id.clone(),
                                 foreground_color,
                             );
@@ -294,7 +318,14 @@ where
                             rect.size() / vec2(self.channels as f32, 1.0),
                         );
 
-                        render_channel(channel_rect, channel_buffer.as_slice(), &self.track_name);
+                        let channel_name: Option<String> =
+                            if let Some(ref channel_names) = self.channel_names {
+                                channel_names.get(channel_id).cloned()
+                            } else {
+                                self.track_name.clone()
+                            };
+
+                        render_channel(channel_rect, channel_buffer.as_slice(), &channel_name);
 
                         if channel_id < self.channels - 1 {
                             ui.painter().line_segment(
