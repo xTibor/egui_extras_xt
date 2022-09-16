@@ -21,17 +21,20 @@ fn set(get_set_value: &mut GetSetValue<'_>, track_enabled: bool) {
 
 // ----------------------------------------------------------------------------
 
+#[derive(Debug)]
 pub enum SignalEdge {
     FallingEdge,
     RisingEdge,
 }
 
+#[derive(Debug)]
 pub enum TriggerMode {
     BufferCenter,
     SignalEdge(SignalEdge),
     SignalEdgeCenter(SignalEdge, SignalEdge),
 }
 
+#[derive(Debug)]
 pub enum BufferLayout {
     Planar,
     Interleaved,
@@ -40,47 +43,47 @@ pub enum BufferLayout {
 // ----------------------------------------------------------------------------
 
 pub trait SampleRange<T> {
-    const SAMPLE_CENTER: T;
+    const ZERO: T;
     const DISPLAY_RANGE: RangeInclusive<f32>;
 }
 
 impl SampleRange<u8> for u8 {
-    const SAMPLE_CENTER: u8 = 128;
+    const ZERO: u8 = 128;
     const DISPLAY_RANGE: RangeInclusive<f32> = 0.0..=255.0;
 }
 
 impl SampleRange<i8> for i8 {
-    const SAMPLE_CENTER: i8 = 0;
+    const ZERO: i8 = 0;
     const DISPLAY_RANGE: RangeInclusive<f32> = -128.0..=127.0;
 }
 
 impl SampleRange<u16> for u16 {
-    const SAMPLE_CENTER: u16 = 32768;
+    const ZERO: u16 = 32768;
     const DISPLAY_RANGE: RangeInclusive<f32> = 0.0..=65535.0;
 }
 
 impl SampleRange<i16> for i16 {
-    const SAMPLE_CENTER: i16 = 0;
+    const ZERO: i16 = 0;
     const DISPLAY_RANGE: RangeInclusive<f32> = -32768.0..=32767.0;
 }
 
 impl SampleRange<u32> for u32 {
-    const SAMPLE_CENTER: u32 = 2147483648;
+    const ZERO: u32 = 2147483648;
     const DISPLAY_RANGE: RangeInclusive<f32> = 0.0..=4294967295.0;
 }
 
 impl SampleRange<i32> for i32 {
-    const SAMPLE_CENTER: i32 = 0;
+    const ZERO: i32 = 0;
     const DISPLAY_RANGE: RangeInclusive<f32> = -2147483648.0..=2147483647.0;
 }
 
 impl SampleRange<f32> for f32 {
-    const SAMPLE_CENTER: f32 = 0.0;
+    const ZERO: f32 = 0.0;
     const DISPLAY_RANGE: RangeInclusive<f32> = -1.0..=1.0;
 }
 
 impl SampleRange<f64> for f64 {
-    const SAMPLE_CENTER: f64 = 0.0;
+    const ZERO: f64 = 0.0;
     const DISPLAY_RANGE: RangeInclusive<f32> = -1.0..=1.0;
 }
 
@@ -191,7 +194,7 @@ where
 
 impl<'a, SampleType> Widget for WaveformDisplayWidget<'a, SampleType>
 where
-    SampleType: SampleRange<SampleType> + Into<f32> + Copy,
+    SampleType: SampleRange<SampleType> + Into<f32> + Copy + PartialOrd,
 {
     fn ui(mut self, ui: &mut Ui) -> Response {
         let desired_size = vec2(self.width, self.height);
@@ -278,12 +281,31 @@ where
 
                             let window_size = self
                                 .window_size
-                                .unwrap_or_else(|| channel_buffer_length / 2); // Default window size
+                                .unwrap_or(channel_buffer_length / 2); // Default window size
+                            assert!(window_size <= channel_buffer_length);
 
                             let window_center_valid_range =
                                 (window_size / 2)..=(channel_buffer_length - (window_size / 2));
 
                             let mut window_center = 0; //channel_buffer_length / 2;
+
+                            let signal_edges = channel_buffer
+                                .iter()
+                                .tuple_windows()
+                                .enumerate()
+                                .filter_map(|(index, (sample_a, sample_b))| {
+                                    match (
+                                        *sample_a >= SampleType::ZERO,
+                                        *sample_b >= SampleType::ZERO,
+                                    ) {
+                                        (false, true) => Some((index, SignalEdge::RisingEdge)),
+                                        (true, false) => Some((index, SignalEdge::FallingEdge)),
+                                        _ => None,
+                                    }
+                                })
+                                .collect_vec();
+
+                            println!("{:?} {:?}", channel_name, signal_edges);
 
                             if !window_center_valid_range.contains(&window_center) {
                                 window_center = channel_buffer_length / 2;
