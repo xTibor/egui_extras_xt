@@ -312,8 +312,8 @@ where
                                 .enumerate()
                                 .map(|(delta, (a, b))| (delta, SignalEdge::from_samples(a, b)))
                                 .find(|(_, signal_edge)| *signal_edge == Some(left_target))
-                                .map(|(delta, _)| delta)
-                                .unwrap_or(channel_buffer_length - 1);
+                                .map(|(delta, _)| delta + 1)
+                                .unwrap_or(channel_buffer_length / 2);
 
                             let right_signal_edge_delta = channel_buffer
                                 [(channel_buffer_length / 2)..]
@@ -322,14 +322,14 @@ where
                                 .enumerate()
                                 .map(|(delta, (a, b))| (delta, SignalEdge::from_samples(a, b)))
                                 .find(|(_, signal_edge)| *signal_edge == Some(right_target))
-                                .map(|(delta, _)| delta)
-                                .unwrap_or(channel_buffer_length - 1);
+                                .map(|(delta, _)| delta + 0)
+                                .unwrap_or(channel_buffer_length / 2);
 
                             let mut window_center =
                                 if right_signal_edge_delta < left_signal_edge_delta {
                                     (channel_buffer_length / 2) + right_signal_edge_delta
                                 } else {
-                                    (channel_buffer_length / 2) - left_signal_edge_delta - 1
+                                    (channel_buffer_length / 2) - left_signal_edge_delta
                                 };
 
                             if !window_center_valid_range.contains(&window_center) {
