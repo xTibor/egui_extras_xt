@@ -21,11 +21,26 @@ fn set(get_set_value: &mut GetSetValue<'_>, track_enabled: bool) {
 
 // ----------------------------------------------------------------------------
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum SignalEdge {
     FallingEdge,
     RisingEdge,
 }
+
+impl SignalEdge {
+    fn from_samples<SampleType>(sample_a: &SampleType, sample_b: &SampleType) -> Option<SignalEdge>
+    where
+        SampleType: SampleRange<SampleType> + PartialOrd,
+    {
+        match (*sample_a >= SampleType::ZERO, *sample_b >= SampleType::ZERO) {
+            (false, true) => Some(SignalEdge::RisingEdge),
+            (true, false) => Some(SignalEdge::FallingEdge),
+            _ => None,
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
 
 #[derive(Debug)]
 pub enum TriggerMode {
@@ -279,33 +294,43 @@ where
                                 rect.shrink2(vec2(0.0, waveform_vertical_margin))
                             };
 
-                            let window_size = self
-                                .window_size
-                                .unwrap_or(channel_buffer_length / 2); // Default window size
+                            let window_size = self.window_size.unwrap_or(channel_buffer_length / 2); // Default window size
                             assert!(window_size <= channel_buffer_length);
 
                             let window_center_valid_range =
                                 (window_size / 2)..=(channel_buffer_length - (window_size / 2));
 
-                            let mut window_center = 0; //channel_buffer_length / 2;
+                            let (left_target, right_target) =
+                                (SignalEdge::RisingEdge, SignalEdge::RisingEdge);
 
-                            let signal_edges = channel_buffer
+                            let left_signal_edge_delta = channel_buffer
+                                [..=(channel_buffer_length / 2)]
+                                .iter()
+                                .rev()
+                                .tuple_windows()
+                                .map(|(a, b)| (b, a))
+                                .enumerate()
+                                .map(|(delta, (a, b))| (delta, SignalEdge::from_samples(a, b)))
+                                .find(|(_, signal_edge)| *signal_edge == Some(left_target))
+                                .map(|(delta, _)| delta)
+                                .unwrap_or(channel_buffer_length - 1);
+
+                            let right_signal_edge_delta = channel_buffer
+                                [(channel_buffer_length / 2)..]
                                 .iter()
                                 .tuple_windows()
                                 .enumerate()
-                                .filter_map(|(index, (sample_a, sample_b))| {
-                                    match (
-                                        *sample_a >= SampleType::ZERO,
-                                        *sample_b >= SampleType::ZERO,
-                                    ) {
-                                        (false, true) => Some((index, SignalEdge::RisingEdge)),
-                                        (true, false) => Some((index, SignalEdge::FallingEdge)),
-                                        _ => None,
-                                    }
-                                })
-                                .collect_vec();
+                                .map(|(delta, (a, b))| (delta, SignalEdge::from_samples(a, b)))
+                                .find(|(_, signal_edge)| *signal_edge == Some(right_target))
+                                .map(|(delta, _)| delta)
+                                .unwrap_or(channel_buffer_length - 1);
 
-                            println!("{:?} {:?}", channel_name, signal_edges);
+                            let mut window_center =
+                                if right_signal_edge_delta < left_signal_edge_delta {
+                                    (channel_buffer_length / 2) + right_signal_edge_delta
+                                } else {
+                                    (channel_buffer_length / 2) - left_signal_edge_delta - 1
+                                };
 
                             if !window_center_valid_range.contains(&window_center) {
                                 window_center = channel_buffer_length / 2;
