@@ -304,7 +304,7 @@ where
                                 (SignalEdge::RisingEdge, SignalEdge::RisingEdge);
 
                             let left_signal_edge_delta = channel_buffer
-                                [..=(channel_buffer_length / 2)]
+                                [..=(channel_buffer_length / 2) + 1]
                                 .iter()
                                 .rev()
                                 .tuple_windows()
@@ -312,7 +312,7 @@ where
                                 .enumerate()
                                 .map(|(delta, (a, b))| (delta, SignalEdge::from_samples(a, b)))
                                 .find(|(_, signal_edge)| *signal_edge == Some(left_target))
-                                .map(|(delta, _)| delta + 1)
+                                .map(|(delta, _)| delta)
                                 .unwrap_or(channel_buffer_length / 2);
 
                             let right_signal_edge_delta = channel_buffer
@@ -322,7 +322,7 @@ where
                                 .enumerate()
                                 .map(|(delta, (a, b))| (delta, SignalEdge::from_samples(a, b)))
                                 .find(|(_, signal_edge)| *signal_edge == Some(right_target))
-                                .map(|(delta, _)| delta + 0)
+                                .map(|(delta, _)| delta)
                                 .unwrap_or(channel_buffer_length / 2);
 
                             let mut window_center =
@@ -337,7 +337,7 @@ where
                             }
 
                             let waveform_points = channel_buffer[(window_center - window_size / 2)
-                                ..(window_center + window_size / 2)]
+                                ..=(window_center + window_size / 2)]
                                 .iter()
                                 .enumerate()
                                 .map(|(index, &sample)| {
