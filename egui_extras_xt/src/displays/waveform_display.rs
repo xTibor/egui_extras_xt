@@ -43,13 +43,6 @@ impl SignalEdge {
 // ----------------------------------------------------------------------------
 
 #[derive(Debug)]
-pub enum TriggerMode {
-    BufferCenter,
-    SignalEdge(SignalEdge),
-    SignalEdgeCenter(SignalEdge, SignalEdge),
-}
-
-#[derive(Debug)]
 pub enum BufferLayout {
     Planar,
     Interleaved,
@@ -113,7 +106,6 @@ where
     buffer: Option<&'a [SampleType]>,
     buffer_layout: BufferLayout,
     channels: usize,
-    trigger_mode: TriggerMode,
     window_size: Option<usize>,
     width: f32,
     height: f32,
@@ -141,7 +133,6 @@ where
             buffer: None,
             buffer_layout: BufferLayout::Interleaved,
             channels: 1,
-            trigger_mode: TriggerMode::SignalEdge(SignalEdge::RisingEdge),
             window_size: None,
             width: 256.0,
             height: 64.0,
@@ -163,11 +154,6 @@ where
 
     pub fn channels(mut self, channels: usize) -> Self {
         self.channels = channels;
-        self
-    }
-
-    pub fn trigger_mode(mut self, trigger_mode: TriggerMode) -> Self {
-        self.trigger_mode = trigger_mode;
         self
     }
 
@@ -243,7 +229,9 @@ where
 
             if let Some(buffer) = self.buffer {
                 assert_eq!(buffer.len() % self.channels, 0);
+
                 let channel_buffer_length = buffer.len() / self.channels;
+                assert_eq!(channel_buffer_length.rem_euclid(2), 0);
 
                 if let Some(ref channel_names) = self.channel_names {
                     assert_eq!(channel_names.len(), self.channels);
@@ -296,12 +284,10 @@ where
 
                             let window_size = self.window_size.unwrap_or(channel_buffer_length / 2); // Default window size
                             assert!(window_size <= channel_buffer_length);
+                            assert_eq!(window_size.rem_euclid(2), 0);
 
                             let window_center_valid_range =
                                 (window_size / 2)..=(channel_buffer_length - (window_size / 2));
-
-                            let (left_target, right_target) =
-                                (SignalEdge::RisingEdge, SignalEdge::RisingEdge);
 
                             let left_signal_edge_delta = channel_buffer
                                 [..=(channel_buffer_length / 2) + 1]
@@ -311,7 +297,9 @@ where
                                 .map(|(a, b)| (b, a))
                                 .enumerate()
                                 .map(|(delta, (a, b))| (delta, SignalEdge::from_samples(a, b)))
-                                .find(|(_, signal_edge)| *signal_edge == Some(left_target))
+                                .find(|(_, signal_edge)| {
+                                    *signal_edge == Some(SignalEdge::RisingEdge)
+                                })
                                 .map(|(delta, _)| delta)
                                 .unwrap_or(channel_buffer_length / 2);
 
@@ -321,7 +309,9 @@ where
                                 .tuple_windows()
                                 .enumerate()
                                 .map(|(delta, (a, b))| (delta, SignalEdge::from_samples(a, b)))
-                                .find(|(_, signal_edge)| *signal_edge == Some(right_target))
+                                .find(|(_, signal_edge)| {
+                                    *signal_edge == Some(SignalEdge::RisingEdge)
+                                })
                                 .map(|(delta, _)| delta)
                                 .unwrap_or(channel_buffer_length / 2);
 
@@ -337,7 +327,7 @@ where
                             }
 
                             let waveform_points = channel_buffer[(window_center - window_size / 2)
-                                ..=(window_center + window_size / 2)]
+                                ..(window_center + window_size / 2)]
                                 .iter()
                                 .enumerate()
                                 .map(|(index, &sample)| {

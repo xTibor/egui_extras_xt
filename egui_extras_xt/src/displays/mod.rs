@@ -9,4 +9,4 @@ pub use display_style::{DisplayStyle, DisplayStylePreset};
 pub use indicator_button::{IndicatorButton, IndicatorButtonBehavior};
 pub use led_display::LedDisplay;
 pub use segmented_display::{DisplayKind, DisplayMetrics, SegmentedDisplayWidget};
-pub use waveform_display::{BufferLayout, SignalEdge, TriggerMode, WaveformDisplayWidget};
+pub use waveform_display::{BufferLayout, SignalEdge, WaveformDisplayWidget};
