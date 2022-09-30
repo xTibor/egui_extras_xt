@@ -112,6 +112,7 @@ where
     track_name: Option<String>,
     channel_names: Option<Vec<String>>,
     show_header: bool,
+    waveform_resolution: usize,
 }
 
 impl<'a, SampleType> WaveformDisplayWidget<'a, SampleType>
@@ -139,6 +140,7 @@ where
             track_name: None,
             channel_names: None,
             show_header: true,
+            waveform_resolution: 1,
         }
     }
 
@@ -189,6 +191,11 @@ where
 
     pub fn show_header(mut self, show_header: bool) -> Self {
         self.show_header = show_header;
+        self
+    }
+
+    pub fn waveform_resolution(mut self, waveform_resolution: usize) -> Self {
+        self.waveform_resolution = waveform_resolution;
         self
     }
 }
@@ -330,6 +337,7 @@ where
                                 ..(window_center + window_size / 2)]
                                 .iter()
                                 .enumerate()
+                                .step_by(self.waveform_resolution)
                                 .map(|(index, &sample)| {
                                     pos2(
                                         remap_clamp(
