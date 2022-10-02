@@ -101,6 +101,9 @@ pub enum DisplayStylePreset {
 
     #[strum(to_string = "DeLorean Amber")]
     DeLoreanAmber,
+
+    #[strum(to_string = "Yamaha MU2000")]
+    YamahaMU2000,
 }
 
 impl DisplayStylePreset {
@@ -174,6 +177,13 @@ impl DisplayStylePreset {
                 active_foreground_color: Color32::from_rgb(0xF2, 0xC4, 0x21),
                 active_foreground_stroke: Stroke::none(),
                 inactive_foreground_color: Color32::from_rgb(0x51, 0x2C, 0x0F),
+                inactive_foreground_stroke: Stroke::none(),
+            },
+            DisplayStylePreset::YamahaMU2000 => DisplayStyle {
+                background_color: Color32::from_rgb(0x8C, 0xD7, 0x01),
+                active_foreground_color: Color32::from_rgb(0x04, 0x4A, 0x00),
+                active_foreground_stroke: Stroke::none(),
+                inactive_foreground_color: Color32::from_rgb(0x7B, 0xCE, 0x02),
                 inactive_foreground_stroke: Stroke::none(),
             },
         }
