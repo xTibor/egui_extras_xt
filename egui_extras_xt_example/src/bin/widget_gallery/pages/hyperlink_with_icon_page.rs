@@ -1,4 +1,4 @@
-use eframe::egui::{Grid, Ui};
+use eframe::egui::{Grid, TextStyle, Ui};
 use egui_extras_xt::ui::hyperlink_with_icon::HyperlinkWithIcon;
 
 use crate::pages::PageImpl;
@@ -19,7 +19,10 @@ impl Default for HyperlinkWithIconPage {
 
 impl PageImpl for HyperlinkWithIconPage {
     fn ui(&mut self, ui: &mut Ui) {
-        ui.hyperlink_with_icon_to(&self.label, &self.url);
+        ui.scope(|ui| {
+            ui.style_mut().override_text_style = Some(TextStyle::Heading);
+            ui.hyperlink_with_icon_to(&self.label, &self.url);
+        });
         ui.separator();
 
         Grid::new("hyperlink_with_icon_properties")
