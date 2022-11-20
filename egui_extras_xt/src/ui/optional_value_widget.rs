@@ -17,7 +17,7 @@ impl<T: Default> OptionalValueWidget<T> for Ui {
         self.group(|ui| {
             ui.horizontal(|ui| {
                 let mut checkbox_state = value.is_some();
-                ui.checkbox(&mut checkbox_state, "");
+                let mut response = ui.checkbox(&mut checkbox_state, "");
 
                 match (value.is_some(), checkbox_state) {
                     (false, true) => *value = Some(T::default()),
@@ -27,15 +27,18 @@ impl<T: Default> OptionalValueWidget<T> for Ui {
 
                 match value {
                     Some(ref mut value) => {
-                        add_contents(ui, value);
+                        response = response.union(add_contents(ui, value));
                     }
                     None => {
                         let mut dummy_value = T::default();
                         ui.add_enabled_ui(false, |ui| add_contents(ui, &mut dummy_value));
                     }
                 }
+
+                response
             })
         })
-        .response
+        .inner
+        .inner
     }
 }

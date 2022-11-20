@@ -6,7 +6,7 @@ use strum::{Display, EnumIter, IntoEnumIterator};
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromRange, WidgetsFromSlice};
 
-#[derive(EnumIter, Clone, Copy, PartialEq, Display)]
+#[derive(Clone, Copy, Display, EnumIter, PartialEq)]
 enum SevenSecretWeapons {
     #[strum(to_string = "Missile")]
     Missile,
@@ -29,6 +29,7 @@ enum SevenSecretWeapons {
 
 struct UiExtensionsExample {
     optional_usize: Option<usize>,
+    optional_string: Option<String>,
     secret_weapon: SevenSecretWeapons,
     coffee_count: usize,
 }
@@ -37,6 +38,7 @@ impl Default for UiExtensionsExample {
     fn default() -> Self {
         Self {
             optional_usize: Some(1234),
+            optional_string: Some("Test".to_owned()),
             secret_weapon: SevenSecretWeapons::MetalDetector,
             coffee_count: 1,
         }
@@ -60,6 +62,16 @@ impl eframe::App for UiExtensionsExample {
                             ui.add(DragValue::new(value))
                         }),
                     );
+
+                    ui.separator();
+
+                    debug_print_response(
+                        "optional_value_widget",
+                        ui.optional_value_widget(&mut self.optional_string, |ui, value| {
+                            ui.text_edit_singleline(value)
+                        }),
+                    );
+
                 });
             });
             ui.add_space(16.0);
