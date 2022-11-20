@@ -30,7 +30,7 @@ enum SevenSecretWeapons {
 struct UiExtensionsExample {
     optional_usize: Option<usize>,
     secret_weapon: SevenSecretWeapons,
-    some_value: usize,
+    coffee_count: usize,
 }
 
 impl Default for UiExtensionsExample {
@@ -38,7 +38,7 @@ impl Default for UiExtensionsExample {
         Self {
             optional_usize: Some(1234),
             secret_weapon: SevenSecretWeapons::MetalDetector,
-            some_value: 1,
+            coffee_count: 1,
         }
     }
 }
@@ -62,11 +62,11 @@ impl eframe::App for UiExtensionsExample {
                     );
                 });
             });
-            ui.add_space(8.0);
+            ui.add_space(16.0);
 
             ui.push_id("from_iter", |ui| {
                 ui.group(|ui| {
-                    ui.horizontal(|ui| {
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "selectable_value_from_iter",
                             ui.selectable_value_from_iter(
@@ -76,7 +76,9 @@ impl eframe::App for UiExtensionsExample {
                         );
                     });
 
-                    ui.horizontal(|ui| {
+                    ui.separator();
+
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "combobox_from_iter",
                             ui.combobox_from_iter(
@@ -87,7 +89,9 @@ impl eframe::App for UiExtensionsExample {
                         );
                     });
 
-                    ui.horizontal(|ui| {
+                    ui.separator();
+
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "radio_value_from_iter",
                             ui.radio_value_from_iter(
@@ -98,11 +102,11 @@ impl eframe::App for UiExtensionsExample {
                     });
                 });
             });
-            ui.add_space(8.0);
+            ui.add_space(16.0);
 
             ui.push_id("from_slice", |ui| {
                 ui.group(|ui| {
-                    ui.horizontal(|ui| {
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "selectable_value_from_slice",
                             ui.selectable_value_from_slice(
@@ -119,7 +123,9 @@ impl eframe::App for UiExtensionsExample {
                         );
                     });
 
-                    ui.horizontal(|ui| {
+                    ui.separator();
+
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "combobox_from_slice",
                             ui.combobox_from_slice(
@@ -137,7 +143,9 @@ impl eframe::App for UiExtensionsExample {
                         );
                     });
 
-                    ui.horizontal(|ui| {
+                    ui.separator();
+
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "radio_value_from_slice",
                             ui.radio_value_from_slice(
@@ -155,33 +163,37 @@ impl eframe::App for UiExtensionsExample {
                     });
                 });
             });
-            ui.add_space(8.0);
+            ui.add_space(16.0);
 
             ui.push_id("from_range", |ui| {
                 ui.group(|ui| {
-                    ui.horizontal(|ui| {
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "selectable_value_from_range",
-                            ui.selectable_value_from_range(&mut self.some_value, 1..=7),
+                            ui.selectable_value_from_range(&mut self.coffee_count, 1..=17),
                         );
                     });
 
-                    ui.horizontal(|ui| {
+                    ui.separator();
+
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "combobox_from_range",
-                            ui.combobox_from_range("Some value", &mut self.some_value, 1..=7),
+                            ui.combobox_from_range("Coffee count", &mut self.coffee_count, 1..=17),
                         );
                     });
 
-                    ui.horizontal(|ui| {
+                    ui.separator();
+
+                    ui.horizontal_wrapped(|ui| {
                         debug_print_response(
                             "radio_value_from_range",
-                            ui.radio_value_from_range(&mut self.some_value, 1..=7),
+                            ui.radio_value_from_range(&mut self.coffee_count, 1..=17),
                         );
                     });
                 });
             });
-            ui.add_space(8.0);
+            ui.add_space(16.0);
         });
     }
 }
