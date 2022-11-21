@@ -21,14 +21,15 @@ impl Default for DirectoryTreeViewExample {
 impl eframe::App for DirectoryTreeViewExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.directory_tree_view(&mut self.selected_path, &self.root_path);
-
             if let Some(selected_path) = self.selected_path.as_ref() {
                 ui.label(format!(
                     "Selected path: {}",
                     selected_path.as_os_str().to_str().unwrap()
                 ));
+                ui.separator();
             }
+
+            ui.directory_tree_view(&mut self.selected_path, &self.root_path);
         });
     }
 }

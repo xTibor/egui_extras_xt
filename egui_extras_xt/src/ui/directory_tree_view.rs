@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use egui::util::cache::{ComputerMut, FrameCache};
-use egui::{CollapsingHeader, Response, Ui};
+use egui::{CollapsingHeader, Response, ScrollArea, Ui};
 use itertools::Itertools;
 
 // ----------------------------------------------------------------------------
@@ -19,6 +19,7 @@ impl<'a> ComputerMut<DirectoryViewCacheKey<'a>, DirectoryViewCacheValue> for Dir
             .unwrap()
             .filter_map(Result::ok)
             .map(|dir_entry| dir_entry.path())
+            .sorted_by_key(|path| path.is_file()) //(path.is_dir(), &path))
             .collect_vec()
     }
 }
@@ -59,23 +60,28 @@ impl DirectoryTreeView for Ui {
                             if path.is_dir() {
                                 render_directory(ui, selected_path, &path, false);
                             } else {
-                                let file_name = path.file_name().unwrap().to_str().unwrap();
-                                ui.selectable_value(
-                                    selected_path,
-                                    Some(path.clone()),
-                                    format!("\u{1F5CB} {file_name:}"),
-                                );
+                                render_file(ui, selected_path, &path);
                             }
                         }
                     } else {
                         ui.weak("Empty directory");
                     }
-
-                    //println!("show");
                 });
-        };
+        }
 
-        render_directory(self, selected_path, root, true);
+        fn render_file(ui: &mut Ui, selected_path: &mut Option<PathBuf>, file_path: &Path) {
+            let file_name = file_path.file_name().unwrap().to_str().unwrap();
+
+            ui.selectable_value(
+                selected_path,
+                Some(file_path.to_path_buf()),
+                format!("\u{1F5CB} {file_name:}"),
+            );
+        }
+
+        ScrollArea::vertical().show(self, |ui| {
+            render_directory(ui, selected_path, root, true);
+        });
 
         self.scope(|ui| {}).response
     }
