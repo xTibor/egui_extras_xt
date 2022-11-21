@@ -33,7 +33,10 @@ impl eframe::App for DirectoryTreeViewExample {
             ui.directory_tree_view(
                 &mut self.selected_path,
                 &self.root_path,
-                Some(Box::new(|path| path.ends_with(".rs"))),
+                Some(Box::new(|path| {
+                    !path.file_name().unwrap().to_str().unwrap().starts_with('.')
+                })),
+                Some(Box::new(|path| path.extension() == Some(OsStr::new("rs")))),
             );
         });
     }

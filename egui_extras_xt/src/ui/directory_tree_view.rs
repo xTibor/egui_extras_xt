@@ -34,12 +34,15 @@ type DirectoryTreeViewCache<'a> =
 
 type DirectoryTreeViewFilter = Box<dyn Fn(&Path) -> bool>;
 
+// ----------------------------------------------------------------------------
+
 pub trait DirectoryTreeView {
     fn directory_tree_view(
         &mut self,
         selected_path: &mut Option<PathBuf>,
         root: &Path,
-        filter: Option<DirectoryTreeViewFilter>,
+        directory_filter: Option<DirectoryTreeViewFilter>,
+        file_filter: Option<DirectoryTreeViewFilter>,
     ) -> Response;
 }
 
@@ -48,13 +51,15 @@ impl DirectoryTreeView for Ui {
         &mut self,
         selected_path: &mut Option<PathBuf>,
         root: &Path,
-        filter: Option<DirectoryTreeViewFilter>,
+        directory_filter: Option<DirectoryTreeViewFilter>,
+        file_filter: Option<DirectoryTreeViewFilter>,
     ) -> Response {
         fn render_directory(
             ui: &mut Ui,
             selected_path: &mut Option<PathBuf>,
             root: &Path,
-            filter: &Option<DirectoryTreeViewFilter>,
+            directory_filter: &Option<DirectoryTreeViewFilter>,
+            file_filter: &Option<DirectoryTreeViewFilter>,
             default_open: bool,
         ) {
             let directory_name = root.file_name().unwrap().to_str().unwrap();
@@ -68,10 +73,36 @@ impl DirectoryTreeView for Ui {
                         cache.get(root)
                     };
 
-                    if !cached_directory_listing.is_empty() {
-                        for path in cached_directory_listing {
+                    let filtered_directory_listing = cached_directory_listing
+                        .iter()
+                        .filter(|path| {
                             if path.is_dir() {
-                                render_directory(ui, selected_path, &path, filter, false);
+                                if let Some(directory_filter) = &directory_filter {
+                                    directory_filter(path)
+                                } else {
+                                    true
+                                }
+                            } else {
+                                if let Some(file_filter) = &file_filter {
+                                    file_filter(path)
+                                } else {
+                                    true
+                                }
+                            }
+                        })
+                        .collect_vec();
+
+                    if !filtered_directory_listing.is_empty() {
+                        for path in filtered_directory_listing {
+                            if path.is_dir() {
+                                render_directory(
+                                    ui,
+                                    selected_path,
+                                    &path,
+                                    &directory_filter,
+                                    &file_filter,
+                                    false,
+                                );
                             } else {
                                 render_file(ui, selected_path, &path);
                             }
@@ -93,7 +124,14 @@ impl DirectoryTreeView for Ui {
         }
 
         ScrollArea::vertical().show(self, |ui| {
-            render_directory(ui, selected_path, root, &filter, true);
+            render_directory(
+                ui,
+                selected_path,
+                root,
+                &directory_filter,
+                &file_filter,
+                true,
+            );
         });
 
         self.scope(|ui| {}).response
