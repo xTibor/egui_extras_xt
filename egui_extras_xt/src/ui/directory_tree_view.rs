@@ -20,9 +20,13 @@ impl<'a> ComputerMut<DirectoryTreeViewCacheKey<'a>, DirectoryTreeViewCacheValue>
         std::fs::read_dir(key)
             .unwrap()
             .filter_map(Result::ok)
-            // TODO: filter here
             .map(|dir_entry| dir_entry.path())
-            .sorted_by_key(|path| path.is_file()) //(path.is_dir(), &path))
+            .sorted_by_key(|path| {
+                (
+                    path.is_file(),
+                    path.file_name().unwrap().to_string_lossy().to_lowercase(),
+                )
+            })
             .collect_vec()
     }
 }
