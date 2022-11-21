@@ -1,4 +1,5 @@
-use std::path::PathBuf;
+use std::ffi::OsStr;
+use std::path::{Path, PathBuf};
 
 use eframe::egui;
 use eframe::emath::vec2;
@@ -29,7 +30,11 @@ impl eframe::App for DirectoryTreeViewExample {
                 ui.separator();
             }
 
-            ui.directory_tree_view(&mut self.selected_path, &self.root_path);
+            ui.directory_tree_view(
+                &mut self.selected_path,
+                &self.root_path,
+                Some(Box::new(|path| path.ends_with(".rs"))),
+            );
         });
     }
 }
