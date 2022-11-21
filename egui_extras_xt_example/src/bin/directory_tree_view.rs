@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use eframe::egui;
 use eframe::emath::vec2;
@@ -30,14 +30,19 @@ impl eframe::App for DirectoryTreeViewExample {
                 ui.separator();
             }
 
-            ui.directory_tree_view(
-                &mut self.selected_path,
-                &self.root_path,
-                Some(Box::new(|path| {
-                    !path.file_name().unwrap().to_str().unwrap().starts_with('.')
-                })),
-                Some(Box::new(|path| path.extension() == Some(OsStr::new("rs")))),
-            );
+            if ui
+                .directory_tree_view(
+                    &mut self.selected_path,
+                    &self.root_path,
+                    Some(Box::new(|path| {
+                        !path.file_name().unwrap().to_str().unwrap().starts_with('.')
+                    })),
+                    Some(Box::new(|path| path.extension() == Some(OsStr::new("rs")))),
+                )
+                .changed()
+            {
+                println!("New path selected: {:?}", self.selected_path);
+            }
         });
     }
 }
