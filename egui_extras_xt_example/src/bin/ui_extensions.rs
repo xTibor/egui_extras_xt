@@ -71,7 +71,6 @@ impl eframe::App for UiExtensionsExample {
                             ui.text_edit_singleline(value)
                         }),
                     );
-
                 });
             });
             ui.add_space(16.0);

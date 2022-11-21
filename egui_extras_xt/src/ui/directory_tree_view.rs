@@ -16,7 +16,6 @@ impl<'a> ComputerMut<DirectoryTreeViewCacheKey<'a>, DirectoryTreeViewCacheValue>
     for DirectoryTreeViewComputer
 {
     fn compute(&mut self, key: DirectoryTreeViewCacheKey) -> DirectoryTreeViewCacheValue {
-        println!("Computed: {:?}", key);
         std::fs::read_dir(key)
             .unwrap()
             .filter_map(Result::ok)
@@ -65,7 +64,7 @@ impl DirectoryTreeView for Ui {
             directory_filter: &Option<DirectoryTreeViewFilter>,
             file_filter: &Option<DirectoryTreeViewFilter>,
             default_open: bool,
-        ) {
+        ) -> Option<Response> {
             let directory_name = root.file_name().unwrap().to_str().unwrap();
 
             CollapsingHeader::new(format!("\u{1F5C0} {directory_name:}"))
@@ -97,47 +96,62 @@ impl DirectoryTreeView for Ui {
                         .collect_vec();
 
                     if !filtered_directory_listing.is_empty() {
-                        for path in filtered_directory_listing {
-                            if path.is_dir() {
-                                render_directory(
-                                    ui,
-                                    selected_path,
-                                    &path,
-                                    &directory_filter,
-                                    &file_filter,
-                                    false,
-                                );
-                            } else {
-                                render_file(ui, selected_path, &path);
-                            }
-                        }
+                        filtered_directory_listing
+                            .iter()
+                            .map(|path| {
+                                if path.is_dir() {
+                                    render_directory(
+                                        ui,
+                                        selected_path,
+                                        &path,
+                                        &directory_filter,
+                                        &file_filter,
+                                        false,
+                                    )
+                                } else {
+                                    render_file(ui, selected_path, &path)
+                                }
+                            })
+                            .flatten()
+                            .reduce(|result, response| result.union(response))
                     } else {
                         ui.weak("Empty directory");
+                        None
                     }
-                });
+                })
+                .body_returned
+                .unwrap_or(None)
         }
 
-        fn render_file(ui: &mut Ui, selected_path: &mut Option<PathBuf>, file_path: &Path) {
+        fn render_file(
+            ui: &mut Ui,
+            selected_path: &mut Option<PathBuf>,
+            file_path: &Path,
+        ) -> Option<Response> {
             let file_name = file_path.file_name().unwrap().to_str().unwrap();
 
-            ui.selectable_value(
+            // egui bug (0.19.0): `selectable_value` returns `changed` responses
+            // even when the supplied value has not changed when clicking the
+            // button repeatedly.
+            Some(ui.selectable_value(
                 selected_path,
                 Some(file_path.to_path_buf()),
                 format!("\u{1F5CB} {file_name:}"),
-            );
+            ))
         }
 
-        ScrollArea::vertical().show(self, |ui| {
-            render_directory(
-                ui,
-                selected_path,
-                root,
-                &directory_filter,
-                &file_filter,
-                true,
-            );
-        });
-
-        self.scope(|ui| {}).response
+        ScrollArea::vertical()
+            .show(self, |ui| {
+                render_directory(
+                    ui,
+                    selected_path,
+                    root,
+                    &directory_filter,
+                    &file_filter,
+                    true,
+                )
+                .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response
+            })
+            .inner
     }
 }
