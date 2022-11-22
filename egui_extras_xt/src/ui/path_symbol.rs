@@ -26,7 +26,7 @@ impl PathSymbol for Path {
             let file_extension = self
                 .extension()
                 .map(OsStr::to_string_lossy)
-                .map(String::from);
+                .map(|s| s.to_lowercase());
 
             match file_extension.as_deref() {
                 // Plain text
