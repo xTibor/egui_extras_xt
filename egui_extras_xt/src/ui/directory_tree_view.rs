@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use egui::util::cache::{ComputerMut, FrameCache};
-use egui::{CollapsingHeader, Response, ScrollArea, Ui};
+use egui::{Align, CollapsingHeader, Response, ScrollArea, Ui};
 use itertools::Itertools;
 
 use crate::ui::path_symbol::PathSymbol;
@@ -48,6 +48,7 @@ pub trait DirectoryTreeView {
         root: &Path,
         directory_filter: Option<DirectoryTreeViewFilter>,
         file_filter: Option<DirectoryTreeViewFilter>,
+        force_selected_open: bool,
     ) -> Response;
 }
 
@@ -58,6 +59,7 @@ impl DirectoryTreeView for Ui {
         root: &Path,
         directory_filter: Option<DirectoryTreeViewFilter>,
         file_filter: Option<DirectoryTreeViewFilter>,
+        force_selected_open: bool,
     ) -> Response {
         fn render_directory(
             ui: &mut Ui,
@@ -66,11 +68,23 @@ impl DirectoryTreeView for Ui {
             directory_filter: &Option<DirectoryTreeViewFilter>,
             file_filter: &Option<DirectoryTreeViewFilter>,
             default_open: bool,
+            force_selected_open: bool,
         ) -> Option<Response> {
             let directory_name = root.file_name().unwrap().to_str().unwrap();
             let directory_symbol = root.symbol();
 
+            let open_state = if force_selected_open {
+                if let Some(selected_path) = selected_path {
+                    Some(selected_path.starts_with(root))
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
             CollapsingHeader::new(format!("{directory_symbol:} {directory_name:}"))
+                .open(open_state)
                 .default_open(default_open)
                 .show(ui, |ui| {
                     let cached_directory_listing = {
@@ -110,9 +124,10 @@ impl DirectoryTreeView for Ui {
                                         &directory_filter,
                                         &file_filter,
                                         false,
+                                        force_selected_open,
                                     )
                                 } else {
-                                    render_file(ui, selected_path, &path)
+                                    render_file(ui, selected_path, &path, force_selected_open)
                                 }
                             })
                             .flatten()
@@ -130,6 +145,7 @@ impl DirectoryTreeView for Ui {
             ui: &mut Ui,
             selected_path: &mut Option<PathBuf>,
             file_path: &Path,
+            force_selected_open: bool,
         ) -> Option<Response> {
             let file_name = file_path.file_name().unwrap().to_str().unwrap();
             let file_symbol = file_path.symbol();
@@ -137,11 +153,21 @@ impl DirectoryTreeView for Ui {
             // egui bug (0.19.0): `selectable_value` returns `changed` responses
             // even when the supplied value has not changed when clicking the
             // button repeatedly.
-            Some(ui.selectable_value(
+            let response = ui.selectable_value(
                 selected_path,
                 Some(file_path.to_path_buf()),
                 format!("{file_symbol:} {file_name:}"),
-            ))
+            );
+
+            if force_selected_open {
+                if let Some(selected_path) = selected_path {
+                    if selected_path == file_path {
+                        response.scroll_to_me(Some(Align::Center));
+                    }
+                }
+            }
+
+            Some(response)
         }
 
         ScrollArea::vertical()
@@ -153,6 +179,7 @@ impl DirectoryTreeView for Ui {
                     &directory_filter,
                     &file_filter,
                     true,
+                    force_selected_open,
                 )
                 .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response
             })

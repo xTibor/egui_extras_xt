@@ -38,6 +38,7 @@ impl eframe::App for DirectoryTreeViewExample {
                         !path.file_name().unwrap().to_str().unwrap().starts_with('.')
                     })),
                     Some(Box::new(|path| path.extension() == Some(OsStr::new("rs")))),
+                    false,
                 )
                 .changed()
             {
