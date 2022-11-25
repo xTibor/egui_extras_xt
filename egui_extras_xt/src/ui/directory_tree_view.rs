@@ -38,17 +38,20 @@ type DirectoryTreeViewCache<'a> =
 // ----------------------------------------------------------------------------
 
 pub trait DirectoryTreeView {
-    fn directory_tree_view(&mut self, selected_path: &mut Option<PathBuf>, root: &Path)
-        -> Response;
+    fn directory_tree_view(
+        &mut self,
+        selected_path: &mut Option<PathBuf>,
+        root_directory: &Path,
+    ) -> Response;
 }
 
 impl DirectoryTreeView for Ui {
     fn directory_tree_view(
         &mut self,
         selected_path: &mut Option<PathBuf>,
-        root: &Path,
+        root_directory: &Path,
     ) -> Response {
-        self.add(DirectoryTreeViewWidget::new(selected_path, root))
+        self.add(DirectoryTreeViewWidget::new(selected_path, root_directory))
     }
 }
 
@@ -57,17 +60,17 @@ impl DirectoryTreeView for Ui {
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct DirectoryTreeViewWidget<'a> {
     selected_path: &'a mut Option<PathBuf>,
-    root: &'a Path,
+    root_directory: &'a Path,
     directory_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
     file_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
     force_selected_open: bool,
 }
 
 impl<'a> DirectoryTreeViewWidget<'a> {
-    pub fn new(selected_path: &'a mut Option<PathBuf>, root: &'a Path) -> Self {
+    pub fn new(selected_path: &'a mut Option<PathBuf>, root_directory: &'a Path) -> Self {
         Self {
             selected_path,
-            root,
+            root_directory,
             directory_filter: None,
             file_filter: None,
             force_selected_open: false,
@@ -97,7 +100,7 @@ impl<'a> Widget for DirectoryTreeViewWidget<'a> {
         ScrollArea::both()
             .auto_shrink([false, false])
             .show(ui, |ui| {
-                self.show_directory(ui, self.root, true)
+                self.show_directory(ui, self.root_directory, true)
                     .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response
             })
             .inner
@@ -105,13 +108,18 @@ impl<'a> Widget for DirectoryTreeViewWidget<'a> {
 }
 
 impl<'a> DirectoryTreeViewWidget<'a> {
-    fn show_directory(&mut self, ui: &mut Ui, root: &Path, default_open: bool) -> Option<Response> {
-        let directory_name = root.file_name().unwrap().to_str().unwrap();
-        let directory_symbol = root.symbol();
+    fn show_directory(
+        &mut self,
+        ui: &mut Ui,
+        root_directory: &Path,
+        default_open: bool,
+    ) -> Option<Response> {
+        let directory_name = root_directory.file_name().unwrap().to_str().unwrap();
+        let directory_symbol = root_directory.symbol();
 
         let open_state = if self.force_selected_open {
             if let Some(selected_path) = self.selected_path {
-                Some(selected_path.starts_with(root))
+                Some(selected_path.starts_with(root_directory))
             } else {
                 None
             }
@@ -126,7 +134,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                 let cached_directory_listing = {
                     let mut memory = ui.memory();
                     let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
-                    cache.get(root)
+                    cache.get(root_directory)
                 };
 
                 let filtered_directory_listing = cached_directory_listing
