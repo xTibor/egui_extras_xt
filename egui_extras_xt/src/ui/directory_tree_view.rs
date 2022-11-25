@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use egui::util::cache::{ComputerMut, FrameCache};
@@ -90,6 +91,20 @@ impl<'a> DirectoryTreeViewWidget<'a> {
     pub fn force_selected_open(mut self, force_selected_open: bool) -> Self {
         self.force_selected_open = force_selected_open;
         self
+    }
+
+    pub fn file_extensions(self, file_extensions: &'a [&'a str]) -> Self {
+        self.file_filter(|path| {
+            if let Some(file_extension) = path
+                .extension()
+                .and_then(OsStr::to_str)
+                .map(str::to_lowercase)
+            {
+                file_extensions.contains(&file_extension.as_str())
+            } else {
+                false
+            }
+        })
     }
 }
 

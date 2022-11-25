@@ -36,7 +36,7 @@ impl eframe::App for DirectoryTreeViewExample {
                         .directory_filter(|path| {
                             !path.file_name().unwrap().to_str().unwrap().starts_with('.')
                         })
-                        .file_filter(|path| path.extension() == Some(OsStr::new("rs")))
+                        .file_extensions(&["rs", "toml"])
                         .force_selected_open(false),
                 )
                 .changed()
