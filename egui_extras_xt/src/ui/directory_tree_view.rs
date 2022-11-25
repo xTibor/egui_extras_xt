@@ -150,9 +150,7 @@ impl DirectoryTreeView for Ui {
             let file_name = file_path.file_name().unwrap().to_str().unwrap();
             let file_symbol = file_path.symbol();
 
-            // egui bug (0.19.0): `selectable_value` returns `changed` responses
-            // even when the supplied value has not changed when clicking the
-            // button repeatedly.
+            // egui bug (0.19.0): https://github.com/emilk/egui/pull/2343
             let response = ui.selectable_value(
                 selected_path,
                 Some(file_path.to_path_buf()),
@@ -170,7 +168,8 @@ impl DirectoryTreeView for Ui {
             Some(response)
         }
 
-        ScrollArea::vertical()
+        ScrollArea::both()
+            .auto_shrink([false, false])
             .show(self, |ui| {
                 render_directory(
                     ui,
