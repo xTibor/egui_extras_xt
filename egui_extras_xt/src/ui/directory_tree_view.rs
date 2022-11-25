@@ -41,147 +41,135 @@ type DirectoryTreeViewFilter = Box<dyn Fn(&Path) -> bool>;
 
 // ----------------------------------------------------------------------------
 
-pub trait DirectoryTreeView {
-    fn directory_tree_view(
-        &mut self,
-        selected_path: &mut Option<PathBuf>,
-        root: &Path,
-        directory_filter: Option<DirectoryTreeViewFilter>,
-        file_filter: Option<DirectoryTreeViewFilter>,
-        force_selected_open: bool,
-    ) -> Response;
+pub struct DirectoryTreeView<'a> {
+    selected_path: &'a mut Option<PathBuf>,
+    root: &'a Path,
+    directory_filter: Option<DirectoryTreeViewFilter>,
+    file_filter: Option<DirectoryTreeViewFilter>,
+    force_selected_open: bool,
 }
 
-impl DirectoryTreeView for Ui {
-    fn directory_tree_view(
-        &mut self,
-        selected_path: &mut Option<PathBuf>,
-        root: &Path,
-        directory_filter: Option<DirectoryTreeViewFilter>,
-        file_filter: Option<DirectoryTreeViewFilter>,
-        force_selected_open: bool,
-    ) -> Response {
-        fn render_directory(
-            ui: &mut Ui,
-            selected_path: &mut Option<PathBuf>,
-            root: &Path,
-            directory_filter: &Option<DirectoryTreeViewFilter>,
-            file_filter: &Option<DirectoryTreeViewFilter>,
-            default_open: bool,
-            force_selected_open: bool,
-        ) -> Option<Response> {
-            let directory_name = root.file_name().unwrap().to_str().unwrap();
-            let directory_symbol = root.symbol();
-
-            let open_state = if force_selected_open {
-                if let Some(selected_path) = selected_path {
-                    Some(selected_path.starts_with(root))
-                } else {
-                    None
-                }
-            } else {
-                None
-            };
-
-            CollapsingHeader::new(format!("{directory_symbol:} {directory_name:}"))
-                .open(open_state)
-                .default_open(default_open)
-                .show(ui, |ui| {
-                    let cached_directory_listing = {
-                        let mut memory = ui.memory();
-                        let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
-                        cache.get(root)
-                    };
-
-                    let filtered_directory_listing = cached_directory_listing
-                        .iter()
-                        .filter(|path| {
-                            if path.is_dir() {
-                                if let Some(directory_filter) = &directory_filter {
-                                    directory_filter(path)
-                                } else {
-                                    true
-                                }
-                            } else {
-                                if let Some(file_filter) = &file_filter {
-                                    file_filter(path)
-                                } else {
-                                    true
-                                }
-                            }
-                        })
-                        .collect_vec();
-
-                    if !filtered_directory_listing.is_empty() {
-                        filtered_directory_listing
-                            .iter()
-                            .map(|path| {
-                                if path.is_dir() {
-                                    render_directory(
-                                        ui,
-                                        selected_path,
-                                        &path,
-                                        &directory_filter,
-                                        &file_filter,
-                                        false,
-                                        force_selected_open,
-                                    )
-                                } else {
-                                    render_file(ui, selected_path, &path, force_selected_open)
-                                }
-                            })
-                            .flatten()
-                            .reduce(|result, response| result.union(response))
-                    } else {
-                        ui.weak("Empty directory");
-                        None
-                    }
-                })
-                .body_returned
-                .unwrap_or(None)
+impl<'a> DirectoryTreeView<'a> {
+    pub fn new(selected_path: &'a mut Option<PathBuf>, root: &'a Path) -> Self {
+        Self {
+            selected_path,
+            root,
+            directory_filter: None,
+            file_filter: None,
+            force_selected_open: false,
         }
+    }
 
-        fn render_file(
-            ui: &mut Ui,
-            selected_path: &mut Option<PathBuf>,
-            file_path: &Path,
-            force_selected_open: bool,
-        ) -> Option<Response> {
-            let file_name = file_path.file_name().unwrap().to_str().unwrap();
-            let file_symbol = file_path.symbol();
+    pub fn directory_filter(mut self, directory_filter: DirectoryTreeViewFilter) -> Self {
+        self.directory_filter = Some(directory_filter);
+        self
+    }
 
-            // egui bug (0.19.0): https://github.com/emilk/egui/pull/2343
-            let response = ui.selectable_value(
-                selected_path,
-                Some(file_path.to_path_buf()),
-                format!("{file_symbol:} {file_name:}"),
-            );
+    pub fn file_filter(mut self, file_filter: DirectoryTreeViewFilter) -> Self {
+        self.file_filter = Some(file_filter);
+        self
+    }
 
-            if force_selected_open {
-                if let Some(selected_path) = selected_path {
-                    if selected_path == file_path {
-                        response.scroll_to_me(Some(Align::Center));
-                    }
-                }
-            }
+    pub fn force_selected_open(mut self, force_selected_open: bool) -> Self {
+        self.force_selected_open = force_selected_open;
+        self
+    }
+}
 
-            Some(response)
-        }
-
+impl<'a> DirectoryTreeView<'a> {
+    pub fn show(mut self, ui: &mut Ui) -> Response {
         ScrollArea::both()
             .auto_shrink([false, false])
-            .show(self, |ui| {
-                render_directory(
-                    ui,
-                    selected_path,
-                    root,
-                    &directory_filter,
-                    &file_filter,
-                    true,
-                    force_selected_open,
-                )
-                .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response
+            .show(ui, |ui| {
+                self.show_directory(ui, self.root, true)
+                    .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response
             })
             .inner
+    }
+
+    fn show_directory(&mut self, ui: &mut Ui, root: &Path, default_open: bool) -> Option<Response> {
+        let directory_name = root.file_name().unwrap().to_str().unwrap();
+        let directory_symbol = root.symbol();
+
+        let open_state = if self.force_selected_open {
+            if let Some(selected_path) = self.selected_path {
+                Some(selected_path.starts_with(root))
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        CollapsingHeader::new(format!("{directory_symbol:} {directory_name:}"))
+            .open(open_state)
+            .default_open(default_open)
+            .show(ui, |ui| {
+                let cached_directory_listing = {
+                    let mut memory = ui.memory();
+                    let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
+                    cache.get(root)
+                };
+
+                let filtered_directory_listing = cached_directory_listing
+                    .iter()
+                    .filter(|path| {
+                        if path.is_dir() {
+                            if let Some(directory_filter) = &self.directory_filter {
+                                directory_filter(path)
+                            } else {
+                                true
+                            }
+                        } else {
+                            if let Some(file_filter) = &self.file_filter {
+                                file_filter(path)
+                            } else {
+                                true
+                            }
+                        }
+                    })
+                    .collect_vec();
+
+                if !filtered_directory_listing.is_empty() {
+                    filtered_directory_listing
+                        .iter()
+                        .map(|path| {
+                            if path.is_dir() {
+                                self.show_directory(ui, &path, false)
+                            } else {
+                                self.show_file(ui, &path)
+                            }
+                        })
+                        .flatten()
+                        .reduce(|result, response| result.union(response))
+                } else {
+                    ui.weak("Empty directory");
+                    None
+                }
+            })
+            .body_returned
+            .unwrap_or(None)
+    }
+
+    fn show_file(&mut self, ui: &mut Ui, file_path: &Path) -> Option<Response> {
+        let file_name = file_path.file_name().unwrap().to_str().unwrap();
+        let file_symbol = file_path.symbol();
+
+        // egui bug (0.19.0): https://github.com/emilk/egui/pull/2343
+        let response = ui.selectable_value(
+            self.selected_path,
+            Some(file_path.to_path_buf()),
+            format!("{file_symbol:} {file_name:}"),
+        );
+
+        if self.force_selected_open {
+            if let Some(selected_path) = self.selected_path {
+                if selected_path == file_path {
+                    response.scroll_to_me(Some(Align::Center));
+                }
+            }
+        }
+
+        Some(response)
     }
 }
