@@ -37,15 +37,11 @@ type DirectoryTreeViewCache<'a> =
 
 // ----------------------------------------------------------------------------
 
-type DirectoryTreeViewFilter = Box<dyn Fn(&Path) -> bool>;
-
-// ----------------------------------------------------------------------------
-
 pub struct DirectoryTreeView<'a> {
     selected_path: &'a mut Option<PathBuf>,
     root: &'a Path,
-    directory_filter: Option<DirectoryTreeViewFilter>,
-    file_filter: Option<DirectoryTreeViewFilter>,
+    directory_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
+    file_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
     force_selected_open: bool,
 }
 
@@ -60,13 +56,13 @@ impl<'a> DirectoryTreeView<'a> {
         }
     }
 
-    pub fn directory_filter(mut self, directory_filter: DirectoryTreeViewFilter) -> Self {
-        self.directory_filter = Some(directory_filter);
+    pub fn directory_filter(mut self, directory_filter: impl Fn(&Path) -> bool + 'a) -> Self {
+        self.directory_filter = Some(Box::new(directory_filter));
         self
     }
 
-    pub fn file_filter(mut self, file_filter: DirectoryTreeViewFilter) -> Self {
-        self.file_filter = Some(file_filter);
+    pub fn file_filter(mut self, file_filter: impl Fn(&Path) -> bool + 'a) -> Self {
+        self.file_filter = Some(Box::new(file_filter));
         self
     }
 

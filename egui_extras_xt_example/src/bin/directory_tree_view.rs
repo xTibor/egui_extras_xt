@@ -31,10 +31,10 @@ impl eframe::App for DirectoryTreeViewExample {
             }
 
             if DirectoryTreeView::new(&mut self.selected_path, &self.root_path)
-                .directory_filter(Box::new(|path| {
+                .directory_filter(|path| {
                     !path.file_name().unwrap().to_str().unwrap().starts_with('.')
-                }))
-                .file_filter(Box::new(|path| path.extension() == Some(OsStr::new("rs"))))
+                })
+                .file_filter(|path| path.extension() == Some(OsStr::new("rs")))
                 .force_selected_open(false)
                 .show(ui)
                 .changed()
