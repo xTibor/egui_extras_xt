@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use eframe::egui;
 use eframe::emath::vec2;
-use egui_extras_xt::ui::directory_tree_view::DirectoryTreeView;
+use egui_extras_xt::ui::directory_tree_view::DirectoryTreeViewWidget;
 
 struct DirectoryTreeViewExample {
     root_path: PathBuf,
@@ -30,13 +30,15 @@ impl eframe::App for DirectoryTreeViewExample {
                 ui.separator();
             }
 
-            if DirectoryTreeView::new(&mut self.selected_path, &self.root_path)
-                .directory_filter(|path| {
-                    !path.file_name().unwrap().to_str().unwrap().starts_with('.')
-                })
-                .file_filter(|path| path.extension() == Some(OsStr::new("rs")))
-                .force_selected_open(false)
-                .show(ui)
+            if ui
+                .add(
+                    DirectoryTreeViewWidget::new(&mut self.selected_path, &self.root_path)
+                        .directory_filter(|path| {
+                            !path.file_name().unwrap().to_str().unwrap().starts_with('.')
+                        })
+                        .file_filter(|path| path.extension() == Some(OsStr::new("rs")))
+                        .force_selected_open(false),
+                )
                 .changed()
             {
                 println!("New path selected: {:?}", self.selected_path);

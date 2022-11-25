@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use egui::util::cache::{ComputerMut, FrameCache};
-use egui::{Align, CollapsingHeader, Response, ScrollArea, Ui};
+use egui::{Align, CollapsingHeader, Response, ScrollArea, Ui, Widget};
 use itertools::Itertools;
 
 use crate::ui::path_symbol::PathSymbol;
@@ -37,7 +37,25 @@ type DirectoryTreeViewCache<'a> =
 
 // ----------------------------------------------------------------------------
 
-pub struct DirectoryTreeView<'a> {
+pub trait DirectoryTreeView {
+    fn directory_tree_view(&mut self, selected_path: &mut Option<PathBuf>, root: &Path)
+        -> Response;
+}
+
+impl DirectoryTreeView for Ui {
+    fn directory_tree_view(
+        &mut self,
+        selected_path: &mut Option<PathBuf>,
+        root: &Path,
+    ) -> Response {
+        self.add(DirectoryTreeViewWidget::new(selected_path, root))
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+#[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
+pub struct DirectoryTreeViewWidget<'a> {
     selected_path: &'a mut Option<PathBuf>,
     root: &'a Path,
     directory_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
@@ -45,7 +63,7 @@ pub struct DirectoryTreeView<'a> {
     force_selected_open: bool,
 }
 
-impl<'a> DirectoryTreeView<'a> {
+impl<'a> DirectoryTreeViewWidget<'a> {
     pub fn new(selected_path: &'a mut Option<PathBuf>, root: &'a Path) -> Self {
         Self {
             selected_path,
@@ -72,8 +90,10 @@ impl<'a> DirectoryTreeView<'a> {
     }
 }
 
-impl<'a> DirectoryTreeView<'a> {
-    pub fn show(mut self, ui: &mut Ui) -> Response {
+// ----------------------------------------------------------------------------
+
+impl<'a> Widget for DirectoryTreeViewWidget<'a> {
+    fn ui(mut self, ui: &mut Ui) -> Response {
         ScrollArea::both()
             .auto_shrink([false, false])
             .show(ui, |ui| {
@@ -82,7 +102,9 @@ impl<'a> DirectoryTreeView<'a> {
             })
             .inner
     }
+}
 
+impl<'a> DirectoryTreeViewWidget<'a> {
     fn show_directory(&mut self, ui: &mut Ui, root: &Path, default_open: bool) -> Option<Response> {
         let directory_name = root.file_name().unwrap().to_str().unwrap();
         let directory_symbol = root.symbol();
