@@ -65,6 +65,7 @@ pub struct DirectoryTreeViewWidget<'a> {
     directory_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
     file_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
     force_selected_open: bool,
+    hide_file_extensions: bool,
 }
 
 impl<'a> DirectoryTreeViewWidget<'a> {
@@ -75,6 +76,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             directory_filter: None,
             file_filter: None,
             force_selected_open: false,
+            hide_file_extensions: false,
         }
     }
 
@@ -90,6 +92,11 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
     pub fn force_selected_open(mut self, force_selected_open: bool) -> Self {
         self.force_selected_open = force_selected_open;
+        self
+    }
+
+    pub fn hide_file_extensions(mut self, hide_file_extensions: bool) -> Self {
+        self.hide_file_extensions = hide_file_extensions;
         self
     }
 
@@ -193,7 +200,12 @@ impl<'a> DirectoryTreeViewWidget<'a> {
     }
 
     fn show_file(&mut self, ui: &mut Ui, file_path: &Path) -> Option<Response> {
-        let file_name = file_path.file_name().unwrap().to_str().unwrap();
+        let file_name = if self.hide_file_extensions {
+            file_path.file_stem().unwrap().to_str().unwrap()
+        } else {
+            file_path.file_name().unwrap().to_str().unwrap()
+        };
+
         let file_symbol = file_path.symbol();
 
         // egui bug (0.19.0): https://github.com/emilk/egui/pull/2343
