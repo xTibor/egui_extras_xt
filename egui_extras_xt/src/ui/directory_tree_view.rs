@@ -144,10 +144,12 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         root_directory: &Path,
         default_open: bool,
     ) -> Option<Response> {
-        let directory_name = root_directory
-            .file_name()
-            .and_then(OsStr::to_str)
-            .unwrap_or_default();
+        let directory_name = if root_directory.parent().is_none() {
+            "Root directory"
+        } else {
+            root_directory.file_name().and_then(OsStr::to_str).unwrap()
+        };
+
         let directory_symbol = root_directory.symbol();
 
         let open_state = if self.force_selected_open {

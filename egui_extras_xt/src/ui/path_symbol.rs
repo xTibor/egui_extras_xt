@@ -13,7 +13,13 @@ impl PathSymbol for Path {
         if self.is_symlink() {
             '\u{2BA9}'
         } else if self.is_dir() {
-            '\u{1F5C0}'
+            if self.parent().is_none() {
+                // Root directory
+                '\u{1F5A5}'
+            } else {
+                // Normal directory
+                '\u{1F5C0}'
+            }
         } else {
             // Executables
             #[cfg(unix)]
