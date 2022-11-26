@@ -10,6 +10,7 @@ use crate::hash::PearsonHash;
 
 // ----------------------------------------------------------------------------
 
+#[must_use]
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, Display, PartialEq)]
 pub enum DefaultCompassMarkerColor {
@@ -65,6 +66,7 @@ impl DefaultCompassMarkerColor {
 
 // ----------------------------------------------------------------------------
 
+#[must_use = "You should put this marker into a compass with `compass.markers(&[markers]);`"]
 pub struct CompassMarker<'a> {
     pub(crate) angle: f32,
     pub(crate) distance: Option<f32>,
@@ -74,7 +76,6 @@ pub struct CompassMarker<'a> {
 }
 
 impl<'a> CompassMarker<'a> {
-    #[must_use]
     pub fn new(angle: f32) -> Self {
         Self {
             angle: normalized_angle_unsigned_excl(angle),
@@ -85,25 +86,21 @@ impl<'a> CompassMarker<'a> {
         }
     }
 
-    #[must_use]
     pub fn distance(mut self, distance: f32) -> Self {
         self.distance = Some(distance);
         self
     }
 
-    #[must_use]
     pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
         self.shape = Some(shape);
         self
     }
 
-    #[must_use]
     pub fn label(mut self, label: &'a str) -> Self {
         self.label = Some(label);
         self
     }
 
-    #[must_use]
     pub fn color(mut self, color: Color32) -> Self {
         self.color = Some(color);
         self
