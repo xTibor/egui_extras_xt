@@ -115,20 +115,20 @@ pub enum PageId {
 impl PageId {
     pub fn create_page(&self) -> Box<dyn PageImpl> {
         match *self {
-            PageId::AngleKnobPage => Box::new(AngleKnobPage::default()),
-            PageId::AudioKnobPage => Box::new(AudioKnobPage::default()),
-            PageId::BarcodePage => Box::new(BarcodePage::default()),
-            PageId::DataMatrixPage => Box::new(DataMatrixPage::default()),
-            PageId::HyperlinkWithIconPage => Box::new(HyperlinkWithIconPage::default()),
-            PageId::IndicatorButtonPage => Box::new(IndicatorButtonPage::default()),
-            PageId::LedDisplayPage => Box::new(LedDisplayPage::default()),
-            PageId::LinearCompassPage => Box::new(LinearCompassPage::default()),
-            PageId::PolarCompassPage => Box::new(PolarCompassPage::default()),
-            PageId::QrCodePage => Box::new(QrCodePage::default()),
-            PageId::RotatedLabelPage => Box::new(RotatedLabelPage::default()),
-            PageId::SegmentedDisplayPage => Box::new(SegmentedDisplayPage::default()),
-            PageId::ThumbstickWidgetPage => Box::new(ThumbstickWidgetPage::default()),
-            PageId::WelcomePage => Box::new(WelcomePage::default()),
+            PageId::AngleKnobPage => Box::<AngleKnobPage>::default(),
+            PageId::AudioKnobPage => Box::<AudioKnobPage>::default(),
+            PageId::BarcodePage => Box::<BarcodePage>::default(),
+            PageId::DataMatrixPage => Box::<DataMatrixPage>::default(),
+            PageId::HyperlinkWithIconPage => Box::<HyperlinkWithIconPage>::default(),
+            PageId::IndicatorButtonPage => Box::<IndicatorButtonPage>::default(),
+            PageId::LedDisplayPage => Box::<LedDisplayPage>::default(),
+            PageId::LinearCompassPage => Box::<LinearCompassPage>::default(),
+            PageId::PolarCompassPage => Box::<PolarCompassPage>::default(),
+            PageId::QrCodePage => Box::<QrCodePage>::default(),
+            PageId::RotatedLabelPage => Box::<RotatedLabelPage>::default(),
+            PageId::SegmentedDisplayPage => Box::<SegmentedDisplayPage>::default(),
+            PageId::ThumbstickWidgetPage => Box::<ThumbstickWidgetPage>::default(),
+            PageId::WelcomePage => Box::<WelcomePage>::default(),
         }
     }
 }

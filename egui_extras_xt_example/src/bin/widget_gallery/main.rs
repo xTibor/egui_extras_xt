@@ -167,6 +167,6 @@ fn main() {
     eframe::run_native(
         "Widget Gallery",
         options,
-        Box::new(|_| Box::new(WidgetGallery::default())),
+        Box::new(|_| Box::<WidgetGallery>::default()),
     );
 }

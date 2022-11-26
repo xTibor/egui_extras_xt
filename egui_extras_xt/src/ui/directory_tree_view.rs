@@ -140,7 +140,9 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         let directory_symbol = root_directory.symbol();
 
         let open_state = if self.force_selected_open {
-            self.selected_path.as_mut().map(|selected_path| selected_path.starts_with(root_directory))
+            self.selected_path
+                .as_mut()
+                .map(|selected_path| selected_path.starts_with(root_directory))
         } else {
             None
         };
