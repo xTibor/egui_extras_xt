@@ -1,5 +1,8 @@
+use std::borrow::Borrow;
 use std::ffi::OsStr;
+use std::io;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{Align, CollapsingHeader, Response, ScrollArea, Ui, Widget};
@@ -10,7 +13,7 @@ use crate::ui::path_symbol::PathSymbol;
 // ----------------------------------------------------------------------------
 
 type DirectoryTreeViewCacheKey<'a> = &'a Path;
-type DirectoryTreeViewCacheValue = Vec<PathBuf>;
+type DirectoryTreeViewCacheValue = Arc<io::Result<Vec<PathBuf>>>;
 
 #[derive(Default)]
 struct DirectoryTreeViewComputer;
@@ -19,17 +22,18 @@ impl<'a> ComputerMut<DirectoryTreeViewCacheKey<'a>, DirectoryTreeViewCacheValue>
     for DirectoryTreeViewComputer
 {
     fn compute(&mut self, key: DirectoryTreeViewCacheKey) -> DirectoryTreeViewCacheValue {
-        std::fs::read_dir(key)
-            .unwrap()
-            .filter_map(Result::ok)
-            .map(|dir_entry| dir_entry.path())
-            .sorted_by_key(|path| {
-                (
-                    path.is_file(),
-                    path.file_name().unwrap().to_string_lossy().to_lowercase(),
-                )
-            })
-            .collect_vec()
+        Arc::new(std::fs::read_dir(key).map(|read_dir| {
+            read_dir
+                .filter_map(Result::ok)
+                .map(|dir_entry| dir_entry.path())
+                .sorted_by_key(|path| {
+                    (
+                        path.is_file(),
+                        path.file_name().unwrap().to_string_lossy().to_lowercase(),
+                    )
+                })
+                .collect_vec()
+        }))
     }
 }
 
@@ -140,7 +144,10 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         root_directory: &Path,
         default_open: bool,
     ) -> Option<Response> {
-        let directory_name = root_directory.file_name().unwrap().to_str().unwrap();
+        let directory_name = root_directory
+            .file_name()
+            .and_then(OsStr::to_str)
+            .unwrap_or_default();
         let directory_symbol = root_directory.symbol();
 
         let open_state = if self.force_selected_open {
@@ -161,40 +168,49 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                     cache.get(root_directory)
                 };
 
-                let filtered_directory_listing = cached_directory_listing
-                    .iter()
-                    .filter(|path| {
-                        #[allow(clippy::collapsible_else_if)]
-                        if path.is_dir() {
-                            if let Some(directory_filter) = &self.directory_filter {
-                                directory_filter(path)
-                            } else {
-                                true
-                            }
-                        } else {
-                            if let Some(file_filter) = &self.file_filter {
-                                file_filter(path)
-                            } else {
-                                true
-                            }
-                        }
-                    })
-                    .collect_vec();
+                match cached_directory_listing.borrow() {
+                    Ok(cached_directory_listing) => {
+                        let filtered_directory_listing = cached_directory_listing
+                            .iter()
+                            .filter(|path| {
+                                #[allow(clippy::collapsible_else_if)]
+                                if path.is_dir() {
+                                    if let Some(directory_filter) = &self.directory_filter {
+                                        directory_filter(path)
+                                    } else {
+                                        true
+                                    }
+                                } else {
+                                    if let Some(file_filter) = &self.file_filter {
+                                        file_filter(path)
+                                    } else {
+                                        true
+                                    }
+                                }
+                            })
+                            .collect_vec();
 
-                if !filtered_directory_listing.is_empty() {
-                    filtered_directory_listing
-                        .iter()
-                        .filter_map(|path| {
-                            if path.is_dir() {
-                                self.show_directory(ui, path, false)
-                            } else {
-                                self.show_file(ui, path)
-                            }
-                        })
-                        .reduce(|result, response| result.union(response))
-                } else {
-                    ui.weak("Empty directory");
-                    None
+                        if !filtered_directory_listing.is_empty() {
+                            filtered_directory_listing
+                                .iter()
+                                .filter_map(|path| {
+                                    if path.is_dir() {
+                                        self.show_directory(ui, path, false)
+                                    } else {
+                                        self.show_file(ui, path)
+                                    }
+                                })
+                                .reduce(|result, response| result.union(response))
+                        } else {
+                            ui.weak("Empty directory");
+                            None
+                        }
+                    }
+
+                    Err(err) => {
+                        ui.weak(format!("\u{1F525} {err}"));
+                        None
+                    }
                 }
             })
             .body_returned
@@ -204,9 +220,9 @@ impl<'a> DirectoryTreeViewWidget<'a> {
     #[allow(clippy::unnecessary_wraps)] // Necessary wrap, false warning
     fn show_file(&mut self, ui: &mut Ui, file_path: &Path) -> Option<Response> {
         let file_name = if self.hide_file_extensions {
-            file_path.file_stem().unwrap().to_str().unwrap()
+            file_path.file_stem().and_then(OsStr::to_str).unwrap()
         } else {
-            file_path.file_name().unwrap().to_str().unwrap()
+            file_path.file_name().and_then(OsStr::to_str).unwrap()
         };
 
         let file_symbol = file_path.symbol();

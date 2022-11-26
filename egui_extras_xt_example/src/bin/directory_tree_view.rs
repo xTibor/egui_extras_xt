@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::path::PathBuf;
 
 use eframe::egui;
@@ -33,7 +34,7 @@ impl eframe::App for DirectoryTreeViewExample {
                 .add(
                     DirectoryTreeViewWidget::new(&mut self.selected_path, &self.root_path)
                         .directory_filter(|path| {
-                            !path.file_name().unwrap().to_str().unwrap().starts_with('.')
+                            !path.file_name().and_then(OsStr::to_str).unwrap().starts_with('.')
                         })
                         .file_extensions(&["rs", "toml"])
                         .force_selected_open(false),
