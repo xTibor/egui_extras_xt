@@ -58,12 +58,16 @@ impl DirectoryTreeView for Ui {
 
 // ----------------------------------------------------------------------------
 
+type DirectoryTreeFilter<'a> = Box<dyn Fn(&Path) -> bool + 'a>;
+
+// ----------------------------------------------------------------------------
+
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct DirectoryTreeViewWidget<'a> {
     selected_path: &'a mut Option<PathBuf>,
     root_directory: &'a Path,
-    directory_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
-    file_filter: Option<Box<dyn Fn(&Path) -> bool + 'a>>,
+    directory_filter: Option<DirectoryTreeFilter<'a>>,
+    file_filter: Option<DirectoryTreeFilter<'a>>,
     force_selected_open: bool,
     hide_file_extensions: bool,
 }
@@ -160,6 +164,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                 let filtered_directory_listing = cached_directory_listing
                     .iter()
                     .filter(|path| {
+                        #[allow(clippy::collapsible_else_if)]
                         if path.is_dir() {
                             if let Some(directory_filter) = &self.directory_filter {
                                 directory_filter(path)

@@ -4,6 +4,7 @@ use crate::pages::PageImpl;
 
 pub struct WelcomePage {}
 
+#[allow(clippy::derivable_impls)]
 impl Default for WelcomePage {
     fn default() -> WelcomePage {
         WelcomePage {}
