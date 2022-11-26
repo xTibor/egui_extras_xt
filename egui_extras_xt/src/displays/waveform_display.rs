@@ -180,12 +180,7 @@ where
     }
 
     pub fn channel_names(mut self, channel_names: &[impl ToString]) -> Self {
-        self.channel_names = Some(
-            channel_names
-                .iter()
-                .map(ToString::to_string)
-                .collect_vec(),
-        );
+        self.channel_names = Some(channel_names.iter().map(ToString::to_string).collect_vec());
         self
     }
 
@@ -307,8 +302,7 @@ where
                                 .find(|(_, signal_edge)| {
                                     *signal_edge == Some(SignalEdge::RisingEdge)
                                 })
-                                .map(|(delta, _)| delta)
-                                .unwrap_or(channel_buffer_length / 2);
+                                .map_or(channel_buffer_length / 2, |(delta, _)| delta);
 
                             let right_signal_edge_delta = channel_buffer
                                 [(channel_buffer_length / 2)..]
@@ -319,8 +313,7 @@ where
                                 .find(|(_, signal_edge)| {
                                     *signal_edge == Some(SignalEdge::RisingEdge)
                                 })
-                                .map(|(delta, _)| delta)
-                                .unwrap_or(channel_buffer_length / 2);
+                                .map_or(channel_buffer_length / 2, |(delta, _)| delta);
 
                             let mut window_center =
                                 if right_signal_edge_delta < left_signal_edge_delta {

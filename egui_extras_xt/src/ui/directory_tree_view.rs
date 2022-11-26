@@ -201,6 +201,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             .unwrap_or(None)
     }
 
+    #[allow(clippy::unnecessary_wraps)] // Necessary wrap, false warning
     fn show_file(&mut self, ui: &mut Ui, file_path: &Path) -> Option<Response> {
         let file_name = if self.hide_file_extensions {
             file_path.file_stem().unwrap().to_str().unwrap()
