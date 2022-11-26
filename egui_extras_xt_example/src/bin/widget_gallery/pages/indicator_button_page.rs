@@ -2,7 +2,7 @@ use eframe::egui::{DragValue, Grid, Ui};
 use egui_extras_xt::displays::{
     DisplayStyle, DisplayStylePreset, IndicatorButton, IndicatorButtonBehavior,
 };
-use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+use egui_extras_xt::ui::widgets_from_iter::SelectableValueFromIter;
 use strum::IntoEnumIterator;
 
 use crate::pages::ui::display_style_ui;

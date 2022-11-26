@@ -4,7 +4,15 @@ use eframe::emath::vec2;
 use strum::{Display, EnumIter, IntoEnumIterator};
 
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
-use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromRange, WidgetsFromSlice};
+use egui_extras_xt::ui::widgets_from_iter::{
+    ComboBoxFromIter, RadioValueFromIter, SelectableValueFromIter,
+};
+use egui_extras_xt::ui::widgets_from_range::{
+    ComboBoxFromRange, RadioValueFromRange, SelectableValueFromRange,
+};
+use egui_extras_xt::ui::widgets_from_slice::{
+    ComboBoxFromSlice, RadioValueFromSlice, SelectableValueFromSlice,
+};
 
 #[derive(Clone, Copy, Display, EnumIter, PartialEq)]
 enum SevenSecretWeapons {

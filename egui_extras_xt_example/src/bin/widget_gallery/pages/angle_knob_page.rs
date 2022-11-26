@@ -2,7 +2,7 @@ use eframe::egui::{DragValue, Grid, Ui};
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::knobs::{AngleKnob, AngleKnobPreset};
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
-use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+use egui_extras_xt::ui::widgets_from_iter::{ComboBoxFromIter, SelectableValueFromIter};
 use strum::IntoEnumIterator;
 
 use crate::pages::ui::{widget_orientation_ui, widget_shape_ui};

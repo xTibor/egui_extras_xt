@@ -3,7 +3,7 @@ use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{
     DisplayKind, DisplayMetrics, DisplayStyle, DisplayStylePreset, SegmentedDisplayWidget,
 };
-use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+use egui_extras_xt::ui::widgets_from_iter::SelectableValueFromIter;
 use strum::IntoEnumIterator;
 
 use crate::pages::ui::{display_metrics_ui, display_style_ui};

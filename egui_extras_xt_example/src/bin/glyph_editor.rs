@@ -6,7 +6,7 @@ use strum::IntoEnumIterator;
 
 use egui_extras_xt::displays::segmented_display::{DisplayDigit, DisplayGlyph};
 use egui_extras_xt::displays::{DisplayKind, SegmentedDisplayWidget};
-use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+use egui_extras_xt::ui::widgets_from_iter::SelectableValueFromIter;
 
 struct GlyphEditorApp {
     display_kind: DisplayKind,

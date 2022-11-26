@@ -6,7 +6,7 @@ use egui_extras_xt::compasses::{
     PolarCompassOverflow,
 };
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
-use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+use egui_extras_xt::ui::widgets_from_iter::SelectableValueFromIter;
 use strum::IntoEnumIterator;
 
 use crate::pages::ui::{

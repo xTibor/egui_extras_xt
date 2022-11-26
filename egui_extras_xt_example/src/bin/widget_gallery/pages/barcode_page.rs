@@ -1,7 +1,7 @@
 use eframe::egui::{DragValue, Grid, Ui};
 use eframe::epaint::Color32;
 use egui_extras_xt::barcodes::{BarcodeKind, BarcodeWidget};
-use egui_extras_xt::ui::widgets_from::WidgetsFromIterator;
+use egui_extras_xt::ui::widgets_from_iter::ComboBoxFromIter;
 use strum::IntoEnumIterator;
 
 use crate::pages::PageImpl;

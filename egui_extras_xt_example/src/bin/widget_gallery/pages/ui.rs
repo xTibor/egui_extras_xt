@@ -1,11 +1,14 @@
 use eframe::egui::{DragValue, Grid, TextEdit, Ui};
 use eframe::epaint::Color32;
+
 use egui_extras_xt::common::{Orientation, WidgetShape};
 use egui_extras_xt::compasses::{CompassMarkerShape, DefaultCompassMarkerColor};
 use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
 use egui_extras_xt::knobs::{ThumbstickDeadZone, ThumbstickSnap};
-use egui_extras_xt::ui::widgets_from::{WidgetsFromIterator, WidgetsFromSlice};
+use egui_extras_xt::ui::widgets_from_iter::ComboBoxFromIter;
+use egui_extras_xt::ui::widgets_from_slice::{ComboBoxFromSlice, SelectableValueFromSlice};
+
 use strum::IntoEnumIterator;
 
 pub fn display_style_ui(
