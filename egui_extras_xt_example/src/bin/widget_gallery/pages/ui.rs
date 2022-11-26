@@ -24,12 +24,17 @@ pub fn display_style_ui(
             ui.label("Style preset");
             ui.horizontal(|ui| {
                 ui.push_id("style_preset_combo", |ui| {
-                    ui.combobox_from_iter("", style_preset, DisplayStylePreset::iter())
+                    if ui
+                        .combobox_from_iter("", style_preset, DisplayStylePreset::iter())
+                        .changed()
+                    {
+                        *style = style_preset.style();
+                    }
+
+                    if ui.button("\u{1F504} Reset").clicked() {
+                        *style = style_preset.style();
+                    }
                 });
-                // `.changed()` responses of combobox are broken.
-                if ui.button("\u{2714} Apply").clicked() {
-                    *style = style_preset.style();
-                }
             });
             ui.end_row();
 
@@ -74,12 +79,17 @@ pub fn display_metrics_ui(
             ui.label("Metrics preset");
             ui.horizontal(|ui| {
                 ui.push_id("metrics_preset_combo", |ui| {
-                    ui.combobox_from_iter("", metrics_preset, DisplayMetricsPreset::iter())
+                    if ui
+                        .combobox_from_iter("", metrics_preset, DisplayMetricsPreset::iter())
+                        .changed()
+                    {
+                        *metrics = metrics_preset.metrics();
+                    }
+
+                    if ui.button("\u{1F504} Reset").clicked() {
+                        *metrics = metrics_preset.metrics();
+                    }
                 });
-                // `.changed()` responses of combobox are broken.
-                if ui.button("\u{2714} Apply").clicked() {
-                    *metrics = metrics_preset.metrics();
-                }
             });
             ui.end_row();
 
