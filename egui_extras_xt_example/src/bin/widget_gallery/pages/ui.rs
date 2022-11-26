@@ -163,6 +163,7 @@ pub fn widget_shape_ui(ui: &mut Ui, value: &mut WidgetShape) {
                 );
             });
 
+            #[allow(clippy::match_same_arms)]
             match value {
                 WidgetShape::Circle => {}
                 WidgetShape::Square => {}
@@ -209,7 +210,7 @@ pub fn widget_shape_ui(ui: &mut Ui, value: &mut WidgetShape) {
     });
 }
 
-pub fn widget_orientation_ui(ui: &mut Ui, mut value: &mut Orientation) {
+pub fn widget_orientation_ui(ui: &mut Ui, value: &mut Orientation) {
     ui.horizontal_centered(|ui| {
         ui.selectable_value_from_slice(
             value,
@@ -234,7 +235,7 @@ pub fn widget_orientation_ui(ui: &mut Ui, mut value: &mut Orientation) {
                     let mut tmp = default_value();
 
                     if let Orientation::Custom(ref mut angle) =
-                        if selected { &mut value } else { &mut tmp }
+                        if selected { value } else { &mut tmp }
                     {
                         ui.drag_angle(angle);
                     }
@@ -267,6 +268,7 @@ pub fn default_compass_marker_color_ui(ui: &mut Ui, value: &mut DefaultCompassMa
             );
         });
 
+        #[allow(clippy::match_same_arms)]
         match value {
             DefaultCompassMarkerColor::System => {}
             DefaultCompassMarkerColor::Fixed(color) => {

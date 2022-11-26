@@ -53,7 +53,7 @@ impl SegmentedDisplayWidget {
                 .chain(value.as_ref().chars().map(Some))
                 .chain([None])
                 .tuple_windows()
-                .flat_map(|(prev, curr, next)| match curr {
+                .filter_map(|(prev, curr, next)| match curr {
                     Some('.') if self.show_dots => None,
                     Some(':') if self.show_colons => None,
                     Some('\'') if self.show_apostrophes => None,

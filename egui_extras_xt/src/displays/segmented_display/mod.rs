@@ -40,6 +40,7 @@ pub enum DisplayKind {
 }
 
 impl DisplayKind {
+    #[must_use]
     pub(crate) fn display_impl(&self) -> Box<dyn DisplayImpl> {
         match *self {
             DisplayKind::SevenSegment => Box::new(seven_segment::SevenSegment),
@@ -48,6 +49,7 @@ impl DisplayKind {
         }
     }
 
+    #[must_use]
     pub fn segment_count(&self) -> usize {
         self.display_impl().segment_count()
     }

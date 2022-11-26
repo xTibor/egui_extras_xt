@@ -115,19 +115,19 @@ impl PageImpl for AngleKnobPage {
                 ui.end_row();
 
                 ui.label("Minimum");
-                ui.optional_value_widget(&mut self.min, |ui, value| ui.drag_angle(value));
+                ui.optional_value_widget(&mut self.min, Ui::drag_angle);
                 ui.end_row();
 
                 ui.label("Maximum");
-                ui.optional_value_widget(&mut self.max, |ui, value| ui.drag_angle(value));
+                ui.optional_value_widget(&mut self.max, Ui::drag_angle);
                 ui.end_row();
 
                 ui.label("Snap");
-                ui.optional_value_widget(&mut self.snap, |ui, value| ui.drag_angle(value));
+                ui.optional_value_widget(&mut self.snap, Ui::drag_angle);
                 ui.end_row();
 
                 ui.label("Shift snap");
-                ui.optional_value_widget(&mut self.shift_snap, |ui, value| ui.drag_angle(value));
+                ui.optional_value_widget(&mut self.shift_snap, Ui::drag_angle);
                 ui.end_row();
 
                 ui.label("Animated");

@@ -57,8 +57,8 @@ pub enum BarcodeKind {
 }
 
 impl BarcodeKind {
-    fn encode<T: AsRef<str>>(&self, data: T) -> Result<Vec<u8>, Error> {
-        match *self {
+    fn encode<T: AsRef<str>>(self, data: T) -> Result<Vec<u8>, Error> {
+        match self {
             BarcodeKind::Codabar => Codabar::new(data).map(|b| b.encode()),
             BarcodeKind::Code11 => Code11::new(data).map(|b| b.encode()),
             BarcodeKind::Code39 => Code39::new(data).map(|b| b.encode()),
@@ -192,7 +192,7 @@ impl<'a> Widget for BarcodeWidget<'a> {
                     + vec2(self.horizontal_padding, self.vertical_padding) * 2.0;
 
                 if self.label.is_some() {
-                    size += vec2(0.0, self.label_height + self.label_top_margin)
+                    size += vec2(0.0, self.label_height + self.label_top_margin);
                 }
 
                 size

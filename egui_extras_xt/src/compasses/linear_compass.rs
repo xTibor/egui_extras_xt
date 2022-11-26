@@ -301,7 +301,7 @@ impl<'a> Widget for LinearCompass<'a> {
                             Rect::from_center_size(center, Vec2::splat(self.height * 0.25))
                         };
 
-                        shape.paint(child_ui, marker_rect, fill, stroke)
+                        shape.paint(child_ui, marker_rect, fill, stroke);
                     }
 
                     // Draw marker text label

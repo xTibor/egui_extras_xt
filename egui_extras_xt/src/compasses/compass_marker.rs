@@ -35,6 +35,7 @@ pub enum DefaultCompassMarkerColor {
 }
 
 impl DefaultCompassMarkerColor {
+    #[must_use]
     pub(crate) fn color(&self, ui: &Ui, marker: &CompassMarker) -> Color32 {
         match *self {
             DefaultCompassMarkerColor::System => ui.style().visuals.text_color(),
@@ -73,6 +74,7 @@ pub struct CompassMarker<'a> {
 }
 
 impl<'a> CompassMarker<'a> {
+    #[must_use]
     pub fn new(angle: f32) -> Self {
         Self {
             angle: normalized_angle_unsigned_excl(angle),
@@ -83,21 +85,25 @@ impl<'a> CompassMarker<'a> {
         }
     }
 
+    #[must_use]
     pub fn distance(mut self, distance: f32) -> Self {
         self.distance = Some(distance);
         self
     }
 
+    #[must_use]
     pub fn shape(mut self, shape: CompassMarkerShape) -> Self {
         self.shape = Some(shape);
         self
     }
 
+    #[must_use]
     pub fn label(mut self, label: &'a str) -> Self {
         self.label = Some(label);
         self
     }
 
+    #[must_use]
     pub fn color(mut self, color: Color32) -> Self {
         self.color = Some(color);
         self

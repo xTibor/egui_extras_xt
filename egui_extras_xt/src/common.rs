@@ -241,7 +241,7 @@ impl WidgetShape {
         let outline_points: Vec<Pos2> = outer_arc
             .iter()
             .chain(inner_arc.iter().rev())
-            .cloned()
+            .copied()
             .collect();
 
         ui.painter().add(Shape::closed_line(outline_points, stroke));

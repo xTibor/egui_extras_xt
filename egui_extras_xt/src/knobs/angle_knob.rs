@@ -54,7 +54,9 @@ pub enum AngleKnobPreset {
 }
 
 impl AngleKnobPreset {
+    #[must_use]
     pub fn properties(&self) -> (Orientation, Winding, WrapMode) {
+        #[allow(clippy::match_same_arms)]
         match *self {
             AngleKnobPreset::AdobePhotoshop => (
                 Orientation::Right,

@@ -22,7 +22,7 @@ where
         values: impl Iterator<Item = Value>,
     ) -> Response {
         values
-            .map(|value| self.selectable_value(current_value, value, format!("{}", value)))
+            .map(|value| self.selectable_value(current_value, value, format!("{value}")))
             .reduce(|result, response| result.union(response))
             .unwrap_or_else(|| {
                 self.colored_label(self.style().visuals.error_fg_color, "\u{1F525} No items")
@@ -50,7 +50,7 @@ where
         values: impl Iterator<Item = Value>,
     ) -> Response {
         values
-            .map(|value| self.radio_value(current_value, value, format!("{}", value)))
+            .map(|value| self.radio_value(current_value, value, format!("{value}")))
             .reduce(|result, response| result.union(response))
             .unwrap_or_else(|| {
                 self.colored_label(self.style().visuals.error_fg_color, "\u{1F525} No items")
@@ -80,10 +80,10 @@ where
         values: impl Iterator<Item = Value>,
     ) -> Response {
         let combobox_response = ComboBox::from_label(label)
-            .selected_text(format!("{}", current_value))
+            .selected_text(format!("{current_value}"))
             .show_ui(self, |ui| {
                 values
-                    .map(|value| ui.selectable_value(current_value, value, format!("{}", value)))
+                    .map(|value| ui.selectable_value(current_value, value, format!("{value}")))
                     .reduce(|result, response| result.union(response))
                     .unwrap_or_else(|| {
                         ui.colored_label(ui.style().visuals.error_fg_color, "\u{1F525} No items")

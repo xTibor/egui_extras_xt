@@ -34,7 +34,7 @@ impl Default for WidgetGallery {
             pages: HashMap::from_iter(
                 PageId::iter().map(|page_id| (page_id, page_id.create_page())),
             ),
-            search_query: "".to_owned(),
+            search_query: String::new(),
 
             // Sub-windows
             settings_window_open: false,

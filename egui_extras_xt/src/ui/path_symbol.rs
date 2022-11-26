@@ -28,6 +28,7 @@ impl PathSymbol for Path {
                 .map(OsStr::to_string_lossy)
                 .map(|s| s.to_lowercase());
 
+            #[allow(clippy::match_same_arms)]
             match file_extension.as_deref() {
                 // Plain text
                 Some(

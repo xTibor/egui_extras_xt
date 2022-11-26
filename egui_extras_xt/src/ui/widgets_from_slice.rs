@@ -23,7 +23,7 @@ where
     ) -> Response {
         values
             .iter()
-            .map(|value| self.selectable_value(current_value, value.clone(), format!("{}", value)))
+            .map(|value| self.selectable_value(current_value, value.clone(), format!("{value}")))
             .reduce(|result, response| result.union(response))
             .unwrap_or_else(|| {
                 self.colored_label(self.style().visuals.error_fg_color, "\u{1F525} No items")
@@ -52,7 +52,7 @@ where
     ) -> Response {
         values
             .iter()
-            .map(|value| self.radio_value(current_value, value.clone(), format!("{}", value)))
+            .map(|value| self.radio_value(current_value, value.clone(), format!("{value}")))
             .reduce(|result, response| result.union(response))
             .unwrap_or_else(|| {
                 self.colored_label(self.style().visuals.error_fg_color, "\u{1F525} No items")
@@ -82,12 +82,12 @@ where
         values: &'a [Value],
     ) -> Response {
         let combobox_response = ComboBox::from_label(label)
-            .selected_text(format!("{}", current_value))
+            .selected_text(format!("{current_value}"))
             .show_ui(self, |ui| {
                 values
                     .iter()
                     .map(|value| {
-                        ui.selectable_value(current_value, value.clone(), format!("{}", value))
+                        ui.selectable_value(current_value, value.clone(), format!("{value}"))
                     })
                     .reduce(|result, response| result.union(response))
                     .unwrap_or_else(|| {

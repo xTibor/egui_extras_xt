@@ -49,7 +49,7 @@ impl PackageInfo {
                 .split(|c| ['<', '>'].contains(&c))
                 .map(str::trim)
                 .collect::<Vec<_>>();
-            (author_parts[0], author_parts.get(1).cloned())
+            (author_parts[0], author_parts.get(1).copied())
         })
     }
 }
@@ -59,12 +59,12 @@ impl PackageInfo {
 #[macro_export]
 macro_rules! show_about_window {
     ($ctx:expr, $open:expr) => {{
-        $crate::ui::about_window::show_about_window_impl($ctx, $open, $crate::package_info!());
+        $crate::ui::about_window::show_about_window_impl($ctx, $open, &$crate::package_info!());
     }};
 }
 
 #[doc(hidden)]
-pub fn show_about_window_impl(ctx: &Context, open: &mut bool, package_info: PackageInfo) {
+pub fn show_about_window_impl(ctx: &Context, open: &mut bool, package_info: &PackageInfo) {
     Window::new("About")
         .open(open)
         .resizable(false)

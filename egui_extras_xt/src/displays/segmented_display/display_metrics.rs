@@ -38,6 +38,7 @@ pub enum DisplayMetricsPreset {
 }
 
 impl DisplayMetricsPreset {
+    #[must_use]
     pub fn metrics(&self) -> DisplayMetrics {
         match *self {
             DisplayMetricsPreset::Default => DisplayMetrics {

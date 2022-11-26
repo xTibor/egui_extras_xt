@@ -183,7 +183,7 @@ where
         self.channel_names = Some(
             channel_names
                 .iter()
-                .map(|channel_name| channel_name.to_string())
+                .map(ToString::to_string)
                 .collect_vec(),
         );
         self
@@ -371,13 +371,13 @@ where
                         let channel_buffer = match self.buffer_layout {
                             BufferLayout::Planar => buffer
                                 .iter()
-                                .cloned()
+                                .copied()
                                 .skip(channel_id * channel_buffer_length)
                                 .take(channel_buffer_length)
                                 .collect_vec(),
                             BufferLayout::Interleaved => buffer
                                 .iter()
-                                .cloned()
+                                .copied()
                                 .skip(channel_id)
                                 .step_by(self.channels)
                                 .take(channel_buffer_length)

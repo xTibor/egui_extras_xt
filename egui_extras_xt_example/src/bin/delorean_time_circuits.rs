@@ -68,7 +68,7 @@ impl eframe::App for TimeCircuitsExample {
                                 .digit_height(64.0),
                         );
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(format!("{:02}", day))
+                            SegmentedDisplayWidget::seven_segment(format!("{day:02}"))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -76,7 +76,7 @@ impl eframe::App for TimeCircuitsExample {
                                 .digit_height(64.0),
                         );
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(format!("{:04}", year))
+                            SegmentedDisplayWidget::seven_segment(format!("{year:04}"))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -100,7 +100,7 @@ impl eframe::App for TimeCircuitsExample {
                         });
 
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(format!("{:02}", hour))
+                            SegmentedDisplayWidget::seven_segment(format!("{hour:02}"))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)
@@ -124,7 +124,7 @@ impl eframe::App for TimeCircuitsExample {
                         });
 
                         ui.add(
-                            SegmentedDisplayWidget::seven_segment(format!("{:02}", minute))
+                            SegmentedDisplayWidget::seven_segment(format!("{minute:02}"))
                                 .style_preset(*style_preset)
                                 .show_dots(true)
                                 .show_colons(false)

@@ -13,6 +13,7 @@ pub struct DisplayStyle {
 }
 
 impl DisplayStyle {
+    #[must_use]
     pub fn foreground_color(&self, active: bool) -> Color32 {
         if active {
             self.active_foreground_color
@@ -21,6 +22,7 @@ impl DisplayStyle {
         }
     }
 
+    #[must_use]
     pub fn foreground_stroke(&self, active: bool) -> Stroke {
         if active {
             self.active_foreground_stroke
@@ -29,6 +31,7 @@ impl DisplayStyle {
         }
     }
 
+    #[must_use]
     pub fn foreground_color_blend(&self, value: f32) -> Color32 {
         Color32::from(lerp(
             Rgba::from(self.inactive_foreground_color)..=Rgba::from(self.active_foreground_color),
@@ -36,6 +39,7 @@ impl DisplayStyle {
         ))
     }
 
+    #[must_use]
     pub fn foreground_stroke_blend(&self, value: f32) -> Stroke {
         Stroke::new(
             lerp(
@@ -50,6 +54,7 @@ impl DisplayStyle {
         )
     }
 
+    #[must_use]
     pub fn system_style(ui: &Ui) -> Self {
         DisplayStyle {
             background_color: Color32::TRANSPARENT,
@@ -107,6 +112,7 @@ pub enum DisplayStylePreset {
 }
 
 impl DisplayStylePreset {
+    #[must_use]
     pub fn style(&self) -> DisplayStyle {
         match *self {
             DisplayStylePreset::Default => DisplayStyle {
