@@ -153,6 +153,6 @@ fn main() {
     eframe::run_native(
         "DeLorean Time Circuits",
         options,
-        Box::new(|_| Box::new(TimeCircuitsExample::default())),
+        Box::new(|_| Box::<TimeCircuitsExample>::default()),
     );
 }

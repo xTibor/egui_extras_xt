@@ -140,11 +140,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         let directory_symbol = root_directory.symbol();
 
         let open_state = if self.force_selected_open {
-            if let Some(selected_path) = self.selected_path {
-                Some(selected_path.starts_with(root_directory))
-            } else {
-                None
-            }
+            self.selected_path.as_mut().map(|selected_path| selected_path.starts_with(root_directory))
         } else {
             None
         };
@@ -181,14 +177,13 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                 if !filtered_directory_listing.is_empty() {
                     filtered_directory_listing
                         .iter()
-                        .map(|path| {
+                        .filter_map(|path| {
                             if path.is_dir() {
-                                self.show_directory(ui, &path, false)
+                                self.show_directory(ui, path, false)
                             } else {
-                                self.show_file(ui, &path)
+                                self.show_file(ui, path)
                             }
                         })
-                        .flatten()
                         .reduce(|result, response| result.union(response))
                 } else {
                     ui.weak("Empty directory");

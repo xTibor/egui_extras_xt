@@ -27,6 +27,6 @@ fn main() {
     eframe::run_native(
         "About window example",
         options,
-        Box::new(|_| Box::new(AboutWindowExample::default())),
+        Box::new(|_| Box::<AboutWindowExample>::default()),
     );
 }

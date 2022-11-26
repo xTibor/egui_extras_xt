@@ -129,6 +129,6 @@ fn main() {
     eframe::run_native(
         "Compass widgets example",
         options,
-        Box::new(|_| Box::new(CompassWidgetsExample::default())),
+        Box::new(|_| Box::<CompassWidgetsExample>::default()),
     );
 }

@@ -89,6 +89,6 @@ fn main() {
     eframe::run_native(
         "Waveform Display",
         options,
-        Box::new(|_| Box::new(WaveformDemoApp::default())),
+        Box::new(|_| Box::<WaveformDemoApp>::default()),
     );
 }

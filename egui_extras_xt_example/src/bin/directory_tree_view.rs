@@ -1,4 +1,4 @@
-use std::ffi::OsStr;
+
 use std::path::PathBuf;
 
 use eframe::egui;
@@ -56,6 +56,6 @@ fn main() {
     eframe::run_native(
         "Directory tree view example",
         options,
-        Box::new(|_| Box::new(DirectoryTreeViewExample::default())),
+        Box::new(|_| Box::<DirectoryTreeViewExample>::default()),
     );
 }

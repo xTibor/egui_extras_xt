@@ -226,6 +226,6 @@ fn main() {
     eframe::run_native(
         "Ui extensions",
         options,
-        Box::new(|_| Box::new(UiExtensionsExample::default())),
+        Box::new(|_| Box::<UiExtensionsExample>::default()),
     );
 }

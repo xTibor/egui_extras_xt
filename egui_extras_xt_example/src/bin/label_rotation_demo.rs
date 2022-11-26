@@ -53,6 +53,6 @@ fn main() {
     eframe::run_native(
         "You spin me round (like a record)",
         options,
-        Box::new(|_| Box::new(LabelRotationDemo::default())),
+        Box::new(|_| Box::<LabelRotationDemo>::default()),
     );
 }
