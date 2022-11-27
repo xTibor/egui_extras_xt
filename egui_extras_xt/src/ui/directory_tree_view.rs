@@ -141,21 +141,21 @@ impl<'a> DirectoryTreeViewWidget<'a> {
     fn show_directory(
         &mut self,
         ui: &mut Ui,
-        root_directory: &Path,
+        directory_path: &Path,
         default_open: bool,
     ) -> Option<Response> {
-        let directory_name = if root_directory.parent().is_none() {
+        let directory_name = if directory_path.parent().is_none() {
             "Root directory"
         } else {
-            root_directory.file_name().and_then(OsStr::to_str).unwrap()
+            directory_path.file_name().and_then(OsStr::to_str).unwrap()
         };
 
-        let directory_symbol = root_directory.symbol();
+        let directory_symbol = directory_path.symbol();
 
         let open_state = if self.force_selected_open {
             self.selected_path
                 .as_mut()
-                .map(|selected_path| selected_path.starts_with(root_directory))
+                .map(|selected_path| selected_path.starts_with(directory_path))
         } else {
             None
         };
@@ -167,7 +167,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                 let cached_directory_listing = {
                     let mut memory = ui.memory();
                     let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
-                    cache.get(root_directory)
+                    cache.get(directory_path)
                 };
 
                 match cached_directory_listing.borrow() {
