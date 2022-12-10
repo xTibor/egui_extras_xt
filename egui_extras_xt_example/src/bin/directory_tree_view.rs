@@ -57,6 +57,7 @@ impl eframe::App for DirectoryTreeViewExample {
                             ui.strong("File hover ui");
                             ui.label(path.to_str().unwrap());
                         })
+                        .hide_file_extensions(false)
                         .force_selected_open(false),
                 )
                 .changed()
