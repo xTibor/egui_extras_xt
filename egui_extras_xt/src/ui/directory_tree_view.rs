@@ -66,6 +66,8 @@ type DirectoryTreeFilter<'a> = Box<dyn Fn(&Path) -> bool + 'a>;
 
 type DirectoryTreeContextMenu<'a> = Box<dyn Fn(&mut Ui, &Path) + 'a>;
 
+type DirectoryTreeHoverUi<'a> = Box<dyn Fn(&mut Ui, &Path) + 'a>;
+
 // ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
@@ -77,9 +79,11 @@ pub struct DirectoryTreeViewWidget<'a> {
 
     file_filter: Option<DirectoryTreeFilter<'a>>,
     file_context_menu: Option<DirectoryTreeContextMenu<'a>>,
+    file_hover_ui: Option<DirectoryTreeHoverUi<'a>>,
 
     directory_filter: Option<DirectoryTreeFilter<'a>>,
     directory_context_menu: Option<DirectoryTreeContextMenu<'a>>,
+    directory_hover_ui: Option<DirectoryTreeHoverUi<'a>>,
 }
 
 impl<'a> DirectoryTreeViewWidget<'a> {
@@ -92,9 +96,11 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
             file_filter: None,
             file_context_menu: None,
+            file_hover_ui: None,
 
             directory_filter: None,
             directory_context_menu: None,
+            directory_hover_ui: None,
         }
     }
 
@@ -132,6 +138,11 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         self
     }
 
+    pub fn file_hover_ui(mut self, hover_ui: impl Fn(&mut Ui, &Path) + 'a) -> Self {
+        self.file_hover_ui = Some(Box::new(hover_ui));
+        self
+    }
+
     pub fn directory_filter(mut self, filter: impl Fn(&Path) -> bool + 'a) -> Self {
         self.directory_filter = Some(Box::new(filter));
         self
@@ -139,6 +150,11 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
     pub fn directory_context_menu(mut self, context_menu: impl Fn(&mut Ui, &Path) + 'a) -> Self {
         self.directory_context_menu = Some(Box::new(context_menu));
+        self
+    }
+
+    pub fn directory_hover_ui(mut self, hover_ui: impl Fn(&mut Ui, &Path) + 'a) -> Self {
+        self.directory_hover_ui = Some(Box::new(hover_ui));
         self
     }
 }
@@ -242,6 +258,12 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                 .context_menu(|ui| context_menu(ui, directory_path));
         }
 
+        if let Some(hover_ui) = &self.directory_hover_ui {
+            response.header_response = response
+                .header_response
+                .on_hover_ui(|ui| hover_ui(ui, directory_path));
+        }
+
         response.body_returned.unwrap_or(None)
     }
 
@@ -264,6 +286,10 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
         if let Some(context_menu) = &self.file_context_menu {
             response = response.context_menu(|ui| context_menu(ui, file_path));
+        }
+
+        if let Some(hover_ui) = &self.file_hover_ui {
+            response = response.on_hover_ui(|ui| hover_ui(ui, file_path));
         }
 
         if self.force_selected_open {

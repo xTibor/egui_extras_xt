@@ -41,12 +41,20 @@ impl eframe::App for DirectoryTreeViewExample {
                                 .starts_with('.')
                         })
                         .file_extensions(&["rs", "toml"])
+                        .directory_context_menu(|ui, path| {
+                            ui.strong("Directory context menu");
+                            ui.label(path.to_str().unwrap());
+                        })
                         .file_context_menu(|ui, path| {
                             ui.strong("File context menu");
                             ui.label(path.to_str().unwrap());
                         })
-                        .directory_context_menu(|ui, path| {
-                            ui.strong("Folder context menu");
+                        .directory_hover_ui(|ui, path| {
+                            ui.strong("Directory hover ui");
+                            ui.label(path.to_str().unwrap());
+                        })
+                        .file_hover_ui(|ui, path| {
+                            ui.strong("File hover ui");
                             ui.label(path.to_str().unwrap());
                         })
                         .force_selected_open(false),
