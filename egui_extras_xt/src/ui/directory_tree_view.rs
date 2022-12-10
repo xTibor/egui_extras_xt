@@ -64,16 +64,22 @@ impl DirectoryTreeView for Ui {
 
 type DirectoryTreeFilter<'a> = Box<dyn Fn(&Path) -> bool + 'a>;
 
+type DirectoryTreeContextMenu<'a> = Box<dyn Fn(&mut Ui, &Path) + 'a>;
+
 // ----------------------------------------------------------------------------
 
 #[must_use = "You should put this widget in an ui with `ui.add(widget);`"]
 pub struct DirectoryTreeViewWidget<'a> {
     selected_path: &'a mut Option<PathBuf>,
     root_directory: &'a Path,
-    directory_filter: Option<DirectoryTreeFilter<'a>>,
-    file_filter: Option<DirectoryTreeFilter<'a>>,
     force_selected_open: bool,
     hide_file_extensions: bool,
+
+    file_filter: Option<DirectoryTreeFilter<'a>>,
+    file_context_menu: Option<DirectoryTreeContextMenu<'a>>,
+
+    directory_filter: Option<DirectoryTreeFilter<'a>>,
+    directory_context_menu: Option<DirectoryTreeContextMenu<'a>>,
 }
 
 impl<'a> DirectoryTreeViewWidget<'a> {
@@ -81,21 +87,15 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         Self {
             selected_path,
             root_directory,
-            directory_filter: None,
-            file_filter: None,
             force_selected_open: false,
             hide_file_extensions: false,
+
+            file_filter: None,
+            file_context_menu: None,
+
+            directory_filter: None,
+            directory_context_menu: None,
         }
-    }
-
-    pub fn directory_filter(mut self, directory_filter: impl Fn(&Path) -> bool + 'a) -> Self {
-        self.directory_filter = Some(Box::new(directory_filter));
-        self
-    }
-
-    pub fn file_filter(mut self, file_filter: impl Fn(&Path) -> bool + 'a) -> Self {
-        self.file_filter = Some(Box::new(file_filter));
-        self
     }
 
     pub fn force_selected_open(mut self, force_selected_open: bool) -> Self {
@@ -120,6 +120,26 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                 false
             }
         })
+    }
+
+    pub fn file_filter(mut self, filter: impl Fn(&Path) -> bool + 'a) -> Self {
+        self.file_filter = Some(Box::new(filter));
+        self
+    }
+
+    pub fn file_context_menu(mut self, context_menu: impl Fn(&mut Ui, &Path) + 'a) -> Self {
+        self.file_context_menu = Some(Box::new(context_menu));
+        self
+    }
+
+    pub fn directory_filter(mut self, filter: impl Fn(&Path) -> bool + 'a) -> Self {
+        self.directory_filter = Some(Box::new(filter));
+        self
+    }
+
+    pub fn directory_context_menu(mut self, context_menu: impl Fn(&mut Ui, &Path) + 'a) -> Self {
+        self.directory_context_menu = Some(Box::new(context_menu));
+        self
     }
 }
 
@@ -160,7 +180,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             None
         };
 
-        CollapsingHeader::new(format!("{directory_symbol:} {directory_name:}"))
+        let mut response = CollapsingHeader::new(format!("{directory_symbol:} {directory_name:}"))
             .open(open_state)
             .default_open(default_open)
             .show(ui, |ui| {
@@ -214,9 +234,15 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                         None
                     }
                 }
-            })
-            .body_returned
-            .unwrap_or(None)
+            });
+
+        if let Some(context_menu) = &self.directory_context_menu {
+            response.header_response = response
+                .header_response
+                .context_menu(|ui| context_menu(ui, directory_path));
+        }
+
+        response.body_returned.unwrap_or(None)
     }
 
     #[allow(clippy::unnecessary_wraps)] // Necessary wrap, false warning
@@ -230,11 +256,15 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         let file_symbol = file_path.symbol();
 
         // egui bug (0.19.0): https://github.com/emilk/egui/pull/2343
-        let response = ui.selectable_value(
+        let mut response = ui.selectable_value(
             self.selected_path,
             Some(file_path.to_path_buf()),
             format!("{file_symbol:} {file_name:}"),
         );
+
+        if let Some(context_menu) = &self.file_context_menu {
+            response = response.context_menu(|ui| context_menu(ui, file_path));
+        }
 
         if self.force_selected_open {
             if let Some(selected_path) = self.selected_path {

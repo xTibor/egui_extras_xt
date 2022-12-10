@@ -34,9 +34,21 @@ impl eframe::App for DirectoryTreeViewExample {
                 .add(
                     DirectoryTreeViewWidget::new(&mut self.selected_path, &self.root_path)
                         .directory_filter(|path| {
-                            !path.file_name().and_then(OsStr::to_str).unwrap().starts_with('.')
+                            !path
+                                .file_name()
+                                .and_then(OsStr::to_str)
+                                .unwrap()
+                                .starts_with('.')
                         })
                         .file_extensions(&["rs", "toml"])
+                        .file_context_menu(|ui, path| {
+                            ui.strong("File context menu");
+                            ui.label(path.to_str().unwrap());
+                        })
+                        .directory_context_menu(|ui, path| {
+                            ui.strong("Folder context menu");
+                            ui.label(path.to_str().unwrap());
+                        })
                         .force_selected_open(false),
                 )
                 .changed()
