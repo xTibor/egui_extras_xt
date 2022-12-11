@@ -4,8 +4,9 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+use egui::collapsing_header::CollapsingState;
 use egui::util::cache::{ComputerMut, FrameCache};
-use egui::{Align, CollapsingHeader, Response, ScrollArea, Ui, Widget};
+use egui::{Align, InnerResponse, Response, ScrollArea, Ui, Widget};
 use itertools::Itertools;
 
 use crate::ui::path_symbol::PathSymbol;
@@ -83,10 +84,12 @@ pub struct DirectoryTreeViewWidget<'a> {
     force_selected_open: bool,
     hide_file_extensions: bool,
 
+    file_selectable: bool,
     file_filter: Option<DirectoryTreeFilter<'a>>,
     file_context_menu: Option<DirectoryTreeContextMenu<'a>>,
     file_hover_ui: Option<DirectoryTreeHoverUi<'a>>,
 
+    directory_selectable: bool,
     directory_filter: Option<DirectoryTreeFilter<'a>>,
     directory_context_menu: Option<DirectoryTreeContextMenu<'a>>,
     directory_hover_ui: Option<DirectoryTreeHoverUi<'a>>,
@@ -100,10 +103,12 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             force_selected_open: false,
             hide_file_extensions: false,
 
+            file_selectable: false,
             file_filter: None,
             file_context_menu: None,
             file_hover_ui: None,
 
+            directory_selectable: true,
             directory_filter: None,
             directory_context_menu: None,
             directory_hover_ui: None,
@@ -134,6 +139,11 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         })
     }
 
+    pub fn file_selectable(mut self, file_selectable: bool) -> Self {
+        self.file_selectable = file_selectable;
+        self
+    }
+
     pub fn file_filter(mut self, filter: impl Fn(&Path) -> bool + 'a) -> Self {
         self.file_filter = Some(Box::new(filter));
         self
@@ -154,6 +164,11 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         enabled: impl Fn(&Path) -> bool + 'a,
     ) -> Self {
         self.file_hover_ui = Some((Box::new(add_contents), Box::new(enabled)));
+        self
+    }
+
+    pub fn directory_selectable(mut self, directory_selectable: bool) -> Self {
+        self.directory_selectable = directory_selectable;
         self
     }
 
@@ -209,6 +224,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         };
 
         let directory_symbol = directory_path.symbol();
+        let directory_label = format!("{directory_symbol:} {directory_name:}");
 
         let open_state = if self.force_selected_open {
             self.selected_path
@@ -218,79 +234,99 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             None
         };
 
-        let mut response = CollapsingHeader::new(format!("{directory_symbol:} {directory_name:}"))
-            .open(open_state)
-            .default_open(default_open)
-            .show(ui, |ui| {
-                let cached_directory_listing = {
-                    let mut memory = ui.memory();
-                    let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
-                    cache.get(directory_path)
-                };
+        let collapsing_state_id = ui.make_persistent_id(directory_path);
 
-                match cached_directory_listing.borrow() {
-                    Ok(cached_directory_listing) => {
-                        let filtered_directory_listing = cached_directory_listing
-                            .iter()
-                            .filter(|path| {
-                                #[allow(clippy::collapsible_else_if)]
-                                if path.is_dir() {
-                                    if let Some(directory_filter) = &self.directory_filter {
-                                        directory_filter(path)
-                                    } else {
-                                        true
-                                    }
-                                } else {
-                                    if let Some(file_filter) = &self.file_filter {
-                                        file_filter(path)
-                                    } else {
-                                        true
-                                    }
-                                }
-                            })
-                            .collect_vec();
+        let (_button_response, header_response, body_response) =
+            CollapsingState::load_with_default_open(ui.ctx(), collapsing_state_id, default_open)
+                .show_header(ui, |ui| {
+                    let mut response = if self.directory_selectable {
+                        ui.selectable_value(
+                            self.selected_path,
+                            Some(directory_path.to_path_buf()),
+                            directory_label,
+                        )
+                    } else {
+                        ui.label(directory_label)
+                    };
 
-                        if !filtered_directory_listing.is_empty() {
-                            filtered_directory_listing
-                                .iter()
-                                .filter_map(|path| {
-                                    if path.is_dir() {
-                                        self.show_directory(ui, path, false)
-                                    } else {
-                                        self.show_file(ui, path)
-                                    }
-                                })
-                                .reduce(|result, response| result.union(response))
-                        } else {
-                            ui.weak("Empty directory");
-                            None
+                    if let Some((add_contents_fn, enabled_fn)) = &self.directory_context_menu {
+                        if enabled_fn(directory_path) {
+                            response =
+                                response.context_menu(|ui| add_contents_fn(ui, directory_path));
                         }
                     }
 
-                    Err(err) => {
-                        ui.weak(format!("\u{1F525} {err}"));
-                        None
+                    if let Some((add_contents_fn, enabled_fn)) = &self.directory_hover_ui {
+                        if enabled_fn(directory_path) {
+                            response =
+                                response.on_hover_ui(|ui| add_contents_fn(ui, directory_path));
+                        }
                     }
-                }
-            });
 
-        if let Some((add_contents_fn, enabled_fn)) = &self.directory_context_menu {
-            if enabled_fn(directory_path) {
-                response.header_response = response
-                    .header_response
-                    .context_menu(|ui| add_contents_fn(ui, directory_path));
-            }
+                    response
+                })
+                .body(|ui| {
+                    let cached_directory_listing = {
+                        let mut memory = ui.memory();
+                        let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
+                        cache.get(directory_path)
+                    };
+
+                    match cached_directory_listing.borrow() {
+                        Ok(cached_directory_listing) => {
+                            let filtered_directory_listing = cached_directory_listing
+                                .iter()
+                                .filter(|path| {
+                                    #[allow(clippy::collapsible_else_if)]
+                                    if path.is_dir() {
+                                        if let Some(directory_filter) = &self.directory_filter {
+                                            directory_filter(path)
+                                        } else {
+                                            true
+                                        }
+                                    } else {
+                                        if let Some(file_filter) = &self.file_filter {
+                                            file_filter(path)
+                                        } else {
+                                            true
+                                        }
+                                    }
+                                })
+                                .collect_vec();
+
+                            if !filtered_directory_listing.is_empty() {
+                                filtered_directory_listing
+                                    .iter()
+                                    .filter_map(|path| {
+                                        if path.is_dir() {
+                                            self.show_directory(ui, path, false)
+                                        } else {
+                                            self.show_file(ui, path)
+                                        }
+                                    })
+                                    .reduce(|result, response| result.union(response))
+                            } else {
+                                ui.weak("Empty directory");
+                                None
+                            }
+                        }
+
+                        Err(err) => {
+                            ui.weak(format!("\u{1F525} {err}"));
+                            None
+                        }
+                    }
+                });
+
+        if let Some(InnerResponse {
+            inner: Some(body_response),
+            ..
+        }) = body_response
+        {
+            Some(header_response.inner.union(body_response))
+        } else {
+            Some(header_response.inner)
         }
-
-        if let Some((add_contents_fn, enabled_fn)) = &self.directory_hover_ui {
-            if enabled_fn(directory_path) {
-                response.header_response = response
-                    .header_response
-                    .on_hover_ui(|ui| add_contents_fn(ui, directory_path));
-            }
-        }
-
-        response.body_returned.unwrap_or(None)
     }
 
     #[allow(clippy::unnecessary_wraps)] // Necessary wrap, false warning
@@ -302,12 +338,17 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         };
 
         let file_symbol = file_path.symbol();
+        let file_label = format!("{file_symbol:} {file_name:}");
 
-        let mut response = ui.selectable_value(
-            self.selected_path,
-            Some(file_path.to_path_buf()),
-            format!("{file_symbol:} {file_name:}"),
-        );
+        let mut response = if self.file_selectable {
+            ui.selectable_value(
+                self.selected_path,
+                Some(file_path.to_path_buf()),
+                file_label,
+            )
+        } else {
+            ui.label(file_label)
+        };
 
         if let Some((add_contents_fn, enabled_fn)) = &self.file_context_menu {
             if enabled_fn(file_path) {
