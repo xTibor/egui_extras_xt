@@ -30,50 +30,49 @@ impl eframe::App for DirectoryTreeViewExample {
                 ui.separator();
             }
 
-            if ui
-                .add(
-                    DirectoryTreeViewWidget::new(&mut self.selected_path, &self.root_path)
-                        .directory_filter(|path| {
-                            !path
-                                .file_name()
-                                .and_then(OsStr::to_str)
-                                .unwrap()
-                                .starts_with('.')
-                        })
-                        .file_extensions(&["rs", "toml"])
-                        .directory_context_menu(
-                            |ui, path| {
-                                ui.strong("Directory context menu");
-                                ui.label(path.to_str().unwrap());
-                            },
-                            |_path| true,
-                        )
-                        .file_context_menu(
-                            |ui, path| {
-                                ui.strong("File context menu");
-                                ui.label(path.to_str().unwrap());
-                            },
-                            |_path| true,
-                        )
-                        .directory_hover_ui(
-                            |ui, path| {
-                                ui.strong("Directory hover ui");
-                                ui.label(path.to_str().unwrap());
-                            },
-                            |_path| true,
-                        )
-                        .file_hover_ui(
-                            |ui, path| {
-                                ui.strong("File hover ui");
-                                ui.label(path.to_str().unwrap());
-                            },
-                            |_path| true,
-                        )
-                        .hide_file_extensions(false)
-                        .force_selected_open(false),
-                )
-                .changed()
-            {
+            let directory_response = ui.add(
+                DirectoryTreeViewWidget::new(&mut self.selected_path, &self.root_path)
+                    .directory_filter(|path| {
+                        !path
+                            .file_name()
+                            .and_then(OsStr::to_str)
+                            .unwrap()
+                            .starts_with('.')
+                    })
+                    .file_extensions(&["rs", "toml"])
+                    .directory_context_menu(
+                        |ui, path| {
+                            ui.strong("Directory context menu");
+                            ui.label(path.to_str().unwrap());
+                        },
+                        |_path| true,
+                    )
+                    .file_context_menu(
+                        |ui, path| {
+                            ui.strong("File context menu");
+                            ui.label(path.to_str().unwrap());
+                        },
+                        |_path| true,
+                    )
+                    .directory_hover_ui(
+                        |ui, path| {
+                            ui.strong("Directory hover ui");
+                            ui.label(path.to_str().unwrap());
+                        },
+                        |_path| true,
+                    )
+                    .file_hover_ui(
+                        |ui, path| {
+                            ui.strong("File hover ui");
+                            ui.label(path.to_str().unwrap());
+                        },
+                        |_path| true,
+                    )
+                    .hide_file_extensions(false)
+                    .force_selected_open(false),
+            );
+
+            if directory_response.changed() {
                 println!("New path selected: {:?}", self.selected_path);
             }
         });
