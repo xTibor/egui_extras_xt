@@ -1,6 +1,6 @@
 use std::f32::consts::TAU;
 
-use egui::color::tint_color_towards;
+use ecolor::tint_color_towards;
 use egui::{
     lerp, Align2, FontFamily, FontId, Pos2, Rect, Response, Sense, Shape, Stroke, Ui, Vec2, Widget,
 };

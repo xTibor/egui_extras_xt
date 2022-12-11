@@ -205,7 +205,7 @@ impl<'a> Widget for BarcodeWidget<'a> {
                     rect,
                     ui.style().visuals.noninteractive().rounding,
                     self.background_color,
-                    Stroke::none(),
+                    Stroke::NONE,
                 );
 
                 barcode
@@ -223,7 +223,7 @@ impl<'a> Widget for BarcodeWidget<'a> {
                     })
                     .for_each(|bar_rect| {
                         ui.painter()
-                            .rect(bar_rect, 0.0, self.foreground_color, Stroke::none());
+                            .rect(bar_rect, 0.0, self.foreground_color, Stroke::NONE);
                     });
 
                 if let Some(label) = self.label {

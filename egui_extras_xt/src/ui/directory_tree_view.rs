@@ -303,7 +303,6 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
         let file_symbol = file_path.symbol();
 
-        // egui bug (0.19.0): https://github.com/emilk/egui/pull/2343
         let mut response = ui.selectable_value(
             self.selected_path,
             Some(file_path.to_path_buf()),

@@ -1,8 +1,8 @@
 use std::f64::consts::TAU;
 
+use eframe::egui::ecolor::Hsva;
 use eframe::egui::{CentralPanel, Context, Direction, Layout, TextStyle};
 use eframe::emath::vec2;
-use eframe::epaint::color::Hsva;
 
 use egui_extras_xt::ui::rotated_label::RotatedLabel;
 

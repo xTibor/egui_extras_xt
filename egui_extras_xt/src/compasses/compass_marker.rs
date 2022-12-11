@@ -1,6 +1,6 @@
 use std::f32::consts::TAU;
 
-use egui::color::Hsva;
+use ecolor::Hsva;
 use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Shape, Stroke, Ui, Vec2};
 use itertools::Itertools;
 use strum::Display;

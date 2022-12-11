@@ -85,7 +85,7 @@ impl Widget for LedDisplay {
                 rect,
                 ui.style().visuals.noninteractive().rounding,
                 self.style.background_color,
-                Stroke::none(),
+                Stroke::NONE,
             );
 
             ui.painter().circle(

@@ -1,8 +1,8 @@
 use std::f32::consts::TAU;
 
+use ecolor::tint_color_towards;
 use egui::{self, Response, Sense, Ui, Widget};
 use emath::{normalized_angle, pos2, vec2, Align2, Rect, Vec2};
-use epaint::color::tint_color_towards;
 use epaint::{Color32, FontFamily, FontId, Stroke};
 
 use crate::common::{normalized_angle_unsigned_incl, Winding, WrapMode};

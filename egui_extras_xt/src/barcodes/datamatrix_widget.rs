@@ -93,7 +93,7 @@ impl<'a> Widget for DataMatrixWidget<'a> {
                     rect,
                     ui.style().visuals.noninteractive().rounding,
                     self.background_color,
-                    Stroke::none(),
+                    Stroke::NONE,
                 );
 
                 bitmap
@@ -108,7 +108,7 @@ impl<'a> Widget for DataMatrixWidget<'a> {
                     })
                     .for_each(|module_rect| {
                         ui.painter()
-                            .rect(module_rect, 0.0, self.foreground_color, Stroke::none());
+                            .rect(module_rect, 0.0, self.foreground_color, Stroke::NONE);
                     });
             }
 

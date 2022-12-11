@@ -86,7 +86,7 @@ impl<'a> Widget for QrCodeWidget<'a> {
                     rect,
                     ui.style().visuals.noninteractive().rounding,
                     self.background_color,
-                    Stroke::none(),
+                    Stroke::NONE,
                 );
 
                 qr_code
@@ -110,7 +110,7 @@ impl<'a> Widget for QrCodeWidget<'a> {
                     })
                     .for_each(|module_rect| {
                         ui.painter()
-                            .rect(module_rect, 0.0, self.foreground_color, Stroke::none());
+                            .rect(module_rect, 0.0, self.foreground_color, Stroke::NONE);
                     });
             }
 

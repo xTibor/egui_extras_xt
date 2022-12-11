@@ -151,7 +151,7 @@ impl Widget for SegmentedDisplayWidget {
                 rect,
                 ui.style().visuals.noninteractive().rounding,
                 self.style.background_color,
-                Stroke::none(),
+                Stroke::NONE,
             );
 
             let segment_geometry = display_impl.geometry(

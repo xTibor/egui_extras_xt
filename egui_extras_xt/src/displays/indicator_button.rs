@@ -198,14 +198,14 @@ impl<'a> Widget for IndicatorButton<'a> {
                     indicator_rect.shrink(margin),
                     4.0,
                     self.style.background_color,
-                    Stroke::none(),
+                    Stroke::NONE,
                 );
 
                 ui.painter().rect(
                     indicator_rect.shrink(margin + 2.0),
                     4.0,
                     self.style.foreground_color_blend(value),
-                    Stroke::none(),
+                    Stroke::NONE,
                 );
             }
 
