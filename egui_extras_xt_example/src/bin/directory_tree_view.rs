@@ -40,6 +40,8 @@ impl eframe::App for DirectoryTreeViewExample {
                             .starts_with('.')
                     })
                     .file_extensions(&["rs", "toml"])
+                    .directory_selectable(true)
+                    .file_selectable(true)
                     .directory_context_menu(
                         |ui, path| {
                             ui.strong("Directory context menu");

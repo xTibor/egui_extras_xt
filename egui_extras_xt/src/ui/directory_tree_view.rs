@@ -103,12 +103,12 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             force_selected_open: false,
             hide_file_extensions: false,
 
-            file_selectable: false,
+            file_selectable: true,
             file_filter: None,
             file_context_menu: None,
             file_hover_ui: None,
 
-            directory_selectable: true,
+            directory_selectable: false,
             directory_filter: None,
             directory_context_menu: None,
             directory_hover_ui: None,
@@ -217,15 +217,18 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         directory_path: &Path,
         default_open: bool,
     ) -> Option<Response> {
-        let directory_name = if directory_path.parent().is_none() {
-            "Root directory"
-        } else {
-            directory_path.file_name().and_then(OsStr::to_str).unwrap()
+        let directory_label = {
+            let directory_name = if directory_path.parent().is_none() {
+                "Root directory"
+            } else {
+                directory_path.file_name().and_then(OsStr::to_str).unwrap()
+            };
+            let directory_symbol = directory_path.symbol();
+
+            format!("{directory_symbol:} {directory_name:}")
         };
 
-        let directory_symbol = directory_path.symbol();
-        let directory_label = format!("{directory_symbol:} {directory_name:}");
-
+        // TODO: Reimplement force_selected_open
         let open_state = if self.force_selected_open {
             self.selected_path
                 .as_mut()
@@ -246,6 +249,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                             directory_label,
                         )
                     } else {
+                        // TODO: Toggle CollapsingState on label click
                         ui.label(directory_label)
                     };
 
@@ -331,14 +335,16 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
     #[allow(clippy::unnecessary_wraps)] // Necessary wrap, false warning
     fn show_file(&mut self, ui: &mut Ui, file_path: &Path) -> Option<Response> {
-        let file_name = if self.hide_file_extensions {
-            file_path.file_stem().and_then(OsStr::to_str).unwrap()
-        } else {
-            file_path.file_name().and_then(OsStr::to_str).unwrap()
-        };
+        let file_label = {
+            let file_name = if self.hide_file_extensions {
+                file_path.file_stem().and_then(OsStr::to_str).unwrap()
+            } else {
+                file_path.file_name().and_then(OsStr::to_str).unwrap()
+            };
+            let file_symbol = file_path.symbol();
 
-        let file_symbol = file_path.symbol();
-        let file_label = format!("{file_symbol:} {file_name:}");
+            format!("{file_symbol:} {file_name:}")
+        };
 
         let mut response = if self.file_selectable {
             ui.selectable_value(
