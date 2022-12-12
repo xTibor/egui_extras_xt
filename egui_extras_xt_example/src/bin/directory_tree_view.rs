@@ -83,7 +83,7 @@ impl eframe::App for DirectoryTreeViewExample {
 
 fn main() {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(640.0, 480.0)),
+        initial_window_size: Some(vec2(320.0, 480.0)),
         ..Default::default()
     };
 
