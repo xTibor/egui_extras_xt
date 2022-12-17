@@ -203,8 +203,11 @@ impl<'a> Widget for DirectoryTreeViewWidget<'a> {
         ScrollArea::both()
             .auto_shrink([false, false])
             .show(ui, |ui| {
-                self.show_directory(ui, self.root_directory, true)
-                    .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response
+                ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
+                    self.show_directory(ui, self.root_directory, true)
+                        .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response
+                })
+                .inner
             })
             .inner
     }

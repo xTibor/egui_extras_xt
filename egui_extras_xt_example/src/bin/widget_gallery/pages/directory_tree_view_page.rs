@@ -32,7 +32,8 @@ impl Default for DirectoryTreeViewPage {
 
 impl PageImpl for DirectoryTreeViewPage {
     fn ui(&mut self, ui: &mut Ui) {
-        ui.add(
+        ui.add_sized(
+            [300.0, 300.0],
             DirectoryTreeViewWidget::new(&mut self.selected_path, &self.root_path)
                 .force_selected_open(self.force_selected_open)
                 .hide_file_extensions(self.hide_file_extensions)
