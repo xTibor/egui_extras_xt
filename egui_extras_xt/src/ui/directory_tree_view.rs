@@ -4,7 +4,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use egui::collapsing_header::CollapsingState;
+use egui::collapsing_header::{paint_default_icon, CollapsingState};
 use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{Align, InnerResponse, Layout, Response, ScrollArea, Ui, Widget};
 use itertools::Itertools;
@@ -231,112 +231,117 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             format!("{directory_symbol:} {directory_name:}")
         };
 
-        // TODO: Reimplement force_selected_open
-        let open_state = if self.force_selected_open {
-            self.selected_path
-                .as_mut()
-                .map(|selected_path| selected_path.starts_with(directory_path))
-        } else {
-            None
-        };
+        let mut collapsing_state = CollapsingState::load_with_default_open(
+            ui.ctx(),
+            ui.make_persistent_id(directory_path),
+            default_open,
+        );
 
-        let collapsing_state_id = ui.make_persistent_id(directory_path);
+        if let Some(selected_path) = self.selected_path {
+            if self.force_selected_open {
+                collapsing_state.set_open(selected_path.starts_with(directory_path));
+            }
+        }
 
-        let (_button_response, header_response, body_response) =
-            // TODO: Toggle CollapsingState on label click
-            CollapsingState::load_with_default_open(ui.ctx(), collapsing_state_id, default_open)
-                .show_header(ui, |ui| {
-                    let mut response = ui
-                        .with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
-                            if self.directory_selectable {
-                                ui.selectable_value(
-                                    self.selected_path,
-                                    Some(directory_path.to_path_buf()),
-                                    directory_label,
-                                )
+        let mut header_response = ui
+            .horizontal(|ui| {
+                ui.spacing_mut().item_spacing.x = 0.0;
+                collapsing_state.show_toggle_button(ui, paint_default_icon);
+                ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
+                    if self.directory_selectable {
+                        ui.selectable_value(
+                            self.selected_path,
+                            Some(directory_path.to_path_buf()),
+                            directory_label,
+                        )
+                    } else {
+                        ui.label(directory_label)
+                    }
+                })
+                .inner
+            })
+            .inner;
+
+        if header_response.double_clicked() {
+            collapsing_state.toggle(ui);
+            header_response.mark_changed();
+        }
+
+        if let Some((add_contents_fn, enabled_fn)) = &self.directory_context_menu {
+            if enabled_fn(directory_path) {
+                header_response =
+                    header_response.context_menu(|ui| add_contents_fn(ui, directory_path));
+            }
+        }
+
+        if let Some((add_contents_fn, enabled_fn)) = &self.directory_hover_ui {
+            if enabled_fn(directory_path) {
+                header_response =
+                    header_response.on_hover_ui(|ui| add_contents_fn(ui, directory_path));
+            }
+        }
+
+        let body_response = collapsing_state.show_body_indented(&header_response, ui, |ui| {
+            let cached_directory_listing = {
+                let mut memory = ui.memory();
+                let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
+                cache.get(directory_path)
+            };
+
+            match cached_directory_listing.borrow() {
+                Ok(cached_directory_listing) => {
+                    let filtered_directory_listing = cached_directory_listing
+                        .iter()
+                        .filter(|path| {
+                            #[allow(clippy::collapsible_else_if)]
+                            if path.is_dir() {
+                                if let Some(directory_filter) = &self.directory_filter {
+                                    directory_filter(path)
+                                } else {
+                                    true
+                                }
                             } else {
-                                ui.label(directory_label)
+                                if let Some(file_filter) = &self.file_filter {
+                                    file_filter(path)
+                                } else {
+                                    true
+                                }
                             }
                         })
-                        .inner;
+                        .collect_vec();
 
-                    if let Some((add_contents_fn, enabled_fn)) = &self.directory_context_menu {
-                        if enabled_fn(directory_path) {
-                            response =
-                                response.context_menu(|ui| add_contents_fn(ui, directory_path));
-                        }
+                    if !filtered_directory_listing.is_empty() {
+                        filtered_directory_listing
+                            .iter()
+                            .filter_map(|path| {
+                                if path.is_dir() {
+                                    self.show_directory(ui, path, false)
+                                } else {
+                                    self.show_file(ui, path)
+                                }
+                            })
+                            .reduce(|result, response| result.union(response))
+                    } else {
+                        ui.weak("Empty directory");
+                        None
                     }
+                }
 
-                    if let Some((add_contents_fn, enabled_fn)) = &self.directory_hover_ui {
-                        if enabled_fn(directory_path) {
-                            response =
-                                response.on_hover_ui(|ui| add_contents_fn(ui, directory_path));
-                        }
-                    }
-
-                    response
-                })
-                .body(|ui| {
-                    let cached_directory_listing = {
-                        let mut memory = ui.memory();
-                        let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
-                        cache.get(directory_path)
-                    };
-
-                    match cached_directory_listing.borrow() {
-                        Ok(cached_directory_listing) => {
-                            let filtered_directory_listing = cached_directory_listing
-                                .iter()
-                                .filter(|path| {
-                                    #[allow(clippy::collapsible_else_if)]
-                                    if path.is_dir() {
-                                        if let Some(directory_filter) = &self.directory_filter {
-                                            directory_filter(path)
-                                        } else {
-                                            true
-                                        }
-                                    } else {
-                                        if let Some(file_filter) = &self.file_filter {
-                                            file_filter(path)
-                                        } else {
-                                            true
-                                        }
-                                    }
-                                })
-                                .collect_vec();
-
-                            if !filtered_directory_listing.is_empty() {
-                                filtered_directory_listing
-                                    .iter()
-                                    .filter_map(|path| {
-                                        if path.is_dir() {
-                                            self.show_directory(ui, path, false)
-                                        } else {
-                                            self.show_file(ui, path)
-                                        }
-                                    })
-                                    .reduce(|result, response| result.union(response))
-                            } else {
-                                ui.weak("Empty directory");
-                                None
-                            }
-                        }
-
-                        Err(err) => {
-                            ui.weak(format!("\u{1F525} {err}"));
-                            None
-                        }
-                    }
-                });
+                Err(err) => {
+                    ui.weak(format!("\u{1F525} {err}"));
+                    None
+                }
+            }
+        });
 
         if let Some(InnerResponse {
             inner: Some(body_response),
             ..
         }) = body_response
         {
-            Some(header_response.inner.union(body_response))
+            Some(header_response.union(body_response))
         } else {
-            Some(header_response.inner)
+            Some(header_response)
         }
     }
 
