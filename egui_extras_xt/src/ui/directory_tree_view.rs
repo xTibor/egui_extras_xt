@@ -251,7 +251,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
                 ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     if self.directory_selectable {
-                        let mut response = ui.selectable_value(
+                        let response = ui.selectable_value(
                             self.selected_path,
                             Some(directory_path.to_path_buf()),
                             directory_label,
@@ -259,17 +259,15 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
                         if response.double_clicked() {
                             collapsing_state.toggle(ui);
-                            response.mark_changed();
                         }
 
                         response
                     } else {
-                        let mut response =
+                        let response =
                             ui.add(Label::new(directory_label).sense(Sense::click()));
 
                         if response.clicked() {
                             collapsing_state.toggle(ui);
-                            response.mark_changed();
                         }
 
                         response
