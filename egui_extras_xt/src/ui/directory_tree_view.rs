@@ -203,6 +203,7 @@ impl<'a> Widget for DirectoryTreeViewWidget<'a> {
         ScrollArea::both()
             .auto_shrink([false, false])
             .show(ui, |ui| {
+                ui.style_mut().wrap = Some(false);
                 ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     self.show_directory(ui, self.root_directory, true)
                         .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response
@@ -263,11 +264,8 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
                         response
                     } else {
-                        let mut response = ui.add(
-                            Label::new(directory_label)
-                                .wrap(false)
-                                .sense(Sense::click()),
-                        );
+                        let mut response =
+                            ui.add(Label::new(directory_label).sense(Sense::click()));
 
                         if response.clicked() {
                             collapsing_state.toggle(ui);
@@ -381,7 +379,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                         file_label,
                     )
                 } else {
-                    ui.add(Label::new(file_label).wrap(false))
+                    ui.add(Label::new(file_label))
                 }
             })
             .inner;
