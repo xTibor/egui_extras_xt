@@ -17,6 +17,9 @@ use barcode_page::BarcodePage;
 mod datamatrix_page;
 use datamatrix_page::DataMatrixPage;
 
+mod directory_tree_view_page;
+use directory_tree_view_page::DirectoryTreeViewPage;
+
 mod hyperlink_with_icon_page;
 use hyperlink_with_icon_page::HyperlinkWithIconPage;
 
@@ -72,6 +75,10 @@ pub enum PageId {
     #[strum(props(feature = "barcodes"))]
     DataMatrixPage,
 
+    #[strum(to_string = "DirectoryTreeView")]
+    #[strum(props(feature = "ui"))]
+    DirectoryTreeViewPage,
+
     #[strum(to_string = "HyperlinkWithIcon")]
     #[strum(props(feature = "ui"))]
     HyperlinkWithIconPage,
@@ -119,6 +126,7 @@ impl PageId {
             PageId::AudioKnobPage => Box::<AudioKnobPage>::default(),
             PageId::BarcodePage => Box::<BarcodePage>::default(),
             PageId::DataMatrixPage => Box::<DataMatrixPage>::default(),
+            PageId::DirectoryTreeViewPage => Box::<DirectoryTreeViewPage>::default(),
             PageId::HyperlinkWithIconPage => Box::<HyperlinkWithIconPage>::default(),
             PageId::IndicatorButtonPage => Box::<IndicatorButtonPage>::default(),
             PageId::LedDisplayPage => Box::<LedDisplayPage>::default(),

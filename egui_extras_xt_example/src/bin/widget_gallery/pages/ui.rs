@@ -1,4 +1,7 @@
-use eframe::egui::{DragValue, Grid, TextEdit, Ui};
+use std::path::PathBuf;
+use std::str::FromStr;
+
+use eframe::egui::{DragValue, Grid, Response, TextEdit, Ui};
 use eframe::epaint::Color32;
 
 use egui_extras_xt::common::{Orientation, WidgetShape};
@@ -401,4 +404,11 @@ pub fn thumbstick_dead_zone_ui(ui: &mut Ui, value: &mut ThumbstickDeadZone) {
             _ => unimplemented!(),
         }
     });
+}
+
+pub fn pathbuf_ui(ui: &mut Ui, value: &mut PathBuf) -> Response {
+    let mut tmp = value.as_os_str().to_string_lossy().to_string();
+    let response = ui.text_edit_singleline(&mut tmp);
+    *value = PathBuf::from_str(&tmp).unwrap_or_default();
+    response
 }
