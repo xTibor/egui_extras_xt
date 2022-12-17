@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use egui::collapsing_header::{paint_default_icon, CollapsingState};
 use egui::util::cache::{ComputerMut, FrameCache};
-use egui::{Align, InnerResponse, Layout, Response, ScrollArea, Ui, Widget};
+use egui::{Align, InnerResponse, Label, Layout, Response, ScrollArea, Sense, Ui, Widget};
 use itertools::Itertools;
 
 use crate::ui::path_symbol::PathSymbol;
@@ -247,25 +247,39 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             .horizontal(|ui| {
                 ui.spacing_mut().item_spacing.x = 0.0;
                 collapsing_state.show_toggle_button(ui, paint_default_icon);
+
                 ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     if self.directory_selectable {
-                        ui.selectable_value(
+                        let mut response = ui.selectable_value(
                             self.selected_path,
                             Some(directory_path.to_path_buf()),
                             directory_label,
-                        )
+                        );
+
+                        if response.double_clicked() {
+                            collapsing_state.toggle(ui);
+                            response.mark_changed();
+                        }
+
+                        response
                     } else {
-                        ui.label(directory_label)
+                        let mut response = ui.add(
+                            Label::new(directory_label)
+                                .wrap(false)
+                                .sense(Sense::click()),
+                        );
+
+                        if response.clicked() {
+                            collapsing_state.toggle(ui);
+                            response.mark_changed();
+                        }
+
+                        response
                     }
                 })
                 .inner
             })
             .inner;
-
-        if header_response.double_clicked() {
-            collapsing_state.toggle(ui);
-            header_response.mark_changed();
-        }
 
         if let Some((add_contents_fn, enabled_fn)) = &self.directory_context_menu {
             if enabled_fn(directory_path) {
@@ -367,7 +381,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                         file_label,
                     )
                 } else {
-                    ui.label(file_label)
+                    ui.add(Label::new(file_label).wrap(false))
                 }
             })
             .inner;
