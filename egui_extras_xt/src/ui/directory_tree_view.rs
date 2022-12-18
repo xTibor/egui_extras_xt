@@ -29,7 +29,7 @@ impl<'a> ComputerMut<DirectoryTreeViewCacheKey<'a>, DirectoryTreeViewCacheValue>
                 .map(|dir_entry| dir_entry.path())
                 .sorted_by_key(|path| {
                     (
-                        path.is_file(),
+                        !path.is_dir(),
                         path.file_name().unwrap().to_string_lossy().to_lowercase(),
                     )
                 })
@@ -263,8 +263,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
                         response
                     } else {
-                        let response =
-                            ui.add(Label::new(directory_label).sense(Sense::click()));
+                        let response = ui.add(Label::new(directory_label).sense(Sense::click()));
 
                         if response.clicked() {
                             collapsing_state.toggle(ui);
