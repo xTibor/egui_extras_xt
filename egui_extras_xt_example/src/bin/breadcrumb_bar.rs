@@ -23,29 +23,30 @@ impl eframe::App for BreadcrumbBarExample {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
                 let path_cloned = self.path.clone();
-                let path_components = path_cloned.components().collect_vec();
+                let components = path_cloned.components().collect_vec();
 
-                for (path_component_index, path) in (0..path_components.len())
-                    .map(|count| &path_components[..=count])
-                    .map(|slice| slice.iter().collect::<PathBuf>())
+                for (path_prefix_index, path_prefix) in (0..components.len())
+                    .map(|n| components[..=n].iter())
+                    .map(PathBuf::from_iter)
                     .enumerate()
                 {
-                    let component_label = format!(
-                        "{} {}",
-                        path.symbol(),
-                        path.file_name()
+                    let component_label = {
+                        let component_symbol = path_prefix.symbol();
+                        let component_name = path_prefix
+                            .file_name()
                             .map(OsStr::to_string_lossy)
-                            .unwrap_or_default()
-                    );
+                            .unwrap_or_default();
+                        format!("{component_symbol} {component_name}")
+                    };
 
                     if ui
                         .add(Label::new(component_label).sense(Sense::click()))
                         .clicked()
                     {
-                        self.path = path;
+                        self.path = path_prefix;
                     }
 
-                    if path_component_index < path_components.len() - 1 {
+                    if path_prefix_index < components.len() - 1 {
                         ui.label("\u{23F5}");
                     }
                 }
