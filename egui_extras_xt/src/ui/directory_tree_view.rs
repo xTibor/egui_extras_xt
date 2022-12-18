@@ -276,6 +276,16 @@ impl<'a> DirectoryTreeViewWidget<'a> {
             })
             .inner;
 
+        if let Some(selected_path) = self.selected_path {
+            if self.force_selected_open {
+                if selected_path == directory_path {
+                    // TODO: egui 0.20 does not allow specifying separate scrolling alignment per axis.
+                    // Alignment should be (Horizontal::Left, Vertical::Center) here.
+                    header_response.scroll_to_me(Some(Align::Center));
+                }
+            }
+        }
+
         if let Some((add_contents_fn, enabled_fn)) = &self.directory_context_menu {
             if enabled_fn(directory_path) {
                 header_response =
@@ -396,6 +406,8 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         if self.force_selected_open {
             if let Some(selected_path) = self.selected_path {
                 if selected_path == file_path {
+                    // TODO: egui 0.20 does not allow specifying separate scrolling alignment per axis.
+                    // Alignment should be (Horizontal::Left, Vertical::Center) here.
                     response.scroll_to_me(Some(Align::Center));
                 }
             }
