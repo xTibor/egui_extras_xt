@@ -1,9 +1,10 @@
+use std::ffi::OsStr;
 use std::path::PathBuf;
 
 use eframe::egui::{self, Label, Sense};
 use eframe::emath::vec2;
 use egui_extras_xt::ui::path_symbol::PathSymbol;
-use itertools::{Itertools, Position};
+use itertools::Itertools;
 
 struct BreadcrumbBarExample {
     path: PathBuf,
@@ -21,33 +22,36 @@ impl eframe::App for BreadcrumbBarExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                for component in self.path.components().with_position() {
-                    let component_symbol = if !self.path.is_dir()
-                        && matches!(component, Position::Last(_) | Position::Only(_))
-                    {
-                        self.path.symbol()
-                    } else {
-                        component.into_inner().symbol()
-                    };
+                let path_cloned = self.path.clone();
+                let path_components = path_cloned.components().collect_vec();
 
+                for (path_component_index, path) in (0..path_components.len())
+                    .map(|count| &path_components[..=count])
+                    .map(|slice| slice.iter().collect::<PathBuf>())
+                    .enumerate()
+                {
                     let component_label = format!(
                         "{} {}",
-                        component_symbol,
-                        component.into_inner().as_os_str().to_string_lossy()
+                        path.symbol(),
+                        path.file_name()
+                            .map(OsStr::to_string_lossy)
+                            .unwrap_or_default()
                     );
 
                     if ui
                         .add(Label::new(component_label).sense(Sense::click()))
                         .clicked()
                     {
-                        println!("Clicked");
+                        self.path = path;
                     }
 
-                    if matches!(component, Position::First(_) | Position::Middle(_)) {
+                    if path_component_index < path_components.len() - 1 {
                         ui.label("\u{23F5}");
                     }
                 }
-            })
+            });
+
+            ui.separator();
         });
     }
 }

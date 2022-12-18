@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::path::{Path, Component};
+use std::path::Path;
 
 #[cfg(unix)]
 use std::os::unix::prelude::PermissionsExt;
@@ -84,18 +84,6 @@ impl PathSymbol for Path {
                 // Unknown
                 _ => '\u{1F5CB}',
             }
-        }
-    }
-}
-
-impl PathSymbol for Component<'_> {
-    fn symbol(&self) -> char {
-        match self {
-            Component::Prefix(_) => '\u{1F5A5}',
-            Component::RootDir => '\u{1F5A5}',
-            Component::CurDir => '\u{1F5C0}',
-            Component::ParentDir => '\u{1F5C0}',
-            Component::Normal(_) => '\u{1F5C0}',
         }
     }
 }
