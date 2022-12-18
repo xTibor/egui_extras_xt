@@ -263,6 +263,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
 
                         response
                     } else {
+                        // TODO: Same font and metrics as selectable_value
                         let response = ui.add(Label::new(directory_label).sense(Sense::click()));
 
                         if response.clicked() {
@@ -386,6 +387,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                         file_label,
                     )
                 } else {
+                    // TODO: Same font and metrics as selectable_value
                     ui.add(Label::new(file_label))
                 }
             })
