@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use egui::{Label, Sense, Ui};
 use itertools::Itertools;
@@ -7,7 +7,7 @@ use itertools::Itertools;
 use crate::filesystem::path_symbol::PathSymbol;
 
 // TODO: Turn into proper widget
-pub fn breadcrumb_bar(ui: &mut Ui, path: &mut PathBuf) {
+pub fn breadcrumb_bar(ui: &mut Ui, path: &mut PathBuf, root_directory: &Path) {
     ui.horizontal(|ui| {
         let path_cloned = path.clone();
         let components = path_cloned.components().collect_vec();
@@ -16,6 +16,7 @@ pub fn breadcrumb_bar(ui: &mut Ui, path: &mut PathBuf) {
             .map(|n| components[..=n].iter())
             .map(PathBuf::from_iter)
             .enumerate()
+            .filter(|(_, path_prefix)| path_prefix.starts_with(root_directory))
         {
             let component_label = {
                 let component_symbol = path_prefix.symbol();

@@ -23,7 +23,7 @@ impl eframe::App for FilesystemWidgetsExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             if let Some(selected_path) = &mut self.selected_path {
-                breadcrumb_bar(ui, selected_path);
+                breadcrumb_bar(ui, selected_path, &self.root_path);
                 ui.separator();
             }
 
