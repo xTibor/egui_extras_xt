@@ -3,14 +3,14 @@ use std::path::PathBuf;
 
 use eframe::egui;
 use eframe::emath::vec2;
-use egui_extras_xt::filesystem::DirectoryTreeViewWidget;
+use egui_extras_xt::filesystem::{breadcrumb_bar, DirectoryTreeViewWidget};
 
-struct DirectoryTreeViewExample {
+struct FilesystemWidgetsExample {
     root_path: PathBuf,
     selected_path: Option<PathBuf>,
 }
 
-impl Default for DirectoryTreeViewExample {
+impl Default for FilesystemWidgetsExample {
     fn default() -> Self {
         Self {
             root_path: PathBuf::from(".").canonicalize().unwrap(),
@@ -19,14 +19,11 @@ impl Default for DirectoryTreeViewExample {
     }
 }
 
-impl eframe::App for DirectoryTreeViewExample {
+impl eframe::App for FilesystemWidgetsExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            if let Some(selected_path) = self.selected_path.as_ref() {
-                ui.label(format!(
-                    "Selected path: {}",
-                    selected_path.as_os_str().to_str().unwrap()
-                ));
+            if let Some(selected_path) = &mut self.selected_path {
+                breadcrumb_bar(ui, selected_path);
                 ui.separator();
             }
 
@@ -88,8 +85,8 @@ fn main() {
     };
 
     eframe::run_native(
-        "Directory tree view example",
+        "Filesystem widgets example",
         options,
-        Box::new(|_| Box::<DirectoryTreeViewExample>::default()),
+        Box::new(|_| Box::<FilesystemWidgetsExample>::default()),
     );
 }
