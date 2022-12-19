@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use eframe::egui;
 use eframe::emath::vec2;
-use egui_extras_xt::filesystem::breadcrumb_bar::breadcrumb_bar;
+use egui_extras_xt::filesystem::breadcrumb_bar;
 use egui_extras_xt::ui::standard_buttons::StandardButtons;
 
 struct BreadcrumbBarExample {

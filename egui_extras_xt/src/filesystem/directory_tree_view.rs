@@ -1,79 +1,14 @@
 use std::borrow::Borrow;
 use std::ffi::OsStr;
-use std::io;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 use egui::collapsing_header::{paint_default_icon, CollapsingState};
-use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{Align, InnerResponse, Label, Layout, Response, ScrollArea, Sense, Ui, Widget};
 use itertools::Itertools;
 
+use crate::filesystem::directory_cache::DirectoryCache;
 use crate::filesystem::path_symbol::PathSymbol;
-
-// ----------------------------------------------------------------------------
-
-type DirectoryTreeViewCacheKey<'a> = &'a Path;
-type DirectoryTreeViewCacheValue = Arc<io::Result<Vec<PathBuf>>>;
-
-#[derive(Default)]
-struct DirectoryTreeViewComputer;
-
-impl<'a> ComputerMut<DirectoryTreeViewCacheKey<'a>, DirectoryTreeViewCacheValue>
-    for DirectoryTreeViewComputer
-{
-    fn compute(&mut self, key: DirectoryTreeViewCacheKey) -> DirectoryTreeViewCacheValue {
-        Arc::new(std::fs::read_dir(key).map(|read_dir| {
-            read_dir
-                .filter_map(Result::ok)
-                .map(|dir_entry| dir_entry.path())
-                .sorted_by_key(|path| {
-                    (
-                        !path.is_dir(),
-                        path.file_name().unwrap().to_string_lossy().to_lowercase(),
-                    )
-                })
-                .collect_vec()
-        }))
-    }
-}
-
-type DirectoryTreeViewCache<'a> =
-    FrameCache<DirectoryTreeViewCacheValue, DirectoryTreeViewComputer>;
-
-// ----------------------------------------------------------------------------
-
-pub trait DirectoryTreeView {
-    fn directory_tree_view(
-        &mut self,
-        selected_path: &mut Option<PathBuf>,
-        root_directory: &Path,
-    ) -> Response;
-}
-
-impl DirectoryTreeView for Ui {
-    fn directory_tree_view(
-        &mut self,
-        selected_path: &mut Option<PathBuf>,
-        root_directory: &Path,
-    ) -> Response {
-        self.add(DirectoryTreeViewWidget::new(selected_path, root_directory))
-    }
-}
-
-// ----------------------------------------------------------------------------
-
-type DirectoryTreeFilter<'a> = Box<dyn Fn(&Path) -> bool + 'a>;
-
-type DirectoryTreeContextMenu<'a> = (
-    Box<dyn Fn(&mut Ui, &Path) + 'a>,
-    Box<dyn Fn(&Path) -> bool + 'a>,
-);
-
-type DirectoryTreeHoverUi<'a> = (
-    Box<dyn Fn(&mut Ui, &Path) + 'a>,
-    Box<dyn Fn(&Path) -> bool + 'a>,
-);
+use crate::filesystem::{DirectoryContextMenu, DirectoryFilter, DirectoryHoverUi};
 
 // ----------------------------------------------------------------------------
 
@@ -85,14 +20,14 @@ pub struct DirectoryTreeViewWidget<'a> {
     hide_file_extensions: bool,
 
     file_selectable: bool,
-    file_filter: Option<DirectoryTreeFilter<'a>>,
-    file_context_menu: Option<DirectoryTreeContextMenu<'a>>,
-    file_hover_ui: Option<DirectoryTreeHoverUi<'a>>,
+    file_filter: Option<DirectoryFilter<'a>>,
+    file_context_menu: Option<DirectoryContextMenu<'a>>,
+    file_hover_ui: Option<DirectoryHoverUi<'a>>,
 
     directory_selectable: bool,
-    directory_filter: Option<DirectoryTreeFilter<'a>>,
-    directory_context_menu: Option<DirectoryTreeContextMenu<'a>>,
-    directory_hover_ui: Option<DirectoryTreeHoverUi<'a>>,
+    directory_filter: Option<DirectoryFilter<'a>>,
+    directory_context_menu: Option<DirectoryContextMenu<'a>>,
+    directory_hover_ui: Option<DirectoryHoverUi<'a>>,
 }
 
 impl<'a> DirectoryTreeViewWidget<'a> {
@@ -304,7 +239,7 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         let body_response = collapsing_state.show_body_indented(&header_response, ui, |ui| {
             let cached_directory_listing = {
                 let mut memory = ui.memory();
-                let cache = memory.caches.cache::<DirectoryTreeViewCache<'_>>();
+                let cache = memory.caches.cache::<DirectoryCache<'_>>();
                 cache.get(directory_path)
             };
 
