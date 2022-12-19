@@ -43,16 +43,25 @@ impl eframe::App for BreadcrumbBarExample {
                         .add(Label::new(component_label).sense(Sense::click()))
                         .clicked()
                     {
-                        self.path = path_prefix;
+                        self.path = path_prefix.clone();
                     }
 
                     if path_prefix_index < components.len() - 1 {
-                        ui.label("\u{23F5}");
+                        if ui
+                            .add(Label::new("\u{23F5}").sense(Sense::click()))
+                            .clicked()
+                        {
+                            println!("List contents of {:?}", &path_prefix)
+                        }
                     }
                 }
             });
 
             ui.separator();
+
+            if ui.button("\u{1F504} Reset").clicked() {
+                *self = Self::default();
+            }
         });
     }
 }
