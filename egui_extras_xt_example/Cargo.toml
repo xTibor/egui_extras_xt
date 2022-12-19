@@ -15,7 +15,7 @@ default-run = "widget_gallery"
 maintenance = { status = "as-is" }
 
 [dependencies]
-egui_extras_xt = { path = "../egui_extras_xt/", features = ["barcodes", "knobs", "compasses", "displays", "ui"] }
+egui_extras_xt = { path = "../egui_extras_xt/", features = ["barcodes", "compasses", "displays", "filesystem", "knobs", "ui"] }
 
 eframe = "0.20.0"
 itertools = "0.10.3"

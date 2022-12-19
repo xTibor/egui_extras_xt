@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use eframe::egui;
 use eframe::emath::vec2;
-use egui_extras_xt::ui::directory_tree_view::DirectoryTreeViewWidget;
+use egui_extras_xt::filesystem::directory_tree_view::DirectoryTreeViewWidget;
 
 struct DirectoryTreeViewExample {
     root_path: PathBuf,

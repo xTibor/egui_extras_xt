@@ -13,6 +13,9 @@ pub mod compasses;
 #[cfg(feature = "displays")]
 pub mod displays;
 
+#[cfg(feature = "filesystem")]
+pub mod filesystem;
+
 #[cfg(feature = "knobs")]
 pub mod knobs;
 

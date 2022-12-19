@@ -1,10 +1,8 @@
-use std::ffi::OsStr;
 use std::path::PathBuf;
 
-use eframe::egui::{self, Label, Sense};
+use eframe::egui;
 use eframe::emath::vec2;
-use egui_extras_xt::ui::path_symbol::PathSymbol;
-use itertools::Itertools;
+use egui_extras_xt::filesystem::breadcrumb_bar::breadcrumb_bar;
 
 struct BreadcrumbBarExample {
     path: PathBuf,
@@ -21,42 +19,7 @@ impl Default for BreadcrumbBarExample {
 impl eframe::App for BreadcrumbBarExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                let path_cloned = self.path.clone();
-                let components = path_cloned.components().collect_vec();
-
-                for (path_prefix_index, path_prefix) in (0..components.len())
-                    .map(|n| components[..=n].iter())
-                    .map(PathBuf::from_iter)
-                    .enumerate()
-                {
-                    let component_label = {
-                        let component_symbol = path_prefix.symbol();
-                        let component_name = path_prefix
-                            .file_name()
-                            .map(OsStr::to_string_lossy)
-                            .unwrap_or_default();
-                        format!("{component_symbol} {component_name}")
-                    };
-
-                    let mut response = ui.add(Label::new(component_label).sense(Sense::click()));
-
-                    if path_prefix.is_dir() {
-                        response = response.context_menu(|ui| {
-                            let _ = ui.button(format!("Contents of {:?}", &path_prefix));
-                        });
-                    }
-
-                    if response.clicked() {
-                        self.path = path_prefix.clone();
-                    }
-
-                    if path_prefix_index < components.len() - 1 {
-                        ui.add(Label::new("\u{23F5}"));
-                    }
-                }
-            });
-
+            breadcrumb_bar(ui, &mut self.path);
             ui.separator();
 
             if ui.button("\u{1F504} Reset").clicked() {

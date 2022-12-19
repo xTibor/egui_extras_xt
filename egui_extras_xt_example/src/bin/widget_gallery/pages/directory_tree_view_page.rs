@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use eframe::egui::{Grid, Ui};
-use egui_extras_xt::ui::directory_tree_view::DirectoryTreeViewWidget;
+use egui_extras_xt::filesystem::directory_tree_view::DirectoryTreeViewWidget;
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 
 use crate::pages::PageImpl;

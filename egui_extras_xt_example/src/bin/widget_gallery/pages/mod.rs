@@ -76,7 +76,7 @@ pub enum PageId {
     DataMatrixPage,
 
     #[strum(to_string = "DirectoryTreeView")]
-    #[strum(props(feature = "ui"))]
+    #[strum(props(feature = "filesystem"))]
     DirectoryTreeViewPage,
 
     #[strum(to_string = "HyperlinkWithIcon")]

@@ -9,7 +9,7 @@ use egui::util::cache::{ComputerMut, FrameCache};
 use egui::{Align, InnerResponse, Label, Layout, Response, ScrollArea, Sense, Ui, Widget};
 use itertools::Itertools;
 
-use crate::ui::path_symbol::PathSymbol;
+use crate::filesystem::path_symbol::PathSymbol;
 
 // ----------------------------------------------------------------------------
 
