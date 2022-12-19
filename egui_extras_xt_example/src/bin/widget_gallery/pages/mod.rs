@@ -44,6 +44,9 @@ use rotated_label_page::RotatedLabelPage;
 mod segmented_display_page;
 use segmented_display_page::SegmentedDisplayPage;
 
+mod standard_buttons_page;
+use standard_buttons_page::StandardButtonsPage;
+
 mod thumbstick_widget_page;
 use thumbstick_widget_page::ThumbstickWidgetPage;
 
@@ -111,6 +114,10 @@ pub enum PageId {
     #[strum(props(feature = "displays"))]
     SegmentedDisplayPage,
 
+    #[strum(to_string = "StandardButtons")]
+    #[strum(props(feature = "ui"))]
+    StandardButtonsPage,
+
     #[strum(to_string = "ThumbstickWidget")]
     #[strum(props(feature = "knobs"))]
     ThumbstickWidgetPage,
@@ -135,6 +142,7 @@ impl PageId {
             PageId::QrCodePage => Box::<QrCodePage>::default(),
             PageId::RotatedLabelPage => Box::<RotatedLabelPage>::default(),
             PageId::SegmentedDisplayPage => Box::<SegmentedDisplayPage>::default(),
+            PageId::StandardButtonsPage => Box::<StandardButtonsPage>::default(),
             PageId::ThumbstickWidgetPage => Box::<ThumbstickWidgetPage>::default(),
             PageId::WelcomePage => Box::<WelcomePage>::default(),
         }

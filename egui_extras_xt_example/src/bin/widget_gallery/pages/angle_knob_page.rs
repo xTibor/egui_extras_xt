@@ -2,6 +2,7 @@ use eframe::egui::{DragValue, Grid, Ui};
 use egui_extras_xt::common::{Orientation, WidgetShape, Winding, WrapMode};
 use egui_extras_xt::knobs::{AngleKnob, AngleKnobPreset};
 use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
+use egui_extras_xt::ui::standard_buttons::StandardButtons;
 use egui_extras_xt::ui::widgets_from_iter::{ComboBoxFromIter, SelectableValueFromIter};
 use strum::IntoEnumIterator;
 
@@ -87,8 +88,14 @@ impl PageImpl for AngleKnobPage {
 
                 ui.label("Preset");
                 ui.horizontal(|ui| {
-                    ui.combobox_from_iter("", &mut self.preset, AngleKnobPreset::iter());
-                    if ui.button("\u{2714} Apply").clicked() {
+                    if ui
+                        .combobox_from_iter("", &mut self.preset, AngleKnobPreset::iter())
+                        .changed()
+                    {
+                        (self.orientation, self.winding, self.wrap) = self.preset.properties();
+                    }
+
+                    if ui.reset_button().clicked() {
                         (self.orientation, self.winding, self.wrap) = self.preset.properties();
                     }
                 });
