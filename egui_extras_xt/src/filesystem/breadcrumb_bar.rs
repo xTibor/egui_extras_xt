@@ -1,7 +1,7 @@
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
-use egui::{Label, Sense, Ui, Widget, Response};
+use egui::{Label, Response, Sense, Ui, Widget};
 use itertools::Itertools;
 
 use crate::filesystem::path_symbol::PathSymbol;
@@ -23,7 +23,6 @@ pub struct BreadcrumbBar<'a> {
     directory_context_menu: Option<DirectoryContextMenu<'a>>,
     directory_hover_ui: Option<DirectoryHoverUi<'a>>,
 }
-
 
 impl<'a> BreadcrumbBar<'a> {
     pub fn new(selected_path: &'a mut PathBuf, root_directory: &'a Path) -> Self {
@@ -134,9 +133,46 @@ impl<'a> Widget for BreadcrumbBar<'a> {
                 let mut response = ui.add(Label::new(component_label).sense(Sense::click()));
 
                 if path_prefix.is_dir() {
-                    response = response.context_menu(|ui| {
-                        let _ = ui.button(format!("Contents of {:?}", &path_prefix));
-                    });
+                    if let Some((hover_ui_contents, hover_ui_enabled)) = &self.directory_hover_ui {
+                        if hover_ui_enabled(&path_prefix) {
+                            response =
+                                response.on_hover_ui(|ui| hover_ui_contents(ui, &path_prefix));
+                        }
+                    }
+
+                    if let Some((context_menu_contents, context_menu_enabled)) =
+                        &self.directory_context_menu
+                    {
+                        response = response.context_menu(|ui| {
+                            if context_menu_enabled(&path_prefix) {
+                                context_menu_contents(ui, &path_prefix);
+                                ui.separator();
+                            }
+
+                            if ui
+                                .button(format!("Contents of {:?}", path_prefix))
+                                .clicked()
+                            {
+                                ui.close_menu();
+                            }
+                        });
+                    }
+                } else {
+                    if let Some((hover_ui_contents, hover_ui_enabled)) = &self.file_hover_ui {
+                        if hover_ui_enabled(&path_prefix) {
+                            response =
+                                response.on_hover_ui(|ui| hover_ui_contents(ui, &path_prefix));
+                        }
+                    }
+
+                    if let Some((context_menu_contents, context_menu_enabled)) =
+                        &self.file_context_menu
+                    {
+                        if context_menu_enabled(&path_prefix) {
+                            response =
+                                response.context_menu(|ui| context_menu_contents(ui, &path_prefix));
+                        }
+                    }
                 }
 
                 if response.clicked() {
