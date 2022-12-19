@@ -4,7 +4,7 @@ mod directory_tree_view;
 mod path_symbol;
 
 pub use directory_tree_view::DirectoryTreeViewWidget;
-pub use breadcrumb_bar::breadcrumb_bar;
+pub use breadcrumb_bar::BreadcrumbBar;
 
 // ----------------------------------------------------------------------------
 
