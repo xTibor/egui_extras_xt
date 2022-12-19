@@ -39,20 +39,20 @@ impl eframe::App for BreadcrumbBarExample {
                         format!("{component_symbol} {component_name}")
                     };
 
-                    if ui
-                        .add(Label::new(component_label).sense(Sense::click()))
-                        .clicked()
-                    {
+                    let mut response = ui.add(Label::new(component_label).sense(Sense::click()));
+
+                    if path_prefix.is_dir() {
+                        response = response.context_menu(|ui| {
+                            let _ = ui.button(format!("Contents of {:?}", &path_prefix));
+                        });
+                    }
+
+                    if response.clicked() {
                         self.path = path_prefix.clone();
                     }
 
                     if path_prefix_index < components.len() - 1 {
-                        if ui
-                            .add(Label::new("\u{23F5}").sense(Sense::click()))
-                            .clicked()
-                        {
-                            println!("List contents of {:?}", &path_prefix)
-                        }
+                        ui.add(Label::new("\u{23F5}"));
                     }
                 }
             });
