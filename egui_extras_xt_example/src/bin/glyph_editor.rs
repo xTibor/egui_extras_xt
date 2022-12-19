@@ -6,6 +6,7 @@ use strum::IntoEnumIterator;
 
 use egui_extras_xt::displays::segmented_display::{DisplayDigit, DisplayGlyph};
 use egui_extras_xt::displays::{DisplayKind, SegmentedDisplayWidget};
+use egui_extras_xt::ui::standard_buttons::StandardButtons;
 use egui_extras_xt::ui::widgets_from_iter::SelectableValueFromIter;
 
 struct GlyphEditorApp {
@@ -40,7 +41,7 @@ impl eframe::App for GlyphEditorApp {
                     });
 
                     ui.horizontal(|ui| {
-                        if ui.button("Reset").clicked() {
+                        if ui.reset_button().clicked() {
                             self.digit = DisplayDigit::default();
                         }
 

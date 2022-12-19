@@ -7,6 +7,7 @@ use eframe::egui::{self, TextEdit};
 use eframe::emath::vec2;
 
 use egui_extras_xt::show_about_window;
+use egui_extras_xt::ui::standard_buttons::StandardButtons;
 
 use itertools::Itertools;
 use strum::{EnumProperty, IntoEnumIterator};
@@ -126,7 +127,7 @@ impl eframe::App for WidgetGallery {
 
                 ui.separator();
 
-                if ui.button("\u{1F504} Reset").clicked() {
+                if ui.reset_button().clicked() {
                     self.pages
                         .insert(self.current_page, self.current_page.create_page());
                 }

@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use eframe::egui;
 use eframe::emath::vec2;
 use egui_extras_xt::filesystem::breadcrumb_bar::breadcrumb_bar;
+use egui_extras_xt::ui::standard_buttons::StandardButtons;
 
 struct BreadcrumbBarExample {
     path: PathBuf,
@@ -22,7 +23,7 @@ impl eframe::App for BreadcrumbBarExample {
             breadcrumb_bar(ui, &mut self.path);
             ui.separator();
 
-            if ui.button("\u{1F504} Reset").clicked() {
+            if ui.reset_button().clicked() {
                 *self = Self::default();
             }
         });

@@ -2,6 +2,7 @@ use eframe::egui::{self, global_dark_light_mode_switch};
 use eframe::emath::vec2;
 
 use egui_extras_xt::compasses::{CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass};
+use egui_extras_xt::ui::standard_buttons::StandardButtons;
 
 struct GpsPosition(f32, f32);
 
@@ -74,7 +75,7 @@ impl eframe::App for CompassWidgetsExample {
                 global_dark_light_mode_switch(ui);
                 ui.heading("Compass widgets example");
 
-                if ui.button("Reset").clicked() {
+                if ui.reset_button().clicked() {
                     *self = Self::default();
                 }
             });

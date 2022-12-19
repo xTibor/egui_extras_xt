@@ -9,6 +9,7 @@ use egui_extras_xt::compasses::{CompassMarkerShape, DefaultCompassMarkerColor};
 use egui_extras_xt::displays::segmented_display::DisplayMetricsPreset;
 use egui_extras_xt::displays::{DisplayMetrics, DisplayStyle, DisplayStylePreset};
 use egui_extras_xt::knobs::{ThumbstickDeadZone, ThumbstickSnap};
+use egui_extras_xt::ui::standard_buttons::StandardButtons;
 use egui_extras_xt::ui::widgets_from_iter::ComboBoxFromIter;
 use egui_extras_xt::ui::widgets_from_slice::{ComboBoxFromSlice, SelectableValueFromSlice};
 
@@ -34,7 +35,7 @@ pub fn display_style_ui(
                         *style = style_preset.style();
                     }
 
-                    if ui.button("\u{1F504} Reset").clicked() {
+                    if ui.reset_button().clicked() {
                         *style = style_preset.style();
                     }
                 });
@@ -89,7 +90,7 @@ pub fn display_metrics_ui(
                         *metrics = metrics_preset.metrics();
                     }
 
-                    if ui.button("\u{1F504} Reset").clicked() {
+                    if ui.reset_button().clicked() {
                         *metrics = metrics_preset.metrics();
                     }
                 });
