@@ -14,6 +14,7 @@ pub struct BreadcrumbBar<'a> {
     selected_path: &'a mut PathBuf,
     root_directory: &'a Path,
     hide_file_extensions: bool,
+    allow_navigation: bool,
 
     file_filter: Option<DirectoryFilter<'a>>,
     file_context_menu: Option<DirectoryContextMenu<'a>>,
@@ -30,6 +31,7 @@ impl<'a> BreadcrumbBar<'a> {
             selected_path,
             root_directory,
             hide_file_extensions: false,
+            allow_navigation: true,
 
             file_filter: None,
             file_context_menu: None,
@@ -43,6 +45,11 @@ impl<'a> BreadcrumbBar<'a> {
 
     pub fn hide_file_extensions(mut self, hide_file_extensions: bool) -> Self {
         self.hide_file_extensions = hide_file_extensions;
+        self
+    }
+
+    pub fn allow_navigation(mut self, allow_navigation: bool) -> Self {
+        self.allow_navigation = allow_navigation;
         self
     }
 
@@ -144,16 +151,23 @@ impl<'a> Widget for BreadcrumbBar<'a> {
                         &self.directory_context_menu
                     {
                         response = response.context_menu(|ui| {
-                            if context_menu_enabled(&path_prefix) {
+                            let context_menu_enabled = context_menu_enabled(&path_prefix);
+
+                            if context_menu_enabled {
                                 context_menu_contents(ui, &path_prefix);
-                                ui.separator();
                             }
 
-                            if ui
-                                .button(format!("Contents of {:?}", path_prefix))
-                                .clicked()
-                            {
-                                ui.close_menu();
+                            if self.allow_navigation {
+                                if context_menu_enabled {
+                                    ui.separator();
+                                }
+
+                                if ui
+                                    .button(format!("Contents of {:?}", path_prefix))
+                                    .clicked()
+                                {
+                                    ui.close_menu();
+                                }
                             }
                         });
                     }
@@ -175,7 +189,7 @@ impl<'a> Widget for BreadcrumbBar<'a> {
                     }
                 }
 
-                if response.clicked() {
+                if response.clicked() && self.allow_navigation {
                     *self.selected_path = path_prefix.clone();
                     response.mark_changed();
                 }
