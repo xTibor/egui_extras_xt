@@ -27,6 +27,7 @@ pub struct AudioKnob<'a> {
     get_set_value: GetSetValue<'a>,
     interactive: bool,
     diameter: f32,
+    drag_length: f32,
     winding: Winding,
     orientation: Orientation,
     range: RangeInclusive<f32>,
@@ -53,6 +54,7 @@ impl<'a> AudioKnob<'a> {
             get_set_value: Box::new(get_set_value),
             interactive: true,
             diameter: 32.0,
+            drag_length: 1.0,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
             range: 0.0..=1.0,
@@ -72,6 +74,11 @@ impl<'a> AudioKnob<'a> {
 
     pub fn diameter(mut self, diameter: impl Into<f32>) -> Self {
         self.diameter = diameter.into();
+        self
+    }
+
+    pub fn drag_length(mut self, drag_length: impl Into<f32>) -> Self {
+        self.drag_length = drag_length.into();
         self
     }
 
@@ -142,7 +149,7 @@ impl<'a> Widget for AudioKnob<'a> {
             let mut new_value = get(&mut self.get_set_value);
 
             let delta = drag_delta.x + drag_delta.y * self.winding.to_float();
-            new_value += delta * (self.range.end() - self.range.start()) / self.diameter;
+            new_value += delta * (self.range.end() - self.range.start()) / (self.diameter * self.drag_length);
 
             set(&mut self.get_set_value, constrain_value(new_value));
             response.mark_changed();
