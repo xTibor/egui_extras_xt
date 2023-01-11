@@ -15,6 +15,7 @@ pub struct AudioKnobPage {
     value: f32,
     interactive: bool,
     diameter: f32,
+    drag_length: f32,
     winding: Winding,
     orientation: Orientation,
     range: RangeInclusive<f32>,
@@ -32,6 +33,7 @@ impl Default for AudioKnobPage {
             value: 0.0,
             interactive: true,
             diameter: 32.0,
+            drag_length: 1.0,
             orientation: Orientation::Top,
             winding: Winding::Clockwise,
             range: 0.0..=1.0,
@@ -51,6 +53,7 @@ impl PageImpl for AudioKnobPage {
             AudioKnob::new(&mut self.value)
                 .interactive(self.interactive)
                 .diameter(self.diameter)
+                .drag_length(self.drag_length)
                 .orientation(self.orientation)
                 .winding(self.winding)
                 .range(self.range.clone())
@@ -78,6 +81,10 @@ impl PageImpl for AudioKnobPage {
 
                 ui.label("Diameter");
                 ui.add(DragValue::new(&mut self.diameter));
+                ui.end_row();
+
+                ui.label("Drag length");
+                ui.add(DragValue::new(&mut self.drag_length));
                 ui.end_row();
 
                 ui.label("Winding");
