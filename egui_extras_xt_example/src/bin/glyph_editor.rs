@@ -89,7 +89,7 @@ impl eframe::App for GlyphEditorApp {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(570.0, 410.0)),
         ..Default::default()
@@ -99,5 +99,5 @@ fn main() {
         "Glyph Editor",
         options,
         Box::new(|_| Box::<GlyphEditorApp>::default()),
-    );
+    )
 }

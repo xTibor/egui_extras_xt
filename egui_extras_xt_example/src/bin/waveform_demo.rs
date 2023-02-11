@@ -80,7 +80,7 @@ impl eframe::App for WaveformDemoApp {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(640.0, 480.0)),
         ..Default::default()
@@ -90,5 +90,5 @@ fn main() {
         "Waveform Display",
         options,
         Box::new(|_| Box::<WaveformDemoApp>::default()),
-    );
+    )
 }

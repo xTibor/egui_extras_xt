@@ -144,7 +144,7 @@ impl eframe::App for TimeCircuitsExample {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(878.0, 422.0)),
         ..Default::default()
@@ -154,5 +154,5 @@ fn main() {
         "DeLorean Time Circuits",
         options,
         Box::new(|_| Box::<TimeCircuitsExample>::default()),
-    );
+    )
 }

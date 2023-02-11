@@ -159,7 +159,7 @@ impl eframe::App for WidgetGallery {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(800.0, 600.0)),
         ..Default::default()
@@ -169,5 +169,5 @@ fn main() {
         "Widget Gallery",
         options,
         Box::new(|_| Box::<WidgetGallery>::default()),
-    );
+    )
 }

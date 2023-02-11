@@ -121,7 +121,7 @@ impl eframe::App for CompassWidgetsExample {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(580.0, 680.0)),
         ..Default::default()
@@ -131,5 +131,5 @@ fn main() {
         "Compass widgets example",
         options,
         Box::new(|_| Box::<CompassWidgetsExample>::default()),
-    );
+    )
 }

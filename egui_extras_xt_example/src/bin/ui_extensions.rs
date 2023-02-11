@@ -217,7 +217,7 @@ impl eframe::App for UiExtensionsExample {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(640.0, 480.0)),
         ..Default::default()
@@ -227,5 +227,5 @@ fn main() {
         "Ui extensions",
         options,
         Box::new(|_| Box::<UiExtensionsExample>::default()),
-    );
+    )
 }
