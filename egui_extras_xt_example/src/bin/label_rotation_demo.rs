@@ -44,7 +44,7 @@ impl eframe::App for LabelRotationDemo {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(500.0, 500.0)),
         ..Default::default()
@@ -54,5 +54,5 @@ fn main() {
         "You spin me round (like a record)",
         options,
         Box::new(|_| Box::<LabelRotationDemo>::default()),
-    );
+    )
 }

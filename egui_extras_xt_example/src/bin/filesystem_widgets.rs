@@ -129,7 +129,7 @@ impl eframe::App for FilesystemWidgetsExample {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(320.0, 480.0)),
         ..Default::default()
@@ -139,5 +139,5 @@ fn main() {
         "Filesystem widgets example",
         options,
         Box::new(|_| Box::<FilesystemWidgetsExample>::default()),
-    );
+    )
 }

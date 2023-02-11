@@ -18,7 +18,7 @@ impl eframe::App for AboutWindowExample {
     }
 }
 
-fn main() {
+fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         initial_window_size: Some(vec2(640.0, 480.0)),
         ..Default::default()
@@ -28,5 +28,5 @@ fn main() {
         "About window example",
         options,
         Box::new(|_| Box::<AboutWindowExample>::default()),
-    );
+    )
 }
