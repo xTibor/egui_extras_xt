@@ -178,11 +178,10 @@ impl<'a> BarcodeWidget<'a> {
 
 impl<'a> Widget for BarcodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let cached_barcode = {
-            let mut memory = ui.memory();
+        let cached_barcode = ui.memory_mut(|memory| {
             let cache = memory.caches.cache::<BarcodeCache<'_>>();
             cache.get((self.barcode_kind, self.value))
-        };
+        });
 
         if let Ok(barcode) = cached_barcode.borrow() {
             let bar_width = self.bar_width as f32 / ui.ctx().pixels_per_point();

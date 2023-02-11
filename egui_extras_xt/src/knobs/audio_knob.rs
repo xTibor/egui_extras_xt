@@ -165,7 +165,7 @@ impl<'a> Widget for AudioKnob<'a> {
                 );
             }
 
-            if let Some(snap_angle) = if ui.input().modifiers.shift_only() {
+            if let Some(snap_angle) = if ui.input(|input| input.modifiers.shift_only()) {
                 self.shift_snap
             } else {
                 self.snap

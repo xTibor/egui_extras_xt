@@ -233,7 +233,7 @@ impl<'a> Widget for LinearCompass<'a> {
                 );
             }
 
-            if let Some(snap_angle) = if child_ui.input().modifiers.shift_only() {
+            if let Some(snap_angle) = if child_ui.input(|input| input.modifiers.shift_only()) {
                 self.shift_snap
             } else {
                 self.snap

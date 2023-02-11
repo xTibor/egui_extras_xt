@@ -237,11 +237,10 @@ impl<'a> DirectoryTreeViewWidget<'a> {
         }
 
         let body_response = collapsing_state.show_body_indented(&header_response, ui, |ui| {
-            let cached_directory_listing = {
-                let mut memory = ui.memory();
-                let cache = memory.caches.cache::<DirectoryCache<'_>>();
+            let cached_directory_listing = ui.memory_mut(|mem| {
+                let cache = mem.caches.cache::<DirectoryCache<'_>>();
                 cache.get(directory_path)
-            };
+            });
 
             match cached_directory_listing.borrow() {
                 Ok(cached_directory_listing) => {

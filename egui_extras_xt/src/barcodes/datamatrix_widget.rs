@@ -72,11 +72,10 @@ impl<'a> DataMatrixWidget<'a> {
 
 impl<'a> Widget for DataMatrixWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let cached_bitmap = {
-            let mut memory = ui.memory();
+        let cached_bitmap = ui.memory_mut(|memory| {
             let cache = memory.caches.cache::<DataMatrixCache<'_>>();
             cache.get(self.value)
-        };
+        });
 
         if let Ok(bitmap) = cached_bitmap.borrow() {
             let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();
