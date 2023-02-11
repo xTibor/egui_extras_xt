@@ -67,11 +67,10 @@ impl<'a> QrCodeWidget<'a> {
 
 impl<'a> Widget for QrCodeWidget<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let cached_qr_code = {
-            let mut memory = ui.memory();
+        let cached_qr_code = ui.memory_mut(|memory| {
             let cache = memory.caches.cache::<QrCodeCache<'_>>();
             cache.get(self.value)
-        };
+        });
 
         if let Ok(qr_code) = cached_qr_code.borrow() {
             let module_size = self.module_size as f32 / ui.ctx().pixels_per_point();

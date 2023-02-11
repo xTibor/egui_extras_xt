@@ -234,7 +234,7 @@ impl<'a> Widget for AngleKnob<'a> {
             new_value = snap_wrap_constrain_angle(
                 prev_value,
                 new_value,
-                if ui.input().modifiers.shift_only() {
+                if ui.input(|input| input.modifiers.shift_only()) {
                     self.shift_snap
                 } else {
                     self.snap

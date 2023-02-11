@@ -281,11 +281,11 @@ impl<'a> Widget for PolarCompass<'a> {
 
         if response.drag_started() {
             let value_before_drag = get(&mut self.get_set_value);
-            ui.memory().data.insert_temp(response.id, value_before_drag);
+            ui.memory_mut(|memory| memory.data.insert_temp(response.id, value_before_drag));
         }
 
         if response.drag_released() {
-            ui.memory().data.remove::<f32>(response.id);
+            ui.memory_mut(|memory| memory.data.remove::<f32>(response.id));
         }
 
         if response.dragged() {
@@ -293,19 +293,19 @@ impl<'a> Widget for PolarCompass<'a> {
                 -(rotation_matrix * (rect.center() - pos)).angle() * self.winding.to_float()
             };
 
-            let value_before_drag = ui.memory().data.get_temp::<f32>(response.id).unwrap();
+            let value_before_drag = ui.memory_mut(|memory| memory.data.get_temp::<f32>(response.id).unwrap());
             let prev_value = get(&mut self.get_set_value);
 
             let mut new_value = normalized_angle(
                 screen_pos_to_angle(response.interact_pointer_pos().unwrap())
-                    - screen_pos_to_angle(ui.input().pointer.press_origin().unwrap())
+                    - screen_pos_to_angle(ui.input(|input| input.pointer.press_origin().unwrap()))
                     + value_before_drag,
             );
 
             new_value = snap_wrap_constrain_angle(
                 prev_value,
                 new_value,
-                if ui.input().modifiers.shift_only() {
+                if ui.input(|input| input.modifiers.shift_only()) {
                     self.shift_snap
                 } else {
                     self.snap

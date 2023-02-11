@@ -52,7 +52,7 @@ impl eframe::App for GlyphEditorApp {
                                 .on_hover_text("\u{1F5D0} Copy to clipboard")
                                 .clicked()
                             {
-                                ui.output().copied_text = hex_value;
+                                ui.output_mut(|output| output.copied_text = hex_value);
                             }
                         }
                     });

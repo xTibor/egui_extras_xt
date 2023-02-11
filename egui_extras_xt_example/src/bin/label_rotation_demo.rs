@@ -38,8 +38,8 @@ impl eframe::App for LabelRotationDemo {
             });
         });
 
-        self.angle = (ctx.input().time * TAU / 9.0) as f32;
-        self.hue = ((ctx.input().time / 3.0) % 1.0) as f32;
+        self.angle = (ctx.input(|input| input.time) * TAU / 9.0) as f32;
+        self.hue = ((ctx.input(|input| input.time) / 3.0) % 1.0) as f32;
         ctx.request_repaint();
     }
 }

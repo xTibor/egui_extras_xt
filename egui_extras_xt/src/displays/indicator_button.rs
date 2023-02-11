@@ -151,15 +151,15 @@ impl<'a> Widget for IndicatorButton<'a> {
                 }
 
                 if response.has_focus() {
-                    if ui.ctx().input().key_pressed(Key::Enter)
-                        || ui.ctx().input().key_pressed(Key::Space)
+                    if ui.ctx().input(|input| input.key_pressed(Key::Enter))
+                        || ui.ctx().input(|input| input.key_pressed(Key::Space))
                     {
                         set(&mut self.get_set_value, true);
                         response.mark_changed();
                     }
 
-                    if ui.ctx().input().key_released(Key::Enter)
-                        || ui.ctx().input().key_released(Key::Space)
+                    if ui.ctx().input(|input| input.key_released(Key::Enter))
+                        || ui.ctx().input(|input| input.key_released(Key::Space))
                     {
                         set(&mut self.get_set_value, false);
                         response.mark_changed();
