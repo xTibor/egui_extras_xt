@@ -1,5 +1,3 @@
-#![feature(step_trait)]
-
 mod hash;
 
 pub mod common;

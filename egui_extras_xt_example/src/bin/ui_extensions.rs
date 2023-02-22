@@ -7,9 +7,6 @@ use egui_extras_xt::ui::optional_value_widget::OptionalValueWidget;
 use egui_extras_xt::ui::widgets_from_iter::{
     ComboBoxFromIter, RadioValueFromIter, SelectableValueFromIter,
 };
-use egui_extras_xt::ui::widgets_from_range::{
-    ComboBoxFromRange, RadioValueFromRange, SelectableValueFromRange,
-};
 use egui_extras_xt::ui::widgets_from_slice::{
     ComboBoxFromSlice, RadioValueFromSlice, SelectableValueFromSlice,
 };
@@ -184,12 +181,12 @@ impl eframe::App for UiExtensionsExample {
             });
             ui.add_space(16.0);
 
-            ui.push_id("from_range", |ui| {
+            ui.push_id("from_iter_range", |ui| {
                 ui.group(|ui| {
                     ui.horizontal_wrapped(|ui| {
                         debug_print_response(
-                            "selectable_value_from_range",
-                            ui.selectable_value_from_range(&mut self.coffee_count, 1..=17),
+                            "selectable_value_from_iter",
+                            ui.selectable_value_from_iter(&mut self.coffee_count, 1..=17),
                         );
                     });
 
@@ -197,8 +194,8 @@ impl eframe::App for UiExtensionsExample {
 
                     ui.horizontal_wrapped(|ui| {
                         debug_print_response(
-                            "combobox_from_range",
-                            ui.combobox_from_range("Coffee count", &mut self.coffee_count, 1..=17),
+                            "combobox_from_iter",
+                            ui.combobox_from_iter("Coffee count", &mut self.coffee_count, 1..=17),
                         );
                     });
 
@@ -206,8 +203,8 @@ impl eframe::App for UiExtensionsExample {
 
                     ui.horizontal_wrapped(|ui| {
                         debug_print_response(
-                            "radio_value_from_range",
-                            ui.radio_value_from_range(&mut self.coffee_count, 1..=17),
+                            "radio_value_from_iter",
+                            ui.radio_value_from_iter(&mut self.coffee_count, 1..=17),
                         );
                     });
                 });
