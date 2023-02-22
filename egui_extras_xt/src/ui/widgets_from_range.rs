@@ -1,5 +1,4 @@
 use std::fmt::Display;
-use std::iter::Step;
 use std::ops::RangeInclusive;
 
 use egui::{ComboBox, Response, Ui, WidgetText};
@@ -10,18 +9,18 @@ pub trait SelectableValueFromRange<Value> {
     fn selectable_value_from_range(
         &mut self,
         current_value: &mut Value,
-        range: RangeInclusive<Value>,
+        range: impl Iterator<Item = Value>,
     ) -> Response;
 }
 
 impl<Value> SelectableValueFromRange<Value> for Ui
 where
-    Value: PartialEq + Display + Copy + Step,
+    Value: PartialEq + Display + Copy,
 {
     fn selectable_value_from_range(
         &mut self,
         current_value: &mut Value,
-        range: RangeInclusive<Value>,
+        range: impl Iterator<Item = Value>,
     ) -> Response {
         range
             .map(|value| self.selectable_value(current_value, value, format!("{value}")))
@@ -38,18 +37,18 @@ pub trait RadioValueFromRange<Value> {
     fn radio_value_from_range(
         &mut self,
         current_value: &mut Value,
-        range: RangeInclusive<Value>,
+        range: impl Iterator<Item = Value>,
     ) -> Response;
 }
 
 impl<Value> RadioValueFromRange<Value> for Ui
 where
-    Value: PartialEq + Display + Copy + Step,
+    Value: PartialEq + Display + Copy,
 {
     fn radio_value_from_range(
         &mut self,
         current_value: &mut Value,
-        range: RangeInclusive<Value>,
+        range: impl Iterator<Item = Value>,
     ) -> Response {
         range
             .map(|value| self.radio_value(current_value, value, format!("{value}")))
@@ -67,19 +66,19 @@ pub trait ComboBoxFromRange<Value> {
         &mut self,
         label: impl Into<WidgetText>,
         current_value: &mut Value,
-        range: RangeInclusive<Value>,
+        range: impl Iterator<Item = Value>,
     ) -> Response;
 }
 
 impl<Value> ComboBoxFromRange<Value> for Ui
 where
-    Value: PartialEq + Display + Copy + Step,
+    Value: PartialEq + Display + Copy,
 {
     fn combobox_from_range(
         &mut self,
         label: impl Into<WidgetText>,
         current_value: &mut Value,
-        range: RangeInclusive<Value>,
+        range: impl Iterator<Item = Value>,
     ) -> Response {
         let combobox_response = ComboBox::from_label(label)
             .selected_text(format!("{current_value}"))
