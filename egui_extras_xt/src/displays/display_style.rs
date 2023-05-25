@@ -109,6 +109,9 @@ pub enum DisplayStylePreset {
 
     #[strum(to_string = "Yamaha MU2000")]
     YamahaMU2000,
+
+    #[strum(to_string = "Dracula")]
+    Dracula,
 }
 
 impl DisplayStylePreset {
@@ -190,6 +193,13 @@ impl DisplayStylePreset {
                 active_foreground_color: Color32::from_rgb(0x04, 0x4A, 0x00),
                 active_foreground_stroke: Stroke::NONE,
                 inactive_foreground_color: Color32::from_rgb(0x7B, 0xCE, 0x02),
+                inactive_foreground_stroke: Stroke::NONE,
+            },
+            DisplayStylePreset::Dracula => DisplayStyle {
+                background_color: Color32::from_rgb(0x26, 0x12, 0x1E), // Dracula pink, HSV(.., .., 15%)
+                active_foreground_color: Color32::from_rgb(0xFF, 0x79, 0xC6), // Dracula pink, HSV(.., .., 100%)
+                active_foreground_stroke: Stroke::NONE,
+                inactive_foreground_color: Color32::from_rgb(0x41, 0x1F, 0x33), // Dracula pink, HSV(.., .., 25%)
                 inactive_foreground_stroke: Stroke::NONE,
             },
         }
