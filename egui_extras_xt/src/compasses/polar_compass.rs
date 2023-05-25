@@ -293,7 +293,8 @@ impl<'a> Widget for PolarCompass<'a> {
                 -(rotation_matrix * (rect.center() - pos)).angle() * self.winding.to_float()
             };
 
-            let value_before_drag = ui.memory_mut(|memory| memory.data.get_temp::<f32>(response.id).unwrap());
+            let value_before_drag =
+                ui.memory_mut(|memory| memory.data.get_temp::<f32>(response.id).unwrap());
             let prev_value = get(&mut self.get_set_value);
 
             let mut new_value = normalized_angle(

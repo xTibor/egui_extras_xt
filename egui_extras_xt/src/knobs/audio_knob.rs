@@ -149,7 +149,8 @@ impl<'a> Widget for AudioKnob<'a> {
             let mut new_value = get(&mut self.get_set_value);
 
             let delta = drag_delta.x + drag_delta.y * self.winding.to_float();
-            new_value += delta * (self.range.end() - self.range.start()) / (self.diameter * self.drag_length);
+            new_value += delta * (self.range.end() - self.range.start())
+                / (self.diameter * self.drag_length);
 
             set(&mut self.get_set_value, constrain_value(new_value));
             response.mark_changed();

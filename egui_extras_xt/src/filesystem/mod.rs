@@ -3,8 +3,8 @@ mod directory_cache;
 mod directory_tree_view;
 mod path_symbol;
 
-pub use directory_tree_view::DirectoryTreeViewWidget;
 pub use breadcrumb_bar::BreadcrumbBar;
+pub use directory_tree_view::DirectoryTreeViewWidget;
 
 // ----------------------------------------------------------------------------
 
