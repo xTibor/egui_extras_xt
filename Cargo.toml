@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = [
     "egui_extras_xt",
     "egui_extras_xt_example",
