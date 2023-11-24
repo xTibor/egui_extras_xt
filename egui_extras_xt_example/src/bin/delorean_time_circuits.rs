@@ -1,5 +1,4 @@
 use eframe::egui;
-use eframe::emath::vec2;
 
 use egui_extras_xt::displays::{DisplayStylePreset, LedDisplay, SegmentedDisplayWidget};
 
@@ -146,7 +145,7 @@ impl eframe::App for TimeCircuitsExample {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(878.0, 422.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([878.0, 422.0]),
         ..Default::default()
     };
 

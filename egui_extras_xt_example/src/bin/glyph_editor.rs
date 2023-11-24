@@ -1,5 +1,4 @@
 use eframe::egui::{self};
-use eframe::emath::vec2;
 use eframe::epaint::Vec2;
 
 use strum::IntoEnumIterator;
@@ -91,7 +90,7 @@ impl eframe::App for GlyphEditorApp {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(570.0, 410.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([570.0, 410.0]),
         ..Default::default()
     };
 

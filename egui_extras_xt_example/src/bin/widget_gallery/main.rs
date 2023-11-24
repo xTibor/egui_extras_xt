@@ -4,7 +4,6 @@ use std::collections::HashMap;
 
 use eframe::egui::panel::Side;
 use eframe::egui::{self, TextEdit};
-use eframe::emath::vec2;
 
 use egui_extras_xt::show_about_window;
 use egui_extras_xt::ui::standard_buttons::StandardButtons;
@@ -161,7 +160,7 @@ impl eframe::App for WidgetGallery {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(800.0, 600.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 600.0]),
         ..Default::default()
     };
 

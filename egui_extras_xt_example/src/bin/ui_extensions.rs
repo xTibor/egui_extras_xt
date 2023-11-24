@@ -1,5 +1,4 @@
 use eframe::egui::{self, DragValue, Response};
-use eframe::emath::vec2;
 
 use strum::{Display, EnumIter, IntoEnumIterator};
 
@@ -216,7 +215,7 @@ impl eframe::App for UiExtensionsExample {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(640.0, 480.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]),
         ..Default::default()
     };
 

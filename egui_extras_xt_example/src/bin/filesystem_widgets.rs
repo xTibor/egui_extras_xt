@@ -2,7 +2,6 @@ use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use eframe::egui::{self, Ui};
-use eframe::emath::vec2;
 use egui_extras_xt::filesystem::{BreadcrumbBar, DirectoryTreeViewWidget};
 
 struct FilesystemWidgetsExample {
@@ -131,7 +130,7 @@ impl eframe::App for FilesystemWidgetsExample {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(320.0, 480.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 480.0]),
         ..Default::default()
     };
 

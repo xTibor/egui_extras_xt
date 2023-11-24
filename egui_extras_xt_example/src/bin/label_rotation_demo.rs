@@ -1,8 +1,8 @@
 use std::f64::consts::TAU;
 
+use eframe::egui;
 use eframe::egui::ecolor::Hsva;
 use eframe::egui::{CentralPanel, Context, Direction, Layout, TextStyle};
-use eframe::emath::vec2;
 
 use egui_extras_xt::ui::rotated_label::RotatedLabel;
 
@@ -46,7 +46,7 @@ impl eframe::App for LabelRotationDemo {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(500.0, 500.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([500.0, 500.0]),
         ..Default::default()
     };
 

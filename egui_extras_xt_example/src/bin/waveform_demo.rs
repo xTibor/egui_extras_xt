@@ -1,7 +1,6 @@
 use std::f32::consts::TAU;
 
 use eframe::egui::{self, DragValue};
-use eframe::emath::vec2;
 
 use egui_extras_xt::displays::{BufferLayout, WaveformDisplayWidget};
 
@@ -31,6 +30,7 @@ impl Default for WaveformDemoApp {
 }
 
 impl WaveformDemoApp {
+    #[allow(clippy::iter_skip_zero)]
     fn regenerate_buffer(&mut self) {
         for (index, sample) in self.buffer.iter_mut().skip(0).step_by(2).enumerate() {
             let q = index as f32 * (self.left_frequency / OUTPUT_FREQUENCY as f32) + self.phase;
@@ -82,7 +82,7 @@ impl eframe::App for WaveformDemoApp {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(640.0, 480.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]),
         ..Default::default()
     };
 

@@ -1,5 +1,4 @@
 use eframe::egui;
-use eframe::emath::vec2;
 
 use egui_extras_xt::show_about_window;
 
@@ -20,7 +19,7 @@ impl eframe::App for AboutWindowExample {
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(vec2(640.0, 480.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]),
         ..Default::default()
     };
 

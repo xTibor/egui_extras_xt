@@ -150,6 +150,7 @@ impl<'a> Widget for DirectoryTreeViewWidget<'a> {
 }
 
 impl<'a> DirectoryTreeViewWidget<'a> {
+    #[allow(clippy::collapsible_if)]
     fn show_directory(
         &mut self,
         ui: &mut Ui,
