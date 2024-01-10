@@ -24,10 +24,11 @@ impl RotatedLabel {
 
 impl Widget for RotatedLabel {
     fn ui(self, ui: &mut Ui) -> Response {
+        let text_color = ui.style().visuals.text_color();
+
         let galley = {
-            let color = ui.style().visuals.text_color();
             let font_id = FontSelection::Default.resolve(ui.style());
-            ui.painter().layout_no_wrap(self.text, font_id, color)
+            ui.painter().layout_no_wrap(self.text, font_id, text_color)
         };
 
         let rotation = Rot2::from_angle(self.angle);
@@ -43,7 +44,7 @@ impl Widget for RotatedLabel {
 
             ui.painter().add(TextShape {
                 angle: self.angle,
-                ..TextShape::new(pos, galley)
+                ..TextShape::new(pos, galley, text_color)
             });
         }
 

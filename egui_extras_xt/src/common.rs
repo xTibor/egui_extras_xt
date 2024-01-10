@@ -390,6 +390,7 @@ impl RotatedText for Painter {
             ..TextShape::new(
                 pos - Rot2::from_angle(angle) * (half_size + (anchor.to_sign() * half_size)),
                 galley,
+                text_color,
             )
         });
 
