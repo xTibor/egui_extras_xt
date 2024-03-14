@@ -150,26 +150,30 @@ impl<'a> Widget for BreadcrumbBar<'a> {
                     if let Some((context_menu_contents, context_menu_enabled)) =
                         &self.directory_context_menu
                     {
-                        response = response.context_menu(|ui| {
-                            let context_menu_enabled = context_menu_enabled(&path_prefix);
+                        response
+                            .context_menu(|ui| {
+                                let context_menu_enabled = context_menu_enabled(&path_prefix);
 
-                            if context_menu_enabled {
-                                context_menu_contents(ui, &path_prefix);
-                            }
-
-                            if self.allow_navigation {
                                 if context_menu_enabled {
-                                    ui.separator();
+                                    context_menu_contents(ui, &path_prefix);
                                 }
 
-                                if ui
-                                    .button(format!("Contents of {:?}", path_prefix))
-                                    .clicked()
-                                {
-                                    ui.close_menu();
+                                if self.allow_navigation {
+                                    if context_menu_enabled {
+                                        ui.separator();
+                                    }
+
+                                    if ui
+                                        .button(format!("Contents of {:?}", path_prefix))
+                                        .clicked()
+                                    {
+                                        ui.close_menu();
+                                    }
                                 }
-                            }
-                        });
+                            })
+                            .map(|resp| {
+                                response = resp.response;
+                            });
                     }
                 } else {
                     if let Some((hover_ui_contents, hover_ui_enabled)) = &self.file_hover_ui {
@@ -183,8 +187,11 @@ impl<'a> Widget for BreadcrumbBar<'a> {
                         &self.file_context_menu
                     {
                         if context_menu_enabled(&path_prefix) {
-                            response =
-                                response.context_menu(|ui| context_menu_contents(ui, &path_prefix));
+                            response
+                                .context_menu(|ui| context_menu_contents(ui, &path_prefix))
+                                .map(|resp| {
+                                    response = resp.response;
+                                });
                         }
                     }
                 }
