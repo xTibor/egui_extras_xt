@@ -137,7 +137,11 @@ impl<'a> Widget for BreadcrumbBar<'a> {
                     format!("{component_symbol} {component_name}")
                 };
 
-                let mut response = ui.add(Label::new(component_label).sense(Sense::click()));
+                let mut response = ui.add(
+                    Label::new(component_label)
+                        .selectable(false)
+                        .sense(Sense::click()),
+                );
 
                 if path_prefix.is_dir() {
                     if let Some((hover_ui_contents, hover_ui_enabled)) = &self.directory_hover_ui {

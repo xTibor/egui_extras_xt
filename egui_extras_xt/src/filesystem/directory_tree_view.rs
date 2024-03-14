@@ -200,7 +200,11 @@ impl<'a> DirectoryTreeViewWidget<'a> {
                         response
                     } else {
                         // TODO: Same font and metrics as selectable_value
-                        let response = ui.add(Label::new(directory_label).sense(Sense::click()));
+                        let response = ui.add(
+                            Label::new(directory_label)
+                                .selectable(false)
+                                .sense(Sense::click()),
+                        );
 
                         if response.clicked() {
                             collapsing_state.toggle(ui);
