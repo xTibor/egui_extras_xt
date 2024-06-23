@@ -227,7 +227,7 @@ impl<'a> Widget for ThumbstickWidget<'a> {
             response.mark_changed();
         }
 
-        if response.drag_released() && self.auto_center {
+        if response.drag_stopped() && self.auto_center {
             let x_center = lerp(self.range_x.clone(), 0.5);
             let y_center = lerp(self.range_y.clone(), 0.5);
 

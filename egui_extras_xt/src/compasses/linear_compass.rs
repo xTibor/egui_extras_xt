@@ -223,7 +223,7 @@ impl<'a> Widget for LinearCompass<'a> {
             response.mark_changed();
         }
 
-        if response.drag_released() {
+        if response.drag_stopped() {
             if self.animated {
                 child_ui.ctx().clear_animations();
                 child_ui.ctx().animate_value_with_time(

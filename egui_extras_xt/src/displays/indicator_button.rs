@@ -145,7 +145,7 @@ impl<'a> Widget for IndicatorButton<'a> {
                 }
             }
             IndicatorButtonBehavior::Hold => {
-                if response.drag_started() || response.drag_released() {
+                if response.drag_started() || response.drag_stopped() {
                     set(&mut self.get_set_value, response.dragged());
                     response.mark_changed();
                 }

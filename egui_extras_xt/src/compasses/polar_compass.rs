@@ -284,7 +284,7 @@ impl<'a> Widget for PolarCompass<'a> {
             ui.memory_mut(|memory| memory.data.insert_temp(response.id, value_before_drag));
         }
 
-        if response.drag_released() {
+        if response.drag_stopped() {
             ui.memory_mut(|memory| memory.data.remove::<f32>(response.id));
         }
 

@@ -156,7 +156,7 @@ impl<'a> Widget for AudioKnob<'a> {
             response.mark_changed();
         }
 
-        if response.drag_released() {
+        if response.drag_stopped() {
             if self.animated {
                 ui.ctx().clear_animations();
                 ui.ctx().animate_value_with_time(
