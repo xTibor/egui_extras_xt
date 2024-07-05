@@ -3,7 +3,9 @@ use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use egui::collapsing_header::{paint_default_icon, CollapsingState};
-use egui::{Align, InnerResponse, Label, Layout, Response, ScrollArea, Sense, Ui, Widget};
+use egui::{
+    Align, InnerResponse, Label, Layout, Response, ScrollArea, Sense, TextWrapMode, Ui, Widget,
+};
 use itertools::Itertools;
 
 use crate::filesystem::directory_cache::DirectoryCache;
@@ -138,7 +140,7 @@ impl<'a> Widget for DirectoryTreeViewWidget<'a> {
         ScrollArea::both()
             .auto_shrink([false, false])
             .show(ui, |ui| {
-                ui.style_mut().wrap = Some(false);
+                ui.style_mut().wrap_mode = Some(TextWrapMode::Extend);
                 ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     self.show_directory(ui, self.root_directory, true)
                         .unwrap_or_else(|| ui.scope(|_| {}).response) // Null response

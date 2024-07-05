@@ -191,7 +191,7 @@ impl<'a> Widget for LinearCompass<'a> {
             },
         );
 
-        let mut child_ui = ui.child_ui(rect, *ui.layout());
+        let mut child_ui = ui.child_ui(rect, *ui.layout(), None);
         child_ui.set_clip_rect(child_ui.clip_rect().intersect(rect));
 
         let constrain_value = |mut value| {

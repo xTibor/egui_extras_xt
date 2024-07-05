@@ -97,6 +97,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Glyph Editor",
         options,
-        Box::new(|_| Box::<GlyphEditorApp>::default()),
+        Box::new(|_| Ok(Box::<GlyphEditorApp>::default())),
     )
 }

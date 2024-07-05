@@ -137,6 +137,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Filesystem widgets example",
         options,
-        Box::new(|_| Box::<FilesystemWidgetsExample>::default()),
+        Box::new(|_| Ok(Box::<FilesystemWidgetsExample>::default())),
     )
 }

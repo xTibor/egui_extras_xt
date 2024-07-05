@@ -222,6 +222,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Ui extensions",
         options,
-        Box::new(|_| Box::<UiExtensionsExample>::default()),
+        Box::new(|_| Ok(Box::<UiExtensionsExample>::default())),
     )
 }

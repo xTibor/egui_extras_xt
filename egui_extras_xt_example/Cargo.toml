@@ -17,6 +17,6 @@ maintenance = { status = "as-is" }
 [dependencies]
 egui_extras_xt = { path = "../egui_extras_xt/", features = ["barcodes", "compasses", "displays", "filesystem", "knobs", "ui"] }
 
-eframe = "0.27"
-itertools = "0.12.0"
-strum = { version = "0.26.2", features = ["derive"] }
+eframe = "0.28"
+itertools = "0.13.0"
+strum = { version = "0.26.3", features = ["derive"] }

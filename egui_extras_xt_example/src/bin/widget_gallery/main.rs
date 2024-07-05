@@ -89,7 +89,7 @@ impl eframe::App for WidgetGallery {
                         page_id.to_string().to_lowercase().contains(&q)
                     })
                     .sorted_by_key(|(_page_id, feature)| *feature)
-                    .group_by(|(_page_id, feature)| *feature)
+                    .chunk_by(|(_page_id, feature)| *feature)
                     .into_iter()
                     .for_each(|(feature, pages)| {
                         if let Some(feature) = feature {
@@ -167,6 +167,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Widget Gallery",
         options,
-        Box::new(|_| Box::<WidgetGallery>::default()),
+        Box::new(|_| Ok(Box::<WidgetGallery>::default())),
     )
 }

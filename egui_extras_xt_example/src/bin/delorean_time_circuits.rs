@@ -152,6 +152,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "DeLorean Time Circuits",
         options,
-        Box::new(|_| Box::<TimeCircuitsExample>::default()),
+        Box::new(|_| Ok(Box::<TimeCircuitsExample>::default())),
     )
 }
