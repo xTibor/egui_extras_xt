@@ -3,7 +3,11 @@ use std::sync::Arc;
 
 use barcoders::error::Error;
 use egui::util::cache::{ComputerMut, FrameCache};
-use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, Ui, Widget};
+use egui::{
+    vec2, Align2, Color32, FontFamily, FontId, Rect, Response, Sense, Stroke, StrokeKind, Ui,
+    Widget,
+};
+use emath::GuiRounding;
 
 use barcoders::sym::codabar::Codabar;
 use barcoders::sym::code11::Code11;
@@ -202,9 +206,10 @@ impl<'a> Widget for BarcodeWidget<'a> {
             if ui.is_rect_visible(rect) {
                 ui.painter().rect(
                     rect,
-                    ui.style().visuals.noninteractive().rounding,
+                    ui.style().visuals.noninteractive().corner_radius,
                     self.background_color,
                     Stroke::NONE,
+                    StrokeKind::Middle,
                 );
 
                 barcode
@@ -213,16 +218,16 @@ impl<'a> Widget for BarcodeWidget<'a> {
                     .filter(|&(_bar_index, bar_value)| *bar_value == 1)
                     .map(|(bar_index, _bar_value)| {
                         Rect::from_min_size(
-                            ui.painter().round_pos_to_pixels(
-                                rect.left_top()
-                                    + vec2(self.horizontal_padding, self.vertical_padding),
-                            ) + vec2(bar_width * bar_index as f32, 0.0),
+                            (rect.left_top()
+                                + vec2(self.horizontal_padding, self.vertical_padding))
+                            .round_to_pixels(ui.pixels_per_point())
+                                + vec2(bar_width * bar_index as f32, 0.0),
                             vec2(bar_width, self.bar_height),
                         )
                     })
                     .for_each(|bar_rect| {
                         ui.painter()
-                            .rect(bar_rect, 0.0, self.foreground_color, Stroke::NONE);
+                            .rect_filled(bar_rect, 0.0, self.foreground_color);
                     });
 
                 if let Some(label) = self.label {

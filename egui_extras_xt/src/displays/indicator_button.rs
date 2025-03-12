@@ -1,4 +1,6 @@
-use egui::{vec2, Align2, FontFamily, FontId, Key, Rect, Response, Sense, Stroke, Ui, Widget};
+use egui::{
+    vec2, Align2, FontFamily, FontId, Key, Rect, Response, Sense, Stroke, StrokeKind, Ui, Widget,
+};
 use strum::{Display, EnumIter};
 
 use crate::displays::{DisplayStyle, DisplayStylePreset};
@@ -183,8 +185,13 @@ impl<'a> Widget for IndicatorButton<'a> {
                 }
             };
 
-            ui.painter()
-                .rect(rect, visuals.rounding, visuals.bg_fill, visuals.bg_stroke);
+            ui.painter().rect(
+                rect,
+                visuals.corner_radius,
+                visuals.bg_fill,
+                visuals.bg_stroke,
+                StrokeKind::Middle,
+            );
 
             let top_rect = Rect::from_min_max(rect.left_top(), rect.right_center());
             let bottom_rect = Rect::from_min_max(rect.left_center(), rect.right_bottom());
@@ -199,6 +206,7 @@ impl<'a> Widget for IndicatorButton<'a> {
                     4.0,
                     self.style.background_color,
                     Stroke::NONE,
+                    StrokeKind::Middle,
                 );
 
                 ui.painter().rect(
@@ -206,6 +214,7 @@ impl<'a> Widget for IndicatorButton<'a> {
                     4.0,
                     self.style.foreground_color_blend(value),
                     Stroke::NONE,
+                    StrokeKind::Middle,
                 );
             }
 

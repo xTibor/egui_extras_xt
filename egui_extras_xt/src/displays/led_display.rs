@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use egui::{self, remap_clamp, Response, Sense, Ui, Widget};
+use egui::{self, remap_clamp, Response, Sense, StrokeKind, Ui, Widget};
 use emath::Vec2;
 use epaint::Stroke;
 
@@ -83,9 +83,10 @@ impl Widget for LedDisplay {
 
             ui.painter().rect(
                 rect,
-                ui.style().visuals.noninteractive().rounding,
+                ui.style().visuals.noninteractive().corner_radius,
                 self.style.background_color,
                 Stroke::NONE,
+                StrokeKind::Middle,
             );
 
             ui.painter().circle(

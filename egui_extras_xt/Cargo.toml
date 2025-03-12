@@ -15,16 +15,16 @@ publish = false
 maintenance = { status = "as-is" }
 
 [dependencies]
-ecolor = "0.28"
-egui = "0.28"
-emath = "0.28"
-epaint = "0.28"
-itertools = "0.13.0"
-strum = { version = "0.26.3", features = ["derive"] }
+ecolor = "0.31"
+egui = "0.31"
+emath = "0.31"
+epaint = "0.31"
+itertools = "0.14.0"
+strum = { version = "0.27.1", features = ["derive"] }
 
 barcoders = { version = "2.0.0", optional = true }
-datamatrix = { version = "0.3.1", optional = true, default-features = false }
-qrcode = { version = "0.14.0", optional = true, default-features = false }
+datamatrix = { version = "0.3.2", optional = true, default-features = false }
+qrcode = { version = "0.14.1", optional = true, default-features = false }
 
 [features]
 barcodes = ["dep:barcoders", "dep:datamatrix", "dep:qrcode"]

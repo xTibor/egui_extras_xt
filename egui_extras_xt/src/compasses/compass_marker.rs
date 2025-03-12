@@ -1,7 +1,7 @@
 use std::f32::consts::TAU;
 
 use ecolor::Hsva;
-use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Shape, Stroke, Ui, Vec2};
+use egui::{vec2, Align2, Color32, FontFamily, FontId, Rect, Shape, Stroke, StrokeKind, Ui, Vec2};
 use itertools::Itertools;
 use strum::Display;
 
@@ -141,13 +141,21 @@ pub enum CompassMarkerShape {
 }
 
 impl CompassMarkerShape {
-    pub(crate) fn paint(&self, ui: &mut Ui, rect: Rect, fill: Color32, stroke: Stroke) {
+    pub(crate) fn paint(
+        &self,
+        ui: &mut Ui,
+        rect: Rect,
+        fill: Color32,
+        stroke: Stroke,
+        stroke_kind: StrokeKind,
+    ) {
         match *self {
             CompassMarkerShape::Square => {
-                ui.painter().rect(rect, 0.0, fill, stroke);
+                ui.painter().rect(rect, 0.0, fill, stroke, stroke_kind);
             }
             CompassMarkerShape::Circle => {
-                ui.painter().rect(rect, rect.width() / 2.0, fill, stroke);
+                ui.painter()
+                    .rect(rect, rect.width() / 2.0, fill, stroke, stroke_kind);
             }
             CompassMarkerShape::RightArrow => {
                 let rect = Rect::from_center_size(

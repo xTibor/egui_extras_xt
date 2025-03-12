@@ -1,7 +1,7 @@
 use std::f32::consts::TAU;
 
 use ecolor::tint_color_towards;
-use egui::{self, Response, Sense, Ui, Widget};
+use egui::{self, Response, Sense, StrokeKind, Ui, UiBuilder, Widget};
 use emath::{normalized_angle, pos2, vec2, Align2, Rect, Vec2};
 use epaint::{Color32, FontFamily, FontId, Stroke};
 
@@ -191,7 +191,7 @@ impl<'a> Widget for LinearCompass<'a> {
             },
         );
 
-        let mut child_ui = ui.child_ui(rect, *ui.layout(), None);
+        let mut child_ui = ui.new_child(UiBuilder::new().max_rect(rect).layout(*ui.layout()));
         child_ui.set_clip_rect(child_ui.clip_rect().intersect(rect));
 
         let constrain_value = |mut value| {
@@ -269,9 +269,10 @@ impl<'a> Widget for LinearCompass<'a> {
             // Draw the widget background without clipping to avoid truncated outline strokes
             ui.painter().rect(
                 rect,
-                visuals.rounding,
+                visuals.corner_radius,
                 ui.style().visuals.extreme_bg_color,
                 ui.style().visuals.noninteractive().fg_stroke,
+                StrokeKind::Middle,
             );
 
             {
@@ -281,7 +282,8 @@ impl<'a> Widget for LinearCompass<'a> {
                                     text_color: Color32,
                                     shape: CompassMarkerShape,
                                     fill: Color32,
-                                    stroke: Stroke| {
+                                    stroke: Stroke,
+                                    stroke_kind: StrokeKind| {
                     // Early exit when the marker is outside of the bounds of the widget,
                     // plus some safety margin to avoid markers abruptly popping in from the sides.
                     {
@@ -301,7 +303,7 @@ impl<'a> Widget for LinearCompass<'a> {
                             Rect::from_center_size(center, Vec2::splat(self.height * 0.25))
                         };
 
-                        shape.paint(child_ui, marker_rect, fill, stroke);
+                        shape.paint(child_ui, marker_rect, fill, stroke, stroke_kind);
                     }
 
                     // Draw marker text label
@@ -338,6 +340,8 @@ impl<'a> Widget for LinearCompass<'a> {
                             Stroke::new(1.0, stroke_color)
                         };
 
+                        let marker_stroke_kind = StrokeKind::Middle;
+
                         let marker_shape = marker.shape.unwrap_or(self.default_marker_shape);
 
                         paint_marker(
@@ -348,6 +352,7 @@ impl<'a> Widget for LinearCompass<'a> {
                             marker_shape,
                             marker_color,
                             marker_stroke,
+                            marker_stroke_kind,
                         );
                     }
                 }
@@ -361,6 +366,7 @@ impl<'a> Widget for LinearCompass<'a> {
                         CompassMarkerShape::DownArrow,
                         visuals.bg_fill,
                         visuals.fg_stroke,
+                        StrokeKind::Middle,
                     );
                 }
             }

@@ -2,7 +2,8 @@ use std::f32::consts::TAU;
 
 use ecolor::tint_color_towards;
 use egui::{
-    lerp, Align2, FontFamily, FontId, Pos2, Rect, Response, Sense, Shape, Stroke, Ui, Vec2, Widget,
+    lerp, Align2, FontFamily, FontId, Pos2, Rect, Response, Sense, Shape, Stroke, StrokeKind, Ui,
+    Vec2, Widget,
 };
 use emath::normalized_angle;
 
@@ -419,6 +420,8 @@ impl<'a> Widget for PolarCompass<'a> {
                     Stroke::new(1.0, stroke_color)
                 };
 
+                let marker_stroke_kind = StrokeKind::Middle;
+
                 let max_log = (self.max_distance / self.scale_log_mult).symlog(self.scale_log_base);
                 let marker_log =
                     (marker_distance / self.scale_log_mult).symlog(self.scale_log_base);
@@ -444,6 +447,7 @@ impl<'a> Widget for PolarCompass<'a> {
                     Rect::from_center_size(marker_center, Vec2::splat(marker_size)),
                     marker_color,
                     marker_stroke,
+                    marker_stroke_kind,
                 );
 
                 if self.show_marker_labels {

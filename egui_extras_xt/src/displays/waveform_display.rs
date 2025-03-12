@@ -1,7 +1,8 @@
 use std::ops::RangeInclusive;
 
 use egui::{
-    pos2, remap_clamp, vec2, Align2, FontSelection, Rect, Response, Sense, Shape, Ui, Widget,
+    pos2, remap_clamp, vec2, Align2, FontSelection, Rect, Response, Sense, Shape, StrokeKind, Ui,
+    Widget,
 };
 use itertools::Itertools;
 
@@ -224,9 +225,10 @@ where
 
             ui.painter().rect(
                 rect,
-                visuals.rounding,
+                visuals.corner_radius,
                 ui.style().visuals.extreme_bg_color,
                 visuals.fg_stroke,
+                StrokeKind::Middle,
             );
 
             if let Some(buffer) = self.buffer {

@@ -1,4 +1,4 @@
-use egui::{pos2, vec2, Pos2, Response, Sense, Shape, Stroke, Ui, Widget};
+use egui::{pos2, vec2, Pos2, Response, Sense, Shape, Stroke, StrokeKind, Ui, UiBuilder, Widget};
 use itertools::Itertools;
 
 use crate::displays::segmented_display::{
@@ -142,16 +142,17 @@ impl Widget for SegmentedDisplayWidget {
 
         let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
-        let mut child_ui = ui.child_ui(rect, *ui.layout(), None);
+        let mut child_ui = ui.new_child(UiBuilder::new().max_rect(rect).layout(*ui.layout()));
         child_ui.set_clip_rect(child_ui.clip_rect().intersect(rect));
 
         if child_ui.is_rect_visible(rect) {
             // Draw the widget background without clipping
             ui.painter().rect(
                 rect,
-                ui.style().visuals.noninteractive().rounding,
+                ui.style().visuals.noninteractive().corner_radius,
                 self.style.background_color,
                 Stroke::NONE,
+                StrokeKind::Middle,
             );
 
             let segment_geometry = display_impl.geometry(

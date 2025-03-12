@@ -2,7 +2,8 @@ use std::borrow::Borrow;
 use std::sync::Arc;
 
 use egui::util::cache::{ComputerMut, FrameCache};
-use egui::{vec2, Color32, Rect, Response, Sense, Stroke, Ui, Vec2, Widget};
+use egui::{vec2, Color32, Rect, Response, Sense, Stroke, StrokeKind, Ui, Vec2, Widget};
+use emath::GuiRounding;
 
 use qrcode::{Color, QrCode, QrResult};
 
@@ -83,9 +84,10 @@ impl<'a> Widget for QrCodeWidget<'a> {
             if ui.is_rect_visible(rect) {
                 ui.painter().rect(
                     rect,
-                    ui.style().visuals.noninteractive().rounding,
+                    ui.style().visuals.noninteractive().corner_radius,
                     self.background_color,
                     Stroke::NONE,
+                    StrokeKind::Middle,
                 );
 
                 qr_code
@@ -101,15 +103,15 @@ impl<'a> Widget for QrCodeWidget<'a> {
                     })
                     .map(|(x, y)| {
                         Rect::from_min_size(
-                            ui.painter().round_pos_to_pixels(
-                                rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size),
-                            ) + vec2(x as f32, y as f32) * module_size,
+                            (rect.left_top() + Vec2::splat(self.quiet_zone as f32 * module_size))
+                                .round_to_pixels(ui.pixels_per_point())
+                                + vec2(x as f32, y as f32) * module_size,
                             Vec2::splat(module_size),
                         )
                     })
                     .for_each(|module_rect| {
                         ui.painter()
-                            .rect(module_rect, 0.0, self.foreground_color, Stroke::NONE);
+                            .rect_filled(module_rect, 0.0, self.foreground_color);
                     });
             }
 

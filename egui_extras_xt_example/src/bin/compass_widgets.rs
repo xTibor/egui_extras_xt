@@ -1,4 +1,4 @@
-use eframe::egui::{self, global_dark_light_mode_switch};
+use eframe::egui::{self, global_theme_preference_switch};
 
 use egui_extras_xt::compasses::{CompassMarker, CompassMarkerShape, LinearCompass, PolarCompass};
 use egui_extras_xt::ui::standard_buttons::StandardButtons;
@@ -71,7 +71,7 @@ impl eframe::App for CompassWidgetsExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                global_dark_light_mode_switch(ui);
+                global_theme_preference_switch(ui);
                 ui.heading("Compass widgets example");
 
                 if ui.reset_button().clicked() {
