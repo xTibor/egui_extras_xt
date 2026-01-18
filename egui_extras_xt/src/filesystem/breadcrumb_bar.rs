@@ -170,7 +170,7 @@ impl<'a> Widget for BreadcrumbBar<'a> {
                                     .button(format!("Contents of {:?}", path_prefix))
                                     .clicked()
                                 {
-                                    ui.close_menu();
+                                    ui.close();
                                 }
                             }
                         }) {

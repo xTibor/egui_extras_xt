@@ -15,12 +15,12 @@ publish = false
 maintenance = { status = "as-is" }
 
 [dependencies]
-ecolor = "0.31"
-egui = "0.31"
-emath = "0.31"
-epaint = "0.31"
+ecolor = "0.33"
+egui = "0.33"
+emath = "0.33"
+epaint = "0.33"
 itertools = "0.14.0"
-strum = { version = "0.27.1", features = ["derive"] }
+strum = { version = "0.27.2", features = ["derive"] }
 
 barcoders = { version = "2.0.0", optional = true }
 datamatrix = { version = "0.3.2", optional = true, default-features = false }
